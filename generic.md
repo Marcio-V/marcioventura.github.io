@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Resumo Profissional
+title: Resumo 
 description: Sobre mim
 image: assets/images/pic11.jpg
 nav-menu: true
