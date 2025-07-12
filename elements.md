@@ -1,6 +1,7 @@
 ---
 layout: page
-title: Elements
+title: Projetos
+description: Economia • Finanças • Dados
 image: assets/images/pic01.jpg
 nav-menu: true
 ---
@@ -12,12 +13,12 @@ nav-menu: true
 <section id="one">
 	<div class="inner">
 		<header class="major">
-			<h1>Elements</h1>
+			<h1>Projetos</h1>
 		</header>
 
 <!-- Content -->
-<h2 id="content">Sample Content</h2>
-<p>Praesent ac adipiscing ullamcorper semper ut amet ac risus. Lorem sapien ut odio odio nunc. Ac adipiscing nibh porttitor erat risus justo adipiscing adipiscing amet placerat accumsan. Vis. Faucibus odio magna tempus adipiscing a non. In mi primis arcu ut non accumsan vivamus ac blandit adipiscing adipiscing arcu metus praesent turpis eu ac lacinia nunc ac commodo gravida adipiscing eget accumsan ac nunc adipiscing adipiscing.</p>
+<h2 id="content">Apresentação</h2>
+<p>O presente portfólio reúne ferramentas voltadas à sistematização e análise de dados econômicos e financeiros, com aplicações que vão da modelagem macroeconômica à avaliação de ativos. Desenvolvi um hub de integração com APIs públicas (BACEN, IBGE, IPEA), com automação no tratamento e padronização de séries temporais econômicas, permitindo análises robustas e atualizadas para diagnósticos macroeconômicos e projeções. Estruturei modelos de mensuração de carrego e ágio para fundos imobiliários e títulos de crédito privado, com foco na precificação relativa e na eficiência intertemporal de investimentos. Elaborei um compilador unificado de carteiras de investimento, permitindo a consolidação de ativos entre instituições, o monitoramento da evolução patrimonial e a análise de alocação. Criei uma calculadora de Imposto de Renda sobre operações mobiliárias a partir de notas Sinacor, facilitando o cumprimento fiscal com precisão e rastreabilidade. Além disso, desenvolvi uma plataforma de finanças pessoais com integração de modelos de linguagem (LLMs), voltada à geração de insights comportamentais e à análise automatizada de padrões de consumo e poupança. Esses projetos refletem minha capacidade de transformar dados econômicos brutos em inteligência analítica, aliando rigor técnico a aplicações práticas para a compreensão e otimização de decisões financeiras.</p>
 <div class="row">
 	<div class="6u 12u$(small)">
 		<h3>Sem turpis amet semper</h3>
@@ -44,8 +45,8 @@ nav-menu: true
 
 <hr class="major" />
 
-<!-- Elements -->
-<h2 id="elements">Elements</h2>
+<!-- Projetos -->
+<h2 id="Projetos">Projetos</h2>
 <div class="row 200%">
 	<div class="6u 12u$(medium)">
 

@@ -2,16 +2,16 @@
 title: Marcio Ventura
 subtitle: Portfólio Profissional
 email: m.matheus.baptista@gmail.com
-description: Economista, programador e operador de renda variável.
-baseurl: " "
+description: Graduando em Economia, programador e profissional ANBIMA.
+baseurl: ""
 url: "https://marcioventura.github.io"
 author:
-street_address: 1234 Somewhere Road
-city: Nashville
-state: TN
-zip_code: 55555
-country: United States of America
-phone: (716) 555-5555
+street_address:  Tijuca
+city: Rio de Janeiro
+state: RJ
+zip_code: 20550-040
+country: Brasil
+phone: (+55) 21 99541-0676
 
 # homepage tiles
 tiles-source: pages # accepts "posts" or "pages"
@@ -22,13 +22,13 @@ tiles-count: 6
 # Icons are not shown if value is empty
 # You need to restart jekyll for changes to have an effect
 socials:
-  GitHub: https://github.com/andrewbanchich
+  GitHub: https://github.com/economatic
   GitLab:
-  Google-Plus: https://plus.google.com/u/0/+AndrewBanchich
-  Instagram:
-  LinkedIn: https://www.linkedin.com/in/andrew-banchich-a4ba1195
-  Twitter: https://twitter.com/andrewbanchich
-  Facebook:
+  Google-Plus: 
+  Instagram: https://www.instagram.com/matheuss.ventura/
+  LinkedIn: https://www.linkedin.com/in/marciomvbaptista/
+  Twitter: https://x.com/Marcio_Ventur98
+  Streamlit: https://streamlit.io/marcioventura
   Slack:
 
 # build settings
