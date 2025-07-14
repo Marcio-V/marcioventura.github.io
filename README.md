@@ -1,66 +1,62 @@
-# Forty - Jekyll Theme
+# 🌐 Marcio Ventura
 
-A Jekyll version of the "Forty" theme by [HTML5 UP](https://html5up.net/).  
+Bem-vindo ao meu portfólio digital!
 
-![Forty Theme](assets/images/forty.jpg "Forty Theme")
+Este espaço foi concebido para reunir e apresentar, de forma integrada, meus projetos profissionais, pessoais e acadêmicos, além de conteúdos autorais sobre economia, finanças, programação e análise de dados. Aqui você encontrará painéis interativos, publicações, estudos, modelos analíticos e ferramentas desenvolvidas com o propósito de transformar dados em inteligência aplicada.
 
-# How to Use
+## 📌 Apresentação
 
-For those unfamiliar with how Jekyll works, check out [jekyllrb.com](https://jekyllrb.com/) for all the details, 
-or read up on just the basics of [front matter](https://jekyllrb.com/docs/frontmatter/), [writing posts](https://jekyllrb.com/docs/posts/), 
-and [creating pages](https://jekyllrb.com/docs/pages/).
+O presente portfólio reúne ferramentas voltadas à sistematização e análise de dados econômicos e financeiros, com aplicações que vão da modelagem macroeconômica à avaliação de ativos.
 
-Simply fork this repository and start editing the `_config.yml` file!
+- 💻 **Hub de Integração com APIs Públicas** (BACEN, IBGE, IPEA): automatiza o tratamento e padronização de séries temporais econômicas, viabilizando análises robustas e atualizadas para diagnósticos macroeconômicos e projeções.
+- 🧮 **Modelos de Carrego e Ágio** para fundos imobiliários e títulos de crédito privado, com foco em precificação relativa e eficiência intertemporal.
+- 📊 **Compilador Unificado de Carteiras de Investimento**: permite a consolidação de ativos entre instituições, o monitoramento da evolução patrimonial e a análise estratégica de alocação.
+- 🧾 **Calculadora de IR sobre Operações em Renda Variável**: baseada em notas Sinacor, facilita o cumprimento fiscal com precisão e rastreabilidade.
+- 🧠 **Plataforma de Finanças Pessoais com LLMs**: integração de modelos de linguagem para geração de insights comportamentais e análise automatizada de padrões de consumo e poupança.
 
-> NOTE: GitHub Actions is required to deploy to GitHub Pages because GitHub [refuses to update their version of Jekyll](https://github.com/github/pages-gem/issues/651).
+Estes projetos refletem minha capacidade de transformar dados econômicos brutos em inteligência analítica, aliando rigor técnico à aplicação prática para apoiar decisões financeiras.
 
-# Added Features
+## 👨‍💼 Sobre Mim
 
-* **[Formspree.io](https://formspree.io/) contact form integration** - just add your email to the `_config.yml` and it works!
-* Use `_config.yml` to **set whether the homepage tiles should pull pages or posts**, as well as how many to display.
-* Add your **social profiles** easily in `_config.yml`. Only social profiles buttons you enter in `config.yml` show up on the site footer!
-* Set **featured images** in front matter.
+Sou **graduando em Ciências Econômicas pela Universidade do Estado do Rio de Janeiro (UERJ)**, com trajetória voltada às finanças quantitativas, modelagem econômica e análise de dados aplicados aos mercados financeiros.
 
-# Credits
+- Ferramentas: **R**, **Python**, **Excel**
+- Atuação: Sales de renda variável, especialista em alocação e programador de ferramentas de apoio à decisão
+- Foco: automação de processos, precisão analítica, eficiência operacional e modelagem preditiva
 
-Original README from HTML5 UP:
+## 🚀 Projetos em Destaque
 
-```
-Forty by HTML5 UP
-html5up.net | @ajlkn
-Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+- **Hub Econômico Automatizado**  
+  Integração com APIs do Banco Central (SGS), IBGE (SIDRA) e IPEADATA para análises macroeconômicas em tempo real.
 
+- **Ferramenta de Apuração de IR em Renda Variável**  
+  Leitura de notas de corretagem e cálculo fiscal com rastreabilidade total.
 
-This is Forty, my latest and greatest addition to HTML5 UP and, per its incredibly
-creative name, my 40th (woohoo)! It's built around a grid of "image tiles" that are
-set up to smoothly transition to secondary landing pages (for which a separate page
-template is provided), and includes a number of neat effects (check out the menu!),
-extra features, and all the usual stuff you'd expect. Hope you dig it!
+- **Modelos de Avaliação para Fundos e Títulos**  
+  Estruturação de métricas personalizadas de carrego e ágio para análise relativa de investimentos.
 
-Demo images* courtesy of Unsplash, a radtastic collection of CC0 (public domain) images
-you can use for pretty much whatever.
+- **Dashboard de Finanças Pessoais**  
+  Aplicação web com KPIs, análises automatizadas e insights gerados por LLMs sobre finanças domésticas.
 
-(* = not included)
+## 📚 Conteúdo
 
-AJ
-aj@lkn.io | @ajlkn
+Além dos projetos, este portfólio também contempla:
 
+- Publicações técnicas e artigos autorais
+- Painéis de dados interativos
+- Análises econômicas comentadas
+- Estudos e simulações quantitativas
 
-Credits:
+## 🤝 Contato
 
-	Demo Images:
-		Unsplash (unsplash.com)
+Se você se interessou por algum projeto, deseja colaborar, trocar ideias ou conversar sobre oportunidades:
 
-	Icons:
-		Font Awesome (fortawesome.github.com/Font-Awesome)
+📧 **Email:** m.matheus.baptista@gmail.com  
+🔗 **LinkedIn:** [linkedin.com/in/marcioventura](https://www.linkedin.com/in/marciomvbaptista/)  
+🌐 **Website:** [marcioventura.github.io](https://marcioventura.com.br)
 
-	Other:
-		jQuery (jquery.com)
-		html5shiv.js (@afarkas @jdalton @jon_neal @rem)
-		background-size polyfill (github.com/louisremi)
-		Misc. Sass functions (@HugoGiraudel)
-		Respond.js (j.mp/respondjs)
-		Skel (skel.io)
-```
+---
 
-Repository [Jekyll logo](https://github.com/jekyll/brand) icon licensed under a [Creative Commons Attribution 4.0 International License](http://choosealicense.com/licenses/cc-by-4.0/).
+**Este repositório é vivo e está em constante evolução.**  
+Fique à vontade para explorar, sugerir melhorias ou apenas se inspirar!
+
