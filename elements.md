@@ -2,7 +2,7 @@
 layout: page
 title: Projetos
 description: Economia • Finanças • Dados
-image: assets/images/pic01.jpg
+image: assets/images/bloomberg.jpg
 nav-menu: true
 ---
 

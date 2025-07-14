@@ -2,7 +2,7 @@
 layout: post
 title: Resumo 
 description: Sobre mim
-image: assets/images/pic11.jpg
+image: assets/images/eu.jpg
 nav-menu: true
 ---
 
