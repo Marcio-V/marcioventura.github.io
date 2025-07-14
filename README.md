@@ -18,7 +18,7 @@ Estes projetos refletem minha capacidade de transformar dados econômicos brutos
 
 ## 👨‍💼 Sobre Mim
 
-Sou **graduando em Ciências Econômicas pela Universidade do Estado do Rio de Janeiro (UERJ)**, com trajetória voltada às finanças quantitativas, modelagem econômica e análise de dados aplicados aos mercados financeiros.
+Sou **graduando em Ciências Econômicas pela Universidade do Estado do Rio de Janeiro (UERJ)**, com trajetória voltada às finanças quantitativas, modelagem econômica e análise de dados aplicados ao mercado financeiro e à analise econômica.
 
 - Ferramentas: **R**, **Python**, **Excel**
 - Atuação: Sales de renda variável, especialista em alocação e programador de ferramentas de apoio à decisão
