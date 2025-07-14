@@ -2,7 +2,7 @@
 layout: home
 title: Home
 landing-title: 'Bem-vindo'
-description: null
+description: null 
 image: null
 author: null
 show_tile: false

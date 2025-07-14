@@ -75,11 +75,11 @@ nav-menu: true
 <section id="three">
 	<div class="inner">
 		<header class="major">
-			<h2>Massa libero</h2>
+			<h2>Sobre mim</h2>
 		</header>
-		<p>Nullam et orci eu lorem consequat tincidunt vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus pharetra. Pellentesque condimentum sem. In efficitur ligula tate urna. Maecenas laoreet massa vel lacinia pellentesque lorem ipsum dolor. Nullam et orci eu lorem consequat tincidunt. Vivamus et sagittis libero. Mauris aliquet magna magna sed nunc rhoncus amet pharetra et feugiat tempus.</p>
+		<p>Navegue por um panorama estratégico que marca minha trajetória acadêmica e profissional. Esta seção oferece uma visão concisa das experiências e qualificações que construíram minha expertise, capacitando-me a gerar resultados e inovar no cenário profissional. Explore as etapas que moldaram minha formação e o desenvolvimento de competências essenciais.</p>
 		<ul class="actions">
-			<li><a href="generic.html" class="button next">Comerçar</a></li>
+			<li><a href="generic.html" class="button next">Ir</a></li>
 		</ul>
 	</div>
 </section>

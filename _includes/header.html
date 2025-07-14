@@ -3,7 +3,7 @@
 
 <!-- Header -->
 <header id="header"{% if page.layout == "landing" %} class="alt style2"{% endif %}{% if page.layout == "home" %} class="alt"{% endif %}>
-	<a href="{{ "" | absolute_url }}/" class="logo"><strong>{{ site.title }}</strong> <span>{{ site.subtitle }}</span></a>
+	<a href="{{ site.baseurl }}/" class="logo"><strong>{{ site.title }}</strong> <span>{{ site.subtitle }}</span></a>
 	<nav>
 		<a href="#menu">Menu</a>
 	</nav>
@@ -25,6 +25,6 @@
 	</ul>
 	<ul class="actions vertical">
 		<li><a href="#" class="button special fit">Comerçar</a></li>
-		<li><a href="#" class="button fit">Log In</a></li>
+		
 	</ul>
 </nav>

@@ -2,9 +2,9 @@
 title: Marcio Ventura
 subtitle: Portfólio 
 email: m.matheus.baptista@gmail.com
-description: Graduando em Economia, programador e profissional ANBIMA.
+description: Economia, dados e soluções.
 baseurl: ""
-url: "https://marcioventura.github.io"
+url: "https://marcioventura.com.br"
 author:
 street_address:  Tijuca
 city: Rio de Janeiro
@@ -22,7 +22,7 @@ tiles-count: 6
 # Icons are not shown if value is empty
 # You need to restart jekyll for changes to have an effect
 socials:
-  GitHub: https://github.com/economatic
+  GitHub: https://github.com/Marcio-V
   GitLab:
   Google-Plus: 
   Instagram: https://www.instagram.com/matheuss.ventura/
