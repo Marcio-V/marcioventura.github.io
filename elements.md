@@ -1,8 +1,8 @@
 ---
 layout: page
-title: Projetos
-description: Economia • Finanças • Dados
-image: assets/images/bloomberg.jpg
+title: Economia
+description: Indicadores • Finanças • Conjuntura
+image: assets/images/bloomberg1.jpg
 nav-menu: true
 ---
 

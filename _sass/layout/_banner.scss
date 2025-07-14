@@ -29,7 +29,7 @@
             @include vendor('transition-delay', '0.75s');
             @include vendor('pointer-events', 'none');
             // MODIFICAÇÃO AQUI: cor preta com transparência
-            background-color: rgba(0, 0, 0, 0.8); // Exemplo: preto com 30% de opacidade
+            background-color: rgba(0, 0, 0, 0.45); // Exemplo: preto com 30% de opacidade
             content: '';
             display: block;
             height: 100%;
