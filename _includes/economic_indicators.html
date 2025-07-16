@@ -1,0 +1,82 @@
+<section class="economic-indicators">
+    <h2 class="section-title">Indicadores Econômicos</h2>
+
+    <div class="indicator-grid">
+        <div class="indicator-item" id="dolar-data">
+            <h3 class="indicator-title">Dólar Comercial (USD/BRL)</h3>
+            <p class="indicator-value">R$ <span class="dolar-current-value">--.--</span></p>
+            <p class="indicator-change">Variação: <span class="dolar-daily-change">--.--%</span></p>
+        </div>
+
+        <div class="indicator-item" id="ibovespa-data">
+            <h3 class="indicator-title">IBOV</h3>
+            <p class="indicator-value"><span class="ibov-current-value">---.---</span> pts</p>
+            <p class="indicator-change">Variação: <span class="ibov-daily-change">--.--%</span></p>
+        </div>
+
+        <div class="indicator-item" id="ipca-data">
+            <h3 class="indicator-title">Inflação (IPCA Mensal)</h3>
+            <p class="indicator-value"><span class="ipca-current-value">--.--</span>%</p>
+            <p class="indicator-change">Última Ref.: <span class="ipca-ref-date">--/----</span></p>
+        </div>
+
+        <div class="indicator-item" id="pib-data">
+            <h3 class="indicator-title">PIB (Acumulado 12 meses)</h3>
+            <p class="indicator-value"><span class="pib-current-value">--.--</span>%</p>
+            <p class="indicator-change">Última Ref.: <span class="pib-ref-date">--/----</span></p>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Estilos básicos para os indicadores - você pode mover isso para o seu CSS principal */
+    .economic-indicators {
+        padding: 40px 20px;
+        text-align: center;
+        background-color: #f9f9f9;
+        border-top: 1px solid #eee;
+    }
+    .section-title {
+        font-size: 2em;
+        margin-bottom: 30px;
+        color: #333;
+    }
+    .indicator-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .indicator-item {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .indicator-title {
+        font-size: 1.3em;
+        color: #555;
+        margin-bottom: 10px;
+    }
+    .indicator-value {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #007bff; /* Cor principal */
+        margin-bottom: 5px;
+    }
+    .indicator-change {
+        font-size: 1em;
+        color: #777;
+    }
+    .indicator-change .positive {
+        color: #28a745; /* Verde para positivo */
+    }
+    .indicator-change .negative {
+        color: #dc3545; /* Vermelho para negativo */
+    }
+</style>
