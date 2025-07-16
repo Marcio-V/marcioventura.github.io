@@ -1,0 +1,15 @@
+{
+  "name": "marcioventura.github.io",
+  "version": "1.0.0",
+  "description": "Bem-vindo ao meu portfólio digital!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "slick-carousel": "^1.8.1"
+  }
+}
