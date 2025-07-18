@@ -2,7 +2,7 @@
 title: Projetos
 layout: landing
 description: Economia • Finanças • Dados
-image: assets/images/blur.jpg
+image: assets/images/bluuur.jpg
 nav-menu: true
 ---
 
