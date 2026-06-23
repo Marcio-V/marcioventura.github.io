@@ -1,0 +1,159 @@
+// ============================================================
+// Indicadores Econômicos — Estilos customizados
+// Integrado à paleta do tema Forty (vars: $palette, $font, $size)
+// ============================================================
+
+.economic-indicators {
+	padding: 5em 0;
+	background-color: _palette(bg-alt);
+	border-top: 1px solid _palette(border);
+
+	.inner {
+		max-width: map-get($size, inner);
+		margin: 0 auto;
+		padding: 0 2em;
+	}
+
+	.indicators-timestamp {
+		font-size: 0.85em;
+		color: _palette(fg-light);
+		margin-top: -1em;
+		margin-bottom: 2em;
+		letter-spacing: map-get($font, letter-spacing);
+		text-transform: uppercase;
+	}
+
+	.indicator-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 1.5em;
+		margin-bottom: 2em;
+	}
+
+	.indicator-card {
+		background-color: _palette(bg);
+		border: 1px solid _palette(border);
+		border-radius: map-get($size, border-radius);
+		padding: 1.5em;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75em;
+		transition: border-color map-get($duration, transition) ease,
+		            transform map-get($duration, transition) ease;
+
+		&:hover {
+			border-color: _palette(highlight);
+			transform: translateY(-2px);
+		}
+	}
+
+	.indicator-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5em;
+
+		.indicator-flag {
+			font-size: 1.2em;
+		}
+
+		.indicator-title {
+			font-size: 0.85em;
+			font-weight: map-get($font, weight-bold);
+			color: _palette(fg-light);
+			text-transform: uppercase;
+			letter-spacing: map-get($font, letter-spacing-alt);
+			margin: 0;
+			flex: 1;
+			border: none;
+			padding: 0;
+
+			&::after {
+				display: none;
+			}
+		}
+
+		.indicator-source {
+			font-size: 0.65em;
+			color: _palette(fg-light);
+			opacity: 0.5;
+			text-transform: uppercase;
+			letter-spacing: map-get($font, letter-spacing);
+		}
+	}
+
+	.indicator-body {
+		.indicator-value {
+			font-size: 1.6em;
+			font-weight: map-get($font, weight-bold);
+			color: _palette(fg-bold);
+			margin: 0 0 0.25em 0;
+			line-height: 1.2;
+		}
+
+		.indicator-change {
+			font-size: 0.85em;
+			color: _palette(fg-light);
+			margin: 0;
+		}
+	}
+
+	// Estados de variação
+	.positive {
+		color: #87c5a4 !important; // accent6 do tema
+		&::before { content: "▲ "; font-size: 0.8em; }
+	}
+
+	.negative {
+		color: #e07b6a !important;
+		&::before { content: "▼ "; font-size: 0.8em; }
+	}
+
+	// Skeleton loading
+	.ind-skeleton {
+		display: inline-block;
+		background: linear-gradient(
+			90deg,
+			_palette(border-bg) 25%,
+			_palette(border) 50%,
+			_palette(border-bg) 75%
+		);
+		background-size: 200% 100%;
+		animation: skeleton-shimmer 1.5s infinite;
+		border-radius: 3px;
+		color: transparent;
+		user-select: none;
+	}
+
+	@keyframes skeleton-shimmer {
+		0%   { background-position: 200% 0; }
+		100% { background-position: -200% 0; }
+	}
+
+	// Erro de carregamento
+	.ind-error {
+		color: #e07b6a;
+		font-size: 0.8em;
+	}
+
+	.indicators-disclaimer {
+		font-size: 0.75em;
+		color: _palette(fg-light);
+		opacity: 0.5;
+		text-align: center;
+		margin-top: 1em;
+		font-style: italic;
+	}
+
+	// Responsivo
+	@include breakpoint(small) {
+		.indicator-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	@include breakpoint(xsmall) {
+		.indicator-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+}

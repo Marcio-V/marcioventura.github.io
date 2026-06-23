@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+{% include head.html %}
+
+<body>
+
+    {% include header.html %}
+
+    <!-- Banner -->
+    <section id="banner" class="style2">
+        <div class="inner">
+            {% if page.image %}
+            <span class="image">
+                <img src="{{ site.baseurl }}/{{ page.image }}" alt="{{ page.title }}" loading="lazy" />
+            </span>
+            {% endif %}
+            <header class="major">
+                <h1>{{ page.title }}</h1>
+            </header>
+            <div class="content">
+                <p>{{ page.subtitle }}</p>
+                {% if page.status %}
+                {% assign status_slug = page.status | downcase | replace: " ", "-" %}
+                <span class="project-status-badge status-{{ status_slug }}">{{ page.status }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Main -->
+    <div id="main" class="alt">
+        <section id="one">
+            <div class="inner project-page">
+
+                <!-- Meta: stack, categoria, status -->
+                <div class="project-meta">
+                    {% if page.category %}
+                    <div class="project-meta-item">
+                        <span class="meta-label">Área</span>
+                        <span class="meta-value">{{ page.category }}</span>
+                    </div>
+                    {% endif %}
+                    {% if page.status %}
+                    <div class="project-meta-item">
+                        <span class="meta-label">Status</span>
+                        <span class="meta-value">{{ page.status }}</span>
+                    </div>
+                    {% endif %}
+                    {% if page.date %}
+                    <div class="project-meta-item">
+                        <span class="meta-label">Período</span>
+                        <span class="meta-value">{{ page.date | date: "%b %Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Stack de tecnologias -->
+                {% if page.stack %}
+                <div class="project-stack">
+                    {% for tech in page.stack %}
+                    <span class="stack-tag">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Conteúdo do projeto (markdown body) -->
+                {{ content }}
+
+                <!-- Links -->
+                <div class="project-links">
+                    {% if page.live_url and page.live_url != "" %}
+                    <a href="{{ page.live_url }}" class="button special" target="_blank" rel="noopener noreferrer">
+                        <span class="icon fa-external-link"></span> Ver Projeto
+                    </a>
+                    {% endif %}
+                    {% if page.github_url and page.github_url != "" %}
+                    <a href="{{ page.github_url }}" class="button" target="_blank" rel="noopener noreferrer">
+                        <span class="icon fa-github"></span> Ver Código
+                    </a>
+                    {% endif %}
+                    {% if page.paper_url and page.paper_url != "" %}
+                    <a href="{{ page.paper_url }}" class="button" target="_blank" rel="noopener noreferrer">
+                        <span class="icon fa-file-pdf-o"></span> Ver Paper
+                    </a>
+                    {% endif %}
+                    <a href="{{ site.baseurl }}/landing.html" class="button">← Voltar aos Projetos</a>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    {% include footer.html %}
+
+</body>
+</html>

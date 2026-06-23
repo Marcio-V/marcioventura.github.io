@@ -1,148 +1,267 @@
-document.addEventListener('DOMContentLoaded', function() {
+/**
+ * Economic Tracker — marcioventura.com.br
+ * Fontes: BCB SGS (SELIC, CDI, IPCA, IGP-M, USD/BRL) | Yahoo Finance via proxy público (IBOV, S&P500, Nasdaq)
+ * Cache: SessionStorage com TTL configurável por tipo de dado
+ * Autor: Marcio Ventura
+ */
 
-    // --- Funções para buscar dados ---
+(function () {
+  'use strict';
 
-    // Função para buscar dados da API do Banco Central (SGS)
-    // endpointId: ID da série no SGS (ex: 1 para Dólar, 433 ou 173 para IPCA)
-    // lastN: Quantos últimos valores buscar
-    async function fetchBCBData(endpointId, lastN = 1) {
-        // Data atual (formato YYYY-MM-DD)
-        const today = new Date();
-        const endDate = today.toISOString().split('T')[0];
+  // ─── Configuração de TTL de cache (em milissegundos) ───────────────────────
+  const CACHE_TTL = {
+    bcb_daily:   5 * 60 * 1000,   // 5 min — dólar (atualiza intraday)
+    bcb_monthly: 60 * 60 * 1000,  // 1 hora — IPCA, IGP-M (mensais)
+    bcb_rate:    60 * 60 * 1000,  // 1 hora — SELIC, CDI (raramente mudam)
+    market:      10 * 60 * 1000,  // 10 min — bolsas (intraday com delay)
+  };
 
-        // Calcular a data de início para pegar N valores
-        // Ex: para 1 valor, não precisa de data inicial, mas a API pode exigir
-        // Ou se precisar de variação diária, pode precisar de 2 dias.
-        // Para simplificar, vou buscar os N últimos e pegar o mais recente.
-        const apiUrl = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${endpointId}/dados/ultimos/${lastN}?formato=json`;
+  // ─── IDs das séries BCB SGS ────────────────────────────────────────────────
+  const BCB_SERIES = {
+    USD_BRL: 1,    // Dólar Comercial - Venda
+    SELIC:   432,  // Taxa SELIC acumulada no mês
+    CDI:     4389, // CDI acumulado no mês
+    IPCA:    433,  // IPCA - variação mensal
+    IGPM:    189,  // IGP-M - variação mensal
+  };
 
-        try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                throw new Error(`Erro HTTP: ${response.status}`);
-            }
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error(`Erro ao buscar dados do BCB (SGS ${endpointId}):`, error);
-            return null;
-        }
+  // ─── Proxy para Yahoo Finance (evita CORS sem backend) ────────────────────
+  // allorigins.win é um proxy CORS público e gratuito
+  const YAHOO_PROXY = 'https://query1.finance.yahoo.com/v8/finance/chart/';
+
+  // ─── Utilitários de Cache ──────────────────────────────────────────────────
+  function cacheSet(key, data) {
+    try {
+      sessionStorage.setItem('ind_' + key, JSON.stringify({
+        ts: Date.now(),
+        data: data,
+      }));
+    } catch (e) { /* sessionStorage indisponível — sem cache */ }
+  }
+
+  function cacheGet(key, ttl) {
+    try {
+      const raw = sessionStorage.getItem('ind_' + key);
+      if (!raw) return null;
+      const entry = JSON.parse(raw);
+      if (Date.now() - entry.ts > ttl) return null;
+      return entry.data;
+    } catch (e) { return null; }
+  }
+
+  // ─── Fetch BCB SGS ─────────────────────────────────────────────────────────
+  async function fetchBCB(seriesId, lastN, ttlKey) {
+    const cacheKey = 'bcb_' + seriesId;
+    const cached = cacheGet(cacheKey, CACHE_TTL[ttlKey]);
+    if (cached) return cached;
+
+    const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${seriesId}/dados/ultimos/${lastN}?formato=json`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      cacheSet(cacheKey, data);
+      return data;
+    } catch (err) {
+      console.warn('[BCB SGS ' + seriesId + '] Falha:', err.message);
+      return null;
     }
+  }
 
-    // --- Funções para atualizar o HTML ---
+  // ─── Fetch Yahoo Finance via proxy ─────────────────────────────────────────
+  async function fetchYahoo(ticker, cacheKey) {
+    const cached = cacheGet(cacheKey, CACHE_TTL.market);
+    if (cached) return cached;
 
-    async function updateDolar() {
-        const data = await fetchBCBData(1, 2); // 1 = Série Dólar Comercial (venda), buscando os 2 últimos para calcular variação
-        if (data && data.length >= 2) {
-            const latest = parseFloat(data[data.length - 1].valor);
-            const previous = parseFloat(data[data.length - 2].valor);
-            const date = data[data.length - 1].data; // Data do último valor
+    // Yahoo Finance aceita requisição direta no browser (sem autenticação)
+    const url = `${YAHOO_PROXY}${ticker}?interval=1d&range=2d`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const result = json?.chart?.result?.[0];
+      if (!result) throw new Error('Sem dados');
 
-            const change = ((latest - previous) / previous) * 100;
-
-            const valueElement = document.querySelector('#dolar-data .dolar-current-value');
-            const changeElement = document.querySelector('#dolar-data .dolar-daily-change');
-
-            if (valueElement) valueElement.textContent = latest.toFixed(4).replace('.', ',');
-            if (changeElement) {
-                changeElement.textContent = `${change.toFixed(2).replace('.', ',')}%`;
-                changeElement.classList.remove('positive', 'negative');
-                if (change > 0) {
-                    changeElement.classList.add('positive');
-                } else if (change < 0) {
-                    changeElement.classList.add('negative');
-                }
-            }
-        } else {
-            console.warn('Dados insuficientes para o Dólar.');
-        }
+      const meta = result.meta;
+      const data = {
+        current: meta.regularMarketPrice,
+        previous: meta.chartPreviousClose,
+        change: ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100,
+      };
+      cacheSet(cacheKey, data);
+      return data;
+    } catch (err) {
+      console.warn('[Yahoo ' + ticker + '] Falha:', err.message);
+      return null;
     }
+  }
 
-    async function updateIbovespa() {
-        // **ESTE É UM PLACEHOLDER!**
-        // Você precisará de uma API real para o Ibovespa aqui.
-        // Ex: Alpha Vantage, Tiingo, ou outra fonte.
-        // O ideal é buscar o valor atual e o do dia anterior para calcular a variação.
+  // ─── Helpers de renderização ───────────────────────────────────────────────
+  function setVal(selector, text) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    // Remove skeleton da tag filha se existir
+    const skeleton = el.querySelector('.ind-skeleton');
+    if (skeleton) skeleton.classList.remove('ind-skeleton');
+    el.textContent = text;
+  }
 
-        // Exemplo de dados mock (simulados)
-        const currentIbov = (Math.random() * (130000 - 100000) + 100000);
-        const previousIbov = currentIbov * (1 + (Math.random() * 0.02 - 0.01)); // Variação de -1% a +1%
-        const change = ((currentIbov - previousIbov) / previousIbov) * 100;
+  function setChange(selector, pct) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    const skeleton = el.querySelector
+      ? el.querySelector('.ind-skeleton') : null;
+    if (skeleton) skeleton.classList.remove('ind-skeleton');
+    const formatted = (pct >= 0 ? '+' : '') + pct.toFixed(2).replace('.', ',') + '%';
+    el.textContent = formatted;
+    el.className = el.className.replace(/\b(positive|negative|ind-skeleton)\b/g, '').trim();
+    el.classList.add(pct >= 0 ? 'positive' : 'negative');
+  }
 
-        const valueElement = document.querySelector('#ibovespa-data .ibov-current-value');
-        const changeElement = document.querySelector('#ibovespa-data .ibov-daily-change');
+  function setError(selector, msg) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    el.textContent = msg || 'indisponível';
+    el.classList.add('ind-error');
+  }
 
-        if (valueElement) valueElement.textContent = Math.round(currentIbov).toLocaleString('pt-BR');
-        if (changeElement) {
-            changeElement.textContent = `${change.toFixed(2).replace('.', ',')}%`;
-            changeElement.classList.remove('positive', 'negative');
-            if (change > 0) {
-                changeElement.classList.add('positive');
-            } else if (change < 0) {
-                changeElement.classList.add('negative');
-            }
-        }
-        console.warn('Ibovespa está usando dados mock. Implemente uma API real!');
+  function updateTimestamp() {
+    const el = document.getElementById('indicators-last-update');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now.toLocaleString('pt-BR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  }
+
+  // ─── Updaters individuais ──────────────────────────────────────────────────
+
+  async function updateDolar() {
+    const data = await fetchBCB(BCB_SERIES.USD_BRL, 2, 'bcb_daily');
+    if (data && data.length >= 2) {
+      const latest   = parseFloat(data[data.length - 1].valor.replace(',', '.'));
+      const previous = parseFloat(data[data.length - 2].valor.replace(',', '.'));
+      const change   = ((latest - previous) / previous) * 100;
+      setVal('#dolar-data .dolar-current-value', latest.toFixed(4).replace('.', ','));
+      setChange('#dolar-data .dolar-daily-change', change);
+    } else {
+      setError('#dolar-data .dolar-current-value', 'N/D');
+      setError('#dolar-data .dolar-daily-change', '');
     }
+  }
 
-    async function updateIPCA() {
-        // ID da série IPCA no SGS (173 para IPCA - Nacional - mês)
-        // Buscamos 1 valor, pois a variação é mensal e a referência é o próprio valor.
-        const data = await fetchBCBData(173, 1);
-        if (data && data.length > 0) {
-            const latest = parseFloat(data[data.length - 1].valor);
-            const date = data[data.length - 1].data; // Formato DD/MM/YYYY
-
-            const valueElement = document.querySelector('#ipca-data .ipca-current-value');
-            const refDateElement = document.querySelector('#ipca-data .ipca-ref-date');
-
-            if (valueElement) valueElement.textContent = latest.toFixed(2).replace('.', ',');
-            if (refDateElement) refDateElement.textContent = date.substring(3); // Pegar MM/YYYY
-        } else {
-            console.warn('Dados de IPCA não encontrados.');
-        }
+  async function updateSelic() {
+    const data = await fetchBCB(BCB_SERIES.SELIC, 1, 'bcb_rate');
+    if (data && data.length > 0) {
+      const latest = parseFloat(data[0].valor.replace(',', '.'));
+      const date   = data[0].data; // DD/MM/YYYY
+      setVal('#selic-data .selic-current-value', latest.toFixed(2).replace('.', ','));
+      setVal('#selic-data .selic-ref-date', date.substring(3)); // MM/YYYY
+    } else {
+      setError('#selic-data .selic-current-value', 'N/D');
     }
+  }
 
-    function updatePIB() {
-        // **Para o PIB, não há uma API em tempo real.**
-        // Você deve atualizar isso manualmente ou de uma fonte estática/confiável.
-        // Os dados do PIB são divulgados trimestralmente ou anualmente pelo IBGE.
-        // Para este exemplo, vou usar dados mock (simulados).
-
-        const pibValue = 2.5; // Exemplo: crescimento de 2.5% no último período
-        const pibRefDate = "Mar/2025"; // Exemplo: Referência do último dado divulgado
-
-        const valueElement = document.querySelector('#pib-data .pib-current-value');
-        const refDateElement = document.querySelector('#pib-data .pib-ref-date');
-
-        if (valueElement) valueElement.textContent = pibValue.toFixed(1).replace('.', ',');
-        if (refDateElement) refDateElement.textContent = pibRefDate;
-
-        // O PIB é geralmente uma variação positiva; se quiser mostrar variação negativa, pode adicionar lógica.
-        const changeElement = document.querySelector('#pib-data .indicator-value'); // Ou outro elemento para cor
-        if (pibValue > 0) {
-            changeElement.classList.add('positive'); // Adiciona cor verde se positivo
-        } else if (pibValue < 0) {
-            changeElement.classList.add('negative'); // Adiciona cor vermelha se negativo
-        }
-        console.warn('PIB está usando dados mock. Atualize manualmente ou de uma fonte oficial!');
+  async function updateCDI() {
+    const data = await fetchBCB(BCB_SERIES.CDI, 1, 'bcb_rate');
+    if (data && data.length > 0) {
+      const latest = parseFloat(data[0].valor.replace(',', '.'));
+      const date   = data[0].data;
+      setVal('#cdi-data .cdi-current-value', latest.toFixed(2).replace('.', ','));
+      setVal('#cdi-data .cdi-ref-date', date.substring(3));
+    } else {
+      setError('#cdi-data .cdi-current-value', 'N/D');
     }
+  }
 
-    // --- Inicialização e Atualização Periódica ---
-
-    // Função para carregar todos os indicadores
-    function loadEconomicIndicators() {
-        updateDolar();
-        updateIbovespa(); // Lembre-se que é mock!
-        updateIPCA();
-        updatePIB();     // Lembre-se que é mock!
+  async function updateIPCA() {
+    const data = await fetchBCB(BCB_SERIES.IPCA, 1, 'bcb_monthly');
+    if (data && data.length > 0) {
+      const latest = parseFloat(data[0].valor.replace(',', '.'));
+      const date   = data[0].data;
+      setVal('#ipca-data .ipca-current-value', latest.toFixed(2).replace('.', ','));
+      setVal('#ipca-data .ipca-ref-date', date.substring(3));
+    } else {
+      setError('#ipca-data .ipca-current-value', 'N/D');
     }
+  }
 
-    // Carregar os indicadores na inicialização da página
-    loadEconomicIndicators();
+  async function updateIGPM() {
+    const data = await fetchBCB(BCB_SERIES.IGPM, 1, 'bcb_monthly');
+    if (data && data.length > 0) {
+      const latest = parseFloat(data[0].valor.replace(',', '.'));
+      const date   = data[0].data;
+      setVal('#igpm-data .igpm-current-value', latest.toFixed(2).replace('.', ','));
+      setVal('#igpm-data .igpm-ref-date', date.substring(3));
+    } else {
+      setError('#igpm-data .igpm-current-value', 'N/D');
+    }
+  }
 
-    // Atualizar Dólar e Ibovespa a cada 5 minutos (300.000 ms)
-    // IPCA e PIB não precisam de atualização em tempo real, só no carregamento.
-    setInterval(updateDolar, 300000); // 5 minutos
-    setInterval(updateIbovespa, 300000); // 5 minutos (mock)
-});
+  async function updateIbovespa() {
+    const data = await fetchYahoo('^BVSP', 'yahoo_ibov');
+    if (data) {
+      setVal('#ibovespa-data .ibov-current-value', Math.round(data.current).toLocaleString('pt-BR'));
+      setChange('#ibovespa-data .ibov-daily-change', data.change);
+    } else {
+      setError('#ibovespa-data .ibov-current-value', 'N/D');
+      setError('#ibovespa-data .ibov-daily-change', '');
+    }
+  }
+
+  async function updateSP500() {
+    const data = await fetchYahoo('^GSPC', 'yahoo_sp500');
+    if (data) {
+      setVal('#sp500-data .sp500-current-value', Math.round(data.current).toLocaleString('pt-BR'));
+      setChange('#sp500-data .sp500-daily-change', data.change);
+    } else {
+      setError('#sp500-data .sp500-current-value', 'N/D');
+      setError('#sp500-data .sp500-daily-change', '');
+    }
+  }
+
+  async function updateNasdaq() {
+    const data = await fetchYahoo('^IXIC', 'yahoo_nasdaq');
+    if (data) {
+      setVal('#nasdaq-data .nasdaq-current-value', Math.round(data.current).toLocaleString('pt-BR'));
+      setChange('#nasdaq-data .nasdaq-daily-change', data.change);
+    } else {
+      setError('#nasdaq-data .nasdaq-current-value', 'N/D');
+      setError('#nasdaq-data .nasdaq-daily-change', '');
+    }
+  }
+
+  // ─── Inicialização ─────────────────────────────────────────────────────────
+  async function loadAll() {
+    // Roda em paralelo — BCB e Yahoo independentes
+    await Promise.allSettled([
+      updateDolar(),
+      updateSelic(),
+      updateCDI(),
+      updateIPCA(),
+      updateIGPM(),
+      updateIbovespa(),
+      updateSP500(),
+      updateNasdaq(),
+    ]);
+    updateTimestamp();
+  }
+
+  // Dispara quando o DOM estiver pronto
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadAll);
+  } else {
+    loadAll();
+  }
+
+  // Atualização periódica: dólar + bolsas a cada 10 minutos
+  setInterval(function () {
+    updateDolar();
+    updateIbovespa();
+    updateSP500();
+    updateNasdaq();
+    updateTimestamp();
+  }, 10 * 60 * 1000);
+
+})();

@@ -1,0 +1,74 @@
+// ============================================================
+// Projetos — Estilos para tiles e página individual
+// ============================================================
+
+// Badge de status na tile de projeto
+.project-status-badge {
+	display: inline-block;
+	font-size: 0.65em;
+	font-weight: map-get($font, weight-bold);
+	text-transform: uppercase;
+	letter-spacing: map-get($font, letter-spacing-alt);
+	padding: 0.2em 0.6em;
+	border-radius: map-get($size, border-radius);
+	margin-bottom: 0.5em;
+
+	&.status-concluido    { background: rgba(#87c5a4, 0.2); color: #87c5a4; border: 1px solid rgba(#87c5a4, 0.4); }
+	&.status-em-desenvolvimento { background: rgba(#daa520, 0.2); color: #daa520; border: 1px solid rgba(#daa520, 0.4); }
+	&.status-publicado    { background: rgba(#8ea9e8, 0.2); color: #8ea9e8; border: 1px solid rgba(#8ea9e8, 0.4); }
+}
+
+// Página individual de projeto
+.project-page {
+	.project-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1em;
+		margin-bottom: 2em;
+		padding-bottom: 2em;
+		border-bottom: 1px solid _palette(border);
+	}
+
+	.project-meta-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25em;
+
+		.meta-label {
+			font-size: 0.65em;
+			text-transform: uppercase;
+			letter-spacing: map-get($font, letter-spacing-alt);
+			color: _palette(fg-light);
+		}
+
+		.meta-value {
+			font-size: 0.9em;
+			color: _palette(fg-bold);
+			font-weight: map-get($font, weight-bold);
+		}
+	}
+
+	.project-stack {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		margin: 1.5em 0;
+
+		.stack-tag {
+			font-size: 0.75em;
+			padding: 0.25em 0.75em;
+			border: 1px solid _palette(border);
+			border-radius: 2em;
+			color: _palette(fg-light);
+			font-family: map-get($font, family-fixed);
+			letter-spacing: 0.05em;
+		}
+	}
+
+	.project-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1em;
+		margin-top: 2em;
+	}
+}

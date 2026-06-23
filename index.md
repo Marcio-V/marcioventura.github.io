@@ -1,15 +1,14 @@
 ---
 layout: home
 title: Home
-landing-title: 'Bem-vindo'
-description: null 
+landing-title: 'Marcio Ventura'
+description: Finanças Quantitativas, Economia Aplicada e Engenharia Financeira
 image: null
 author: null
 show_tile: false
 ---
 
-Este portfólio foi desenvolvido para apresentar de forma objetiva minha atuação nas áreas de economia, finanças e análise de dados.
-Você encontrará projetos aplicados, soluções desenvolvidas e uma visão técnica voltada para resultados concretos.
-O conteúdo reflete minha experiência profissional, formações e a abordagem estratégica adotada em cada entrega.
+Economista em formação pela UERJ e assessor de investimentos na Arbitrium Capital (BX Investimentos / XP).
+Atuo na intersecção entre economia aplicada, finanças quantitativas e engenharia de software — desenvolvendo modelos, plataformas e análises orientadas a dados para o mercado financeiro brasileiro.
 
-Clique em “Começar” para conhecer minha trajetória, visualizar projetos e acompanhar os informes do portfólio.
+Explore os projetos, acompanhe os indicadores de mercado em tempo real e entre em contato.

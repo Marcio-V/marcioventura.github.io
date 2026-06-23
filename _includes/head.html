@@ -2,8 +2,39 @@
 	<title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
+	<meta name="author" content="{{ site.author }}" />
+
+	<!-- Open Graph / Social Sharing -->
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="{{ site.url }}{{ page.url }}" />
+	<meta property="og:title" content="{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}" />
+	<meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
+	<meta property="og:image" content="{% if page.image %}{{ site.url }}/{{ page.image }}{% else %}{{ site.url }}/assets/images/banner.jpg{% endif %}" />
+	<meta property="og:site_name" content="{{ site.title }}" />
+	<meta property="og:locale" content="pt_BR" />
+
+	<!-- Twitter Card -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content="@Marcio_Ventur98" />
+	<meta name="twitter:title" content="{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}" />
+	<meta name="twitter:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
+	<meta name="twitter:image" content="{% if page.image %}{{ site.url }}/{{ page.image }}{% else %}{{ site.url }}/assets/images/banner.jpg{% endif %}" />
+
+	<!-- Canonical URL -->
+	<link rel="canonical" href="{{ site.url }}{{ page.url }}" />
+
 	<!--[if lte IE 8]><script src="{{ "assets/js/ie/html5shiv.js" | relative_url }}"></script><![endif]-->
 	<link rel="stylesheet" href="{{ "assets/css/main.css" | relative_url }}" />
 	<!--[if lte IE 9]><link rel="stylesheet" href="{{ "assets/css/ie9.css" | relative_url }}" /><![endif]-->
 	<!--[if lte IE 8]><link rel="stylesheet" href="{{ "assets/css/ie8.css" | relative_url }}" /><![endif]-->
+
+	<!-- Google Analytics 4 — marcioventura.com.br (G-N7GCKXQ9XW) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-N7GCKXQ9XW"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', 'G-N7GCKXQ9XW');
+	</script>
 </head>
