@@ -128,14 +128,18 @@ body {
 	padding-top: $ticker-height;
 }
 
-// Garante respiro entre o ticker e o cabeçalho/logo do tema
+// ─── CORREÇÃO CRÍTICA ───
+// O tema Forty torna o #header position:fixed; top:0 quando aparece ao rolar.
+// Sem isso, o header sobe e COBRE o ticker. Forçamos ele a parar logo abaixo do ticker.
 #header {
-	margin-top: 0.75em;
+	top: $ticker-height !important;
 }
 
-// O header fixo do tema (quando aplicável) também desce
-#header.alt {
-	// nada a fazer: header não é fixed no tema Forty, então só o body padding basta
+// Em telas pequenas, ticker é mais baixo — header acompanha
+@media screen and (max-width: 736px) {
+	#header {
+		top: 34px !important;
+	}
 }
 
 // Em telas pequenas, ticker um pouco mais compacto
