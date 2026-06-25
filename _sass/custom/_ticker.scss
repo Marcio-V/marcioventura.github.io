@@ -2,7 +2,7 @@
 // Market Ticker — barra de cotações fixa no topo (Bloomberg-style)
 // ============================================================
 
-$ticker-height: 38px;
+$ticker-height: 42px;
 $ticker-bg: #0e1316;       // grafite escuro
 $ticker-bg-alt: #161c21;
 $ticker-border: #2a3138;
@@ -49,6 +49,7 @@ $ticker-down: #f85149;     // vermelho
 .ticker-track {
 	display: inline-flex;
 	align-items: center;
+	height: 100%;
 	white-space: nowrap;
 	will-change: transform;
 	animation: ticker-scroll 60s linear infinite;
@@ -61,11 +62,13 @@ $ticker-down: #f85149;     // vermelho
 
 .ticker-item {
 	display: inline-flex;
-	align-items: baseline;
+	align-items: center;
+	height: 100%;
 	gap: 0.5em;
 	padding: 0 1.5em;
 	font-family: "Courier New", "Roboto Mono", monospace;
 	font-size: 0.82rem;
+	line-height: 1;
 	color: $ticker-text;
 	border-right: 1px solid $ticker-border;
 	letter-spacing: 0.02em;
