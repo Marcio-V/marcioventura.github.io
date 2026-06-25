@@ -1,26 +1,32 @@
 // ============================================================
 // Indicadores Econômicos — Estilos customizados
-// Integrado à paleta do tema Forty (vars: $palette, $font, $size)
+// Identidade: fundo branco, valores em azul (padrão original)
 // ============================================================
+
+$indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 
 .economic-indicators {
 	padding: 5em 0;
-	background-color: _palette(bg-alt);
-	border-top: 1px solid _palette(border);
+	background-color: #f9f9f9;
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
 
 	.inner {
-		max-width: map-get($size, inner);
+		max-width: 75em;
 		margin: 0 auto;
 		padding: 0 2em;
 	}
 
+	header.major h2 {
+		color: #1a1a1a;
+	}
+
 	.indicators-timestamp {
 		font-size: 0.85em;
-		color: _palette(fg-light);
+		color: #777;
 		margin-top: -1em;
 		margin-bottom: 2em;
-		letter-spacing: map-get($font, letter-spacing);
 		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	.indicator-grid {
@@ -31,19 +37,20 @@
 	}
 
 	.indicator-card {
-		background-color: _palette(bg);
-		border: 1px solid _palette(border);
-		border-radius: map-get($size, border-radius);
+		background-color: #ffffff;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 6px;
 		padding: 1.5em;
 		display: flex;
 		flex-direction: column;
 		gap: 0.75em;
-		transition: border-color map-get($duration, transition) ease,
-		            transform map-get($duration, transition) ease;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+		transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
 		&:hover {
-			border-color: _palette(highlight);
+			border-color: $indicator-blue;
 			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 		}
 	}
 
@@ -58,10 +65,10 @@
 
 		.indicator-title {
 			font-size: 0.85em;
-			font-weight: map-get($font, weight-bold);
-			color: _palette(fg-light);
+			font-weight: 700;
+			color: #333;
 			text-transform: uppercase;
-			letter-spacing: map-get($font, letter-spacing-alt);
+			letter-spacing: 0.1em;
 			margin: 0;
 			flex: 1;
 			border: none;
@@ -73,50 +80,52 @@
 		}
 
 		.indicator-source {
-			font-size: 0.65em;
-			color: _palette(fg-light);
-			opacity: 0.5;
+			font-size: 0.6em;
+			color: #aaa;
 			text-transform: uppercase;
-			letter-spacing: map-get($font, letter-spacing);
+			letter-spacing: 0.05em;
 		}
 	}
 
 	.indicator-body {
 		.indicator-value {
 			font-size: 1.6em;
-			font-weight: map-get($font, weight-bold);
-			color: _palette(fg-bold);
+			font-weight: 700;
+			color: $indicator-blue;
 			margin: 0 0 0.25em 0;
 			line-height: 1.2;
 		}
 
+		.indicator-value-label {
+			font-size: 0.5em;
+			font-weight: 400;
+			color: #999;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+
 		.indicator-change {
 			font-size: 0.85em;
-			color: _palette(fg-light);
+			color: #777;
 			margin: 0;
 		}
 	}
 
 	// Estados de variação
 	.positive {
-		color: #87c5a4 !important; // accent6 do tema
+		color: #1c9e63 !important;
 		&::before { content: "▲ "; font-size: 0.8em; }
 	}
 
 	.negative {
-		color: #e07b6a !important;
+		color: #d0342c !important;
 		&::before { content: "▼ "; font-size: 0.8em; }
 	}
 
-	// Skeleton loading
+	// Skeleton loading (tom claro p/ fundo branco)
 	.ind-skeleton {
 		display: inline-block;
-		background: linear-gradient(
-			90deg,
-			_palette(border-bg) 25%,
-			_palette(border) 50%,
-			_palette(border-bg) 75%
-		);
+		background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
 		background-size: 200% 100%;
 		animation: skeleton-shimmer 1.5s infinite;
 		border-radius: 3px;
@@ -131,27 +140,26 @@
 
 	// Erro de carregamento
 	.ind-error {
-		color: #e07b6a;
+		color: #d0342c;
 		font-size: 0.8em;
 	}
 
 	.indicators-disclaimer {
 		font-size: 0.75em;
-		color: _palette(fg-light);
-		opacity: 0.5;
+		color: #aaa;
 		text-align: center;
 		margin-top: 1em;
 		font-style: italic;
 	}
 
 	// Responsivo
-	@include breakpoint(small) {
+	@media screen and (max-width: 736px) {
 		.indicator-grid {
 			grid-template-columns: 1fr 1fr;
 		}
 	}
 
-	@include breakpoint(xsmall) {
+	@media screen and (max-width: 480px) {
 		.indicator-grid {
 			grid-template-columns: 1fr;
 		}
