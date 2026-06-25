@@ -34,6 +34,14 @@
   // ⚠️ SUBSTITUA pela URL real do seu Worker após o deploy (ver INSTRUCOES-CLOUDFLARE.md)
   const MARKET_PROXY = 'https://market-proxy.m-matheus-baptista.workers.dev';
 
+  // ─── Registro central de cotações (alimenta o ticker do topo) ──────────────
+  // Cada updater grava aqui o que buscou; o ticker lê deste objeto.
+  const tickerData = {};
+  function registerTicker(key, label, value, change) {
+    tickerData[key] = { label: label, value: value, change: change };
+    renderTicker();
+  }
+
   // ─── Utilitários de Cache ──────────────────────────────────────────────────
   function cacheSet(key, data) {
     try {
@@ -199,6 +207,7 @@
       const change   = ((latest - previous) / previous) * 100;
       setVal('#dolar-data .dolar-current-value', latest.toFixed(4).replace('.', ','));
       setChange('#dolar-data .dolar-daily-change', change);
+      registerTicker('dolar', 'USD/BRL', 'R$ ' + latest.toFixed(4).replace('.', ','), change);
     } else {
       setError('#dolar-data .dolar-current-value', 'N/D');
       setError('#dolar-data .dolar-daily-change', '');
@@ -213,6 +222,7 @@
       const change   = ((latest - previous) / previous) * 100;
       setVal('#euro-data .euro-current-value', latest.toFixed(4).replace('.', ','));
       setChange('#euro-data .euro-daily-change', change);
+      registerTicker('euro', 'EUR/BRL', 'R$ ' + latest.toFixed(4).replace('.', ','), change);
     } else {
       setError('#euro-data .euro-current-value', 'N/D');
       setError('#euro-data .euro-daily-change', '');
@@ -241,6 +251,7 @@
       } else {
         setVal('#selic-data .selic-copom-change', 'estável');
       }
+      registerTicker('selic', 'SELIC', atual.toFixed(2).replace('.', ',') + '% a.a.', null);
     } else {
       setError('#selic-data .selic-current-value', 'N/D');
       setError('#selic-data .selic-copom-change', '');
@@ -254,6 +265,7 @@
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#cdi-data .cdi-current-value', latest.toFixed(2).replace('.', ','));
       setVal('#cdi-data .cdi-ref-date', last.data ? last.data.substring(3) : '—');
+      registerTicker('cdi', 'CDI', latest.toFixed(2).replace('.', ',') + '% a.a.', null);
     } else {
       setError('#cdi-data .cdi-current-value', 'N/D');
       setError('#cdi-data .cdi-ref-date', '—');
@@ -268,6 +280,7 @@
       const last = serie[serie.length - 1];
       const mes  = parseFloat(last.valor.replace(',', '.'));
       setVal('#ipca-data .ipca-current-value', mes.toFixed(2).replace('.', ','));
+      registerTicker('ipca', 'IPCA', mes.toFixed(2).replace('.', ',') + '% mês', null);
 
       // IPCA acumulado 12 meses = produtório (1 + xi/100) - 1
       if (serie.length >= 12) {
@@ -278,6 +291,7 @@
         );
         const pct12 = (acum - 1) * 100;
         setVal('#ipca-data .ipca-12m-value', pct12.toFixed(2).replace('.', ',') + '%');
+        registerTicker('ipca12m', 'IPCA 12M', pct12.toFixed(2).replace('.', ',') + '%', null);
       } else {
         setError('#ipca-data .ipca-12m-value', 'N/D');
       }
@@ -294,6 +308,7 @@
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#desemprego-data .desemprego-current-value', latest.toFixed(1).replace('.', ','));
       setVal('#desemprego-data .desemprego-ref-date', last.data ? last.data.substring(3) : '—');
+      registerTicker('desemprego', 'DESEMPREGO', latest.toFixed(1).replace('.', ',') + '%', null);
     } else {
       setError('#desemprego-data .desemprego-current-value', 'N/D');
       setError('#desemprego-data .desemprego-ref-date', '—');
@@ -307,6 +322,7 @@
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#ice-data .ice-current-value', latest.toFixed(1).replace('.', ','));
       setVal('#ice-data .ice-ref-date', last.data ? last.data.substring(3) : '—');
+      registerTicker('ice', 'ICE', latest.toFixed(1).replace('.', ',') + ' pts', null);
     } else {
       setError('#ice-data .ice-current-value', 'N/D');
       setError('#ice-data .ice-ref-date', '—');
@@ -318,6 +334,7 @@
     if (data) {
       setVal('#ibovespa-data .ibov-current-value', Math.round(data.current).toLocaleString('pt-BR'));
       setChange('#ibovespa-data .ibov-daily-change', data.change);
+      registerTicker('ibov', 'IBOV', Math.round(data.current).toLocaleString('pt-BR') + ' pts', data.change);
     } else {
       setError('#ibovespa-data .ibov-current-value', 'N/D');
       setError('#ibovespa-data .ibov-daily-change', '');
@@ -329,6 +346,7 @@
     if (data) {
       setVal('#sp500-data .sp500-current-value', Math.round(data.current).toLocaleString('pt-BR'));
       setChange('#sp500-data .sp500-daily-change', data.change);
+      registerTicker('sp500', 'S&P 500', Math.round(data.current).toLocaleString('pt-BR') + ' pts', data.change);
     } else {
       setError('#sp500-data .sp500-current-value', 'N/D');
       setError('#sp500-data .sp500-daily-change', '');
@@ -340,10 +358,77 @@
     if (data) {
       setVal('#nasdaq-data .nasdaq-current-value', Math.round(data.current).toLocaleString('pt-BR'));
       setChange('#nasdaq-data .nasdaq-daily-change', data.change);
+      registerTicker('nasdaq', 'NASDAQ', Math.round(data.current).toLocaleString('pt-BR') + ' pts', data.change);
     } else {
       setError('#nasdaq-data .nasdaq-current-value', 'N/D');
       setError('#nasdaq-data .nasdaq-daily-change', '');
     }
+  }
+
+  // ─── Ações B3 (apenas no ticker, via Worker) ───────────────────────────────
+  // Cada ação usa o ticker do Yahoo com sufixo .SA
+  const ACOES_B3 = [
+    { key: 'petr4',  ticker: 'PETR4.SA',  label: 'PETR4' },
+    { key: 'vale3',  ticker: 'VALE3.SA',  label: 'VALE3' },
+    { key: 'ggbr4',  ticker: 'GGBR4.SA',  label: 'GGBR4' },
+    { key: 'bpac11', ticker: 'BPAC11.SA', label: 'BPAC11' },
+    { key: 'sbsp3',  ticker: 'SBSP3.SA',  label: 'SBSP3' },
+    { key: 'csmg3',  ticker: 'CSMG3.SA',  label: 'CSMG3' },
+  ];
+
+  async function updateAcao(acao) {
+    const data = await fetchMarket(acao.ticker, 'mkt_' + acao.key);
+    if (data && typeof data.current === 'number') {
+      const preco = 'R$ ' + data.current.toFixed(2).replace('.', ',');
+      registerTicker(acao.key, acao.label, preco, data.change);
+    }
+    // Sem else: se falhar, a ação simplesmente não entra no ticker (sem poluir com N/D)
+  }
+
+  function updateAcoesB3() {
+    return Promise.allSettled(ACOES_B3.map((a) => updateAcao(a)));
+  }
+
+  // ─── Renderização do ticker ────────────────────────────────────────────────
+  // Ordem de exibição no ticker
+  const TICKER_ORDER = [
+    'dolar', 'euro',
+    'ibov', 'sp500', 'nasdaq',
+    'petr4', 'vale3', 'ggbr4', 'bpac11', 'sbsp3', 'csmg3',
+    'selic', 'cdi', 'ipca', 'ipca12m', 'desemprego', 'ice',
+  ];
+
+  function renderTicker() {
+    const track = document.getElementById('ticker-track');
+    if (!track) return;
+
+    const items = TICKER_ORDER
+      .filter((k) => tickerData[k])
+      .map((k) => {
+        const d = tickerData[k];
+        let changeHtml = '';
+        if (typeof d.change === 'number' && !isNaN(d.change)) {
+          const up = d.change >= 0;
+          const arrow = up ? '▲' : '▼';
+          const sign = up ? '+' : '';
+          changeHtml =
+            '<span class="ticker-change ' + (up ? 'up' : 'down') + '">' +
+            arrow + ' ' + sign + d.change.toFixed(2).replace('.', ',') + '%</span>';
+        }
+        return (
+          '<span class="ticker-item">' +
+          '<span class="ticker-label">' + d.label + '</span>' +
+          '<span class="ticker-value">' + d.value + '</span>' +
+          changeHtml +
+          '</span>'
+        );
+      });
+
+    if (items.length === 0) return;
+
+    // Duplica o conteúdo para o loop da animação ser contínuo (-50% no keyframe)
+    const html = items.join('') + items.join('');
+    track.innerHTML = html;
   }
 
   // ─── Inicialização ─────────────────────────────────────────────────────────
@@ -359,6 +444,7 @@
       updateIbovespa(),
       updateSP500(),
       updateNasdaq(),
+      updateAcoesB3(),
     ]);
     updateTimestamp();
   }
@@ -376,6 +462,7 @@
     updateIbovespa();
     updateSP500();
     updateNasdaq();
+    updateAcoesB3();
     updateTimestamp();
   }, 10 * 60 * 1000);
 

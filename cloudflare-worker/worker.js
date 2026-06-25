@@ -12,7 +12,10 @@
  */
 
 // Tickers permitidos (whitelist de segurança — evita uso indevido do seu Worker)
-const ALLOWED_TICKERS = ['^BVSP', '^GSPC', '^IXIC'];
+const ALLOWED_TICKERS = [
+  '^BVSP', '^GSPC', '^IXIC',
+  'PETR4.SA', 'VALE3.SA', 'GGBR4.SA', 'BPAC11.SA', 'SBSP3.SA', 'CSMG3.SA',
+];
 
 // Domínios autorizados a consumir este Worker (CORS)
 const ALLOWED_ORIGINS = [

@@ -1,0 +1,129 @@
+// ============================================================
+// Market Ticker — barra de cotações fixa no topo (Bloomberg-style)
+// ============================================================
+
+$ticker-height: 38px;
+$ticker-bg: #0e1316;       // grafite escuro
+$ticker-bg-alt: #161c21;
+$ticker-border: #2a3138;
+$ticker-text: #e6e6e6;
+$ticker-label: #8b949e;
+$ticker-up: #3fb950;       // verde
+$ticker-down: #f85149;     // vermelho
+
+.market-ticker {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: $ticker-height;
+	background: linear-gradient(180deg, $ticker-bg 0%, $ticker-bg-alt 100%);
+	border-bottom: 1px solid $ticker-border;
+	z-index: 10000;              // acima de tudo, inclusive do header
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+	// Faixas de fade nas bordas (efeito profissional)
+	&::before,
+	&::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		width: 60px;
+		height: 100%;
+		z-index: 2;
+		pointer-events: none;
+	}
+	&::before {
+		left: 0;
+		background: linear-gradient(90deg, $ticker-bg 0%, rgba(14, 19, 22, 0) 100%);
+	}
+	&::after {
+		right: 0;
+		background: linear-gradient(270deg, $ticker-bg 0%, rgba(14, 19, 22, 0) 100%);
+	}
+}
+
+.ticker-track {
+	display: inline-flex;
+	align-items: center;
+	white-space: nowrap;
+	will-change: transform;
+	animation: ticker-scroll 60s linear infinite;
+
+	// Pausa a animação ao passar o mouse
+	&:hover {
+		animation-play-state: paused;
+	}
+}
+
+.ticker-item {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.5em;
+	padding: 0 1.5em;
+	font-family: "Courier New", "Roboto Mono", monospace;
+	font-size: 0.82rem;
+	color: $ticker-text;
+	border-right: 1px solid $ticker-border;
+	letter-spacing: 0.02em;
+
+	.ticker-label {
+		color: $ticker-label;
+		font-weight: 700;
+		text-transform: uppercase;
+		font-size: 0.78rem;
+	}
+
+	.ticker-value {
+		color: $ticker-text;
+		font-weight: 600;
+	}
+
+	.ticker-change {
+		font-weight: 700;
+		font-size: 0.78rem;
+
+		&.up   { color: $ticker-up; }
+		&.down { color: $ticker-down; }
+	}
+}
+
+.ticker-loading {
+	color: $ticker-label;
+	font-style: italic;
+}
+
+@keyframes ticker-scroll {
+	0%   { transform: translateX(0); }
+	100% { transform: translateX(-50%); } // -50% porque o conteúdo é duplicado
+}
+
+// ─── Empurra o conteúdo da página para baixo, para o ticker não cobrir ───
+body {
+	padding-top: $ticker-height;
+}
+
+// O header fixo do tema (quando aplicável) também desce
+#header.alt {
+	// nada a fazer: header não é fixed no tema Forty, então só o body padding basta
+}
+
+// Em telas pequenas, ticker um pouco mais compacto
+@media screen and (max-width: 736px) {
+	.market-ticker {
+		height: 34px;
+	}
+	body {
+		padding-top: 34px;
+	}
+	.ticker-item {
+		font-size: 0.75rem;
+		padding: 0 1em;
+	}
+	.ticker-track {
+		animation-duration: 45s; // um pouco mais rápido no mobile
+	}
+}
