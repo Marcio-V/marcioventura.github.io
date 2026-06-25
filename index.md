@@ -1,7 +1,8 @@
 ---
 layout: home
 title: Home
-landing-title: 'Marcio Ventura'
+landing-title: 'Bem-vindo'
+hero-subtitle: 'Economia, Dados e Soluções'
 description: Finanças Quantitativas, Economia Aplicada e Engenharia Financeira
 image: null
 author: null

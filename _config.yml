@@ -52,5 +52,11 @@ sass:
 exclude:
   - "*.gemspec"
   - LICENSE.md
+  - LICENSE
   - CONTRIBUTING.md
   - README.md
+  - cloudflare-worker/
+  - package.json
+  - package-lock.json
+  - Gemfile
+  - Gemfile.lock

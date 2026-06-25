@@ -1,7 +1,7 @@
 ---
 title: Projetos
 layout: landing
-description: Finanças Quantitativas • Economia Aplicada • Engenharia Financeira
+description: Economia • Finanças • Dados
 image: assets/images/bluuur.jpg
 nav-menu: true
 ---
