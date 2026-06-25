@@ -25,6 +25,22 @@ $ticker-down: #f85149;     // vermelho
 	align-items: center;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 
+	// Blindagem contra heranças do tema Forty (line-height, margin, font global)
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+		line-height: 1 !important;
+		vertical-align: middle;
+	}
+
+	// Garante que a faixa tenha exatamente a altura definida, sem crescer
+	.ticker-track,
+	.ticker-item {
+		min-height: 0;
+		max-height: $ticker-height;
+	}
+
 	// Faixas de fade nas bordas (efeito profissional)
 	&::before,
 	&::after {
@@ -49,8 +65,12 @@ $ticker-down: #f85149;     // vermelho
 .ticker-track {
 	display: inline-flex;
 	align-items: center;
-	height: 100%;
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
 	white-space: nowrap;
+	line-height: 1 !important;
 	will-change: transform;
 	animation: ticker-scroll 60s linear infinite;
 
@@ -63,12 +83,11 @@ $ticker-down: #f85149;     // vermelho
 .ticker-item {
 	display: inline-flex;
 	align-items: center;
-	height: 100%;
 	gap: 0.5em;
-	padding: 0 1.5em;
+	padding: 0 1.5em !important;
 	font-family: "Courier New", "Roboto Mono", monospace;
 	font-size: 0.82rem;
-	line-height: 1;
+	line-height: 1 !important;
 	color: $ticker-text;
 	border-right: 1px solid $ticker-border;
 	letter-spacing: 0.02em;
@@ -100,8 +119,8 @@ $ticker-down: #f85149;     // vermelho
 }
 
 @keyframes ticker-scroll {
-	0%   { transform: translateX(0); }
-	100% { transform: translateX(-50%); } // -50% porque o conteúdo é duplicado
+	0%   { transform: translateX(0) translateY(-50%); }
+	100% { transform: translateX(-50%) translateY(-50%); } // X: -50% (conteúdo duplicado), Y mantém centralização
 }
 
 // ─── Empurra o conteúdo da página para baixo, para o ticker não cobrir ───
