@@ -1,0 +1,6 @@
+name = "market-proxy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Após o deploy, sua URL será:
+# https://market-proxy.<seu-usuario>.workers.dev

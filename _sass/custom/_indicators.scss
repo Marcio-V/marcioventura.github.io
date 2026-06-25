@@ -7,7 +7,7 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 
 .economic-indicators {
 	padding: 5em 0;
-	background-color: #f9f9f9;
+	background-color: #f9f9f9 !important;
 	border-top: 1px solid rgba(0, 0, 0, 0.08);
 
 	.inner {
@@ -37,7 +37,7 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 	}
 
 	.indicator-card {
-		background-color: #ffffff;
+		background-color: #ffffff !important;
 		border: 1px solid rgba(0, 0, 0, 0.1);
 		border-radius: 6px;
 		padding: 1.5em;
@@ -91,7 +91,7 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 		.indicator-value {
 			font-size: 1.6em;
 			font-weight: 700;
-			color: $indicator-blue;
+			color: $indicator-blue !important;
 			margin: 0 0 0.25em 0;
 			line-height: 1.2;
 		}

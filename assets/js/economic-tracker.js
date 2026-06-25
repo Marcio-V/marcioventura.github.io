@@ -27,10 +27,12 @@
     DESEMPREGO: 24369,  // Taxa de desocupação - PNAD Contínua
   };
 
-  // ─── Proxy CORS para Yahoo Finance ─────────────────────────────────────────
-  // O Yahoo bloqueia requisições diretas do browser (CORS). O proxy resolve isso.
-  const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-  const YAHOO_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart/';
+  // ─── Proxy de cotações via Cloudflare Worker ───────────────────────────────
+  // O Yahoo bloqueia requisições diretas do browser (CORS). O Worker resolve isso
+  // de forma estável e sob seu controle.
+  //
+  // ⚠️ SUBSTITUA pela URL real do seu Worker após o deploy (ver INSTRUCOES-CLOUDFLARE.md)
+  const MARKET_PROXY = 'https://market-proxy.m-matheus-baptista.workers.dev';
 
   // ─── Utilitários de Cache ──────────────────────────────────────────────────
   function cacheSet(key, data) {
@@ -68,32 +70,34 @@
     }
   }
 
-  // ─── Fetch Yahoo Finance via proxy CORS ────────────────────────────────────
-  async function fetchYahoo(ticker, cacheKey) {
+  // ─── Fetch cotações via Cloudflare Worker ──────────────────────────────────
+  async function fetchMarket(ticker, cacheKey) {
     const cached = cacheGet(cacheKey, CACHE_TTL.market);
     if (cached) return cached;
 
-    const yahooUrl = `${YAHOO_BASE}${ticker}?interval=1d&range=2d`;
-    const url = CORS_PROXY + encodeURIComponent(yahooUrl);
+    // Se a URL do Worker ainda não foi configurada, não tenta (evita erro no console)
+    if (MARKET_PROXY.indexOf('SEU-USUARIO') !== -1) {
+      console.warn('[Market] Worker da Cloudflare ainda não configurado. Veja INSTRUCOES-CLOUDFLARE.md');
+      return null;
+    }
+
+    const url = MARKET_PROXY + '/?ticker=' + encodeURIComponent(ticker);
     try {
       const res = await fetch(url);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const json = await res.json();
-      const result = json?.chart?.result?.[0];
-      if (!result || !result.meta) throw new Error('Sem dados');
-
-      const meta = result.meta;
-      const current = meta.regularMarketPrice;
-      const previous = meta.chartPreviousClose || meta.previousClose;
+      if (json.error || typeof json.current !== 'number') {
+        throw new Error(json.error || 'Sem dados');
+      }
       const data = {
-        current: current,
-        previous: previous,
-        change: ((current - previous) / previous) * 100,
+        current: json.current,
+        previous: json.previous,
+        change: json.change,
       };
       cacheSet(cacheKey, data);
       return data;
     } catch (err) {
-      console.warn('[Yahoo ' + ticker + '] Falha:', err.message);
+      console.warn('[Market ' + ticker + '] Falha:', err.message);
       return null;
     }
   }
@@ -244,7 +248,7 @@
   }
 
   async function updateIbovespa() {
-    const data = await fetchYahoo('%5EBVSP', 'yahoo_ibov');
+    const data = await fetchMarket('^BVSP', 'mkt_ibov');
     if (data) {
       setVal('#ibovespa-data .ibov-current-value', Math.round(data.current).toLocaleString('pt-BR'));
       setChange('#ibovespa-data .ibov-daily-change', data.change);
@@ -255,7 +259,7 @@
   }
 
   async function updateSP500() {
-    const data = await fetchYahoo('%5EGSPC', 'yahoo_sp500');
+    const data = await fetchMarket('^GSPC', 'mkt_sp500');
     if (data) {
       setVal('#sp500-data .sp500-current-value', Math.round(data.current).toLocaleString('pt-BR'));
       setChange('#sp500-data .sp500-daily-change', data.change);
@@ -266,7 +270,7 @@
   }
 
   async function updateNasdaq() {
-    const data = await fetchYahoo('%5EIXIC', 'yahoo_nasdaq');
+    const data = await fetchMarket('^IXIC', 'mkt_nasdaq');
     if (data) {
       setVal('#nasdaq-data .nasdaq-current-value', Math.round(data.current).toLocaleString('pt-BR'));
       setChange('#nasdaq-data .nasdaq-daily-change', data.change);
