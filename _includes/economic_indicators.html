@@ -7,16 +7,18 @@
 
 		<div class="indicator-grid">
 
+			<!-- ───────── LINHA 1: Câmbio + Bolsas ───────── -->
+
 			<!-- Dólar Comercial -->
 			<div class="indicator-card" id="dolar-data">
 				<div class="indicator-header">
 					<span class="indicator-flag">🇺🇸</span>
-					<h3 class="indicator-title">Dólar Comercial</h3>
+					<h3 class="indicator-title">Dólar</h3>
 					<span class="indicator-source">BCB</span>
 				</div>
 				<div class="indicator-body">
-					<p class="indicator-value">R$ <span class="dolar-current-value"><span class="ind-skeleton">----</span></span></p>
-					<p class="indicator-change">Variação: <span class="dolar-daily-change ind-skeleton">--.-- %</span></p>
+					<p class="indicator-value">R$&nbsp;<span class="dolar-current-value"><span class="ind-skeleton">----</span></span></p>
+					<p class="indicator-change">Variação: <span class="dolar-daily-change ind-skeleton">--,-- %</span></p>
 				</div>
 			</div>
 
@@ -24,12 +26,12 @@
 			<div class="indicator-card" id="euro-data">
 				<div class="indicator-header">
 					<span class="indicator-flag">🇪🇺</span>
-					<h3 class="indicator-title">Euro Comercial</h3>
+					<h3 class="indicator-title">Euro</h3>
 					<span class="indicator-source">BCB</span>
 				</div>
 				<div class="indicator-body">
-					<p class="indicator-value">R$ <span class="euro-current-value"><span class="ind-skeleton">----</span></span></p>
-					<p class="indicator-change">Variação: <span class="euro-daily-change ind-skeleton">--.-- %</span></p>
+					<p class="indicator-value">R$&nbsp;<span class="euro-current-value"><span class="ind-skeleton">----</span></span></p>
+					<p class="indicator-change">Variação: <span class="euro-daily-change ind-skeleton">--,-- %</span></p>
 				</div>
 			</div>
 
@@ -37,24 +39,52 @@
 			<div class="indicator-card" id="ibovespa-data">
 				<div class="indicator-header">
 					<span class="indicator-flag">📈</span>
-					<h3 class="indicator-title">IBOVESPA</h3>
-					<span class="indicator-source">Yahoo Finance</span>
+					<h3 class="indicator-title">Ibovespa</h3>
+					<span class="indicator-source">Yahoo</span>
 				</div>
 				<div class="indicator-body">
-					<p class="indicator-value"><span class="ibov-current-value"><span class="ind-skeleton">------</span></span> pts</p>
-					<p class="indicator-change">Variação: <span class="ibov-daily-change ind-skeleton">--.-- %</span></p>
+					<p class="indicator-value"><span class="ibov-current-value"><span class="ind-skeleton">------</span></span><span class="indicator-unit">&nbsp;pts</span></p>
+					<p class="indicator-change">Variação: <span class="ibov-daily-change ind-skeleton">--,-- %</span></p>
 				</div>
 			</div>
+
+			<!-- S&P 500 -->
+			<div class="indicator-card" id="sp500-data">
+				<div class="indicator-header">
+					<span class="indicator-flag">🇺🇸</span>
+					<h3 class="indicator-title">S&amp;P 500</h3>
+					<span class="indicator-source">Yahoo</span>
+				</div>
+				<div class="indicator-body">
+					<p class="indicator-value"><span class="sp500-current-value"><span class="ind-skeleton">------</span></span><span class="indicator-unit">&nbsp;pts</span></p>
+					<p class="indicator-change">Variação: <span class="sp500-daily-change ind-skeleton">--,-- %</span></p>
+				</div>
+			</div>
+
+			<!-- Nasdaq -->
+			<div class="indicator-card" id="nasdaq-data">
+				<div class="indicator-header">
+					<span class="indicator-flag">💻</span>
+					<h3 class="indicator-title">Nasdaq</h3>
+					<span class="indicator-source">Yahoo</span>
+				</div>
+				<div class="indicator-body">
+					<p class="indicator-value"><span class="nasdaq-current-value"><span class="ind-skeleton">------</span></span><span class="indicator-unit">&nbsp;pts</span></p>
+					<p class="indicator-change">Variação: <span class="nasdaq-daily-change ind-skeleton">--,-- %</span></p>
+				</div>
+			</div>
+
+			<!-- ───────── LINHA 2: Juros + Preços + Atividade ───────── -->
 
 			<!-- SELIC -->
 			<div class="indicator-card" id="selic-data">
 				<div class="indicator-header">
 					<span class="indicator-flag">🏦</span>
-					<h3 class="indicator-title">SELIC</h3>
+					<h3 class="indicator-title">Selic</h3>
 					<span class="indicator-source">BCB</span>
 				</div>
 				<div class="indicator-body">
-					<p class="indicator-value"><span class="selic-current-value"><span class="ind-skeleton">--.-</span></span>% a.a.</p>
+					<p class="indicator-value"><span class="selic-current-value"><span class="ind-skeleton">--,-</span></span><span class="indicator-unit">% a.a.</span></p>
 					<p class="indicator-change">Último COPOM: <span class="selic-copom-change ind-skeleton">--- bps</span></p>
 				</div>
 			</div>
@@ -67,7 +97,7 @@
 					<span class="indicator-source">BCB</span>
 				</div>
 				<div class="indicator-body">
-					<p class="indicator-value"><span class="cdi-current-value"><span class="ind-skeleton">--.-</span></span>% a.a.</p>
+					<p class="indicator-value"><span class="cdi-current-value"><span class="ind-skeleton">--,-</span></span><span class="indicator-unit">% a.a.</span></p>
 					<p class="indicator-change">Ref.: <span class="cdi-ref-date ind-skeleton">--/----</span></p>
 				</div>
 			</div>
@@ -77,11 +107,11 @@
 				<div class="indicator-header">
 					<span class="indicator-flag">🛒</span>
 					<h3 class="indicator-title">IPCA</h3>
-					<span class="indicator-source">BCB / IBGE</span>
+					<span class="indicator-source">IBGE</span>
 				</div>
 				<div class="indicator-body">
-					<p class="indicator-value"><span class="ipca-current-value"><span class="ind-skeleton">--.--</span></span>% <span class="indicator-value-label">no mês</span></p>
-					<p class="indicator-change">Acum. 12M: <span class="ipca-12m-value ind-skeleton">--.-- %</span></p>
+					<p class="indicator-value"><span class="ipca-current-value"><span class="ind-skeleton">--,--</span></span><span class="indicator-unit">% no mês</span></p>
+					<p class="indicator-change">Acum. 12M: <span class="ipca-12m-value ind-skeleton">--,-- %</span></p>
 				</div>
 			</div>
 
@@ -90,44 +120,31 @@
 				<div class="indicator-header">
 					<span class="indicator-flag">👥</span>
 					<h3 class="indicator-title">Desemprego</h3>
-					<span class="indicator-source">IBGE / PNAD</span>
+					<span class="indicator-source">IBGE</span>
 				</div>
 				<div class="indicator-body">
-					<p class="indicator-value"><span class="desemprego-current-value"><span class="ind-skeleton">--.-</span></span>%</p>
+					<p class="indicator-value"><span class="desemprego-current-value"><span class="ind-skeleton">--,-</span></span><span class="indicator-unit">%</span></p>
 					<p class="indicator-change">Ref.: <span class="desemprego-ref-date ind-skeleton">--/----</span></p>
 				</div>
 			</div>
 
-			<!-- S&P 500 -->
-			<div class="indicator-card" id="sp500-data">
+			<!-- ICE — Índice de Confiança do Empresário -->
+			<div class="indicator-card" id="ice-data">
 				<div class="indicator-header">
-					<span class="indicator-flag">🇺🇸</span>
-					<h3 class="indicator-title">S&P 500</h3>
-					<span class="indicator-source">Yahoo Finance</span>
+					<span class="indicator-flag">📊</span>
+					<h3 class="indicator-title">Confiança (ICE)</h3>
+					<span class="indicator-source">BCB</span>
 				</div>
 				<div class="indicator-body">
-					<p class="indicator-value"><span class="sp500-current-value"><span class="ind-skeleton">------</span></span> pts</p>
-					<p class="indicator-change">Variação: <span class="sp500-daily-change ind-skeleton">--.-- %</span></p>
-				</div>
-			</div>
-
-			<!-- Nasdaq -->
-			<div class="indicator-card" id="nasdaq-data">
-				<div class="indicator-header">
-					<span class="indicator-flag">💻</span>
-					<h3 class="indicator-title">Nasdaq</h3>
-					<span class="indicator-source">Yahoo Finance</span>
-				</div>
-				<div class="indicator-body">
-					<p class="indicator-value"><span class="nasdaq-current-value"><span class="ind-skeleton">------</span></span> pts</p>
-					<p class="indicator-change">Variação: <span class="nasdaq-daily-change ind-skeleton">--.-- %</span></p>
+					<p class="indicator-value"><span class="ice-current-value"><span class="ind-skeleton">---</span></span><span class="indicator-unit">&nbsp;pts</span></p>
+					<p class="indicator-change">Ref.: <span class="ice-ref-date ind-skeleton">--/----</span></p>
 				</div>
 			</div>
 
 		</div><!-- .indicator-grid -->
 
 		<p class="indicators-disclaimer">
-			Dados com atualização automática. Fontes: Banco Central do Brasil (SGS), Yahoo Finance via proxy público.
+			Dados com atualização automática. Fontes: Banco Central do Brasil (SGS), IBGE e Yahoo Finance.
 			Indicadores de mercado podem apresentar defasagem de até 15 minutos.
 		</p>
 	</div>

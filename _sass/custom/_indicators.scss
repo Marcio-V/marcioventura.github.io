@@ -1,9 +1,10 @@
 // ============================================================
 // Indicadores Econômicos — Estilos customizados
-// Identidade: fundo branco, valores em azul (padrão original)
+// Identidade: fundo branco, valores em azul
+// Grid 5 colunas, cards uniformes, tipografia consistente
 // ============================================================
 
-$indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
+$indicator-blue: #2065d1;
 
 .economic-indicators {
 	padding: 5em 0;
@@ -11,7 +12,7 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 	border-top: 1px solid rgba(0, 0, 0, 0.08);
 
 	.inner {
-		max-width: 75em;
+		max-width: 80em;
 		margin: 0 auto;
 		padding: 0 2em;
 	}
@@ -29,10 +30,11 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 		letter-spacing: 0.05em;
 	}
 
+	// ─── Grid: 5 colunas fixas (2 linhas de 5) ───
 	.indicator-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-		gap: 1.5em;
+		grid-template-columns: repeat(5, 1fr);
+		gap: 1.25em;
 		margin-bottom: 2em;
 	}
 
@@ -40,10 +42,11 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 		background-color: #ffffff !important;
 		border: 1px solid rgba(0, 0, 0, 0.1);
 		border-radius: 6px;
-		padding: 1.5em;
+		padding: 1.4em 1.25em;
 		display: flex;
 		flex-direction: column;
-		gap: 0.75em;
+		gap: 0.6em;
+		min-height: 140px;              // altura uniforme entre todos os cards
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 		transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
@@ -54,64 +57,79 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 		}
 	}
 
+	// ─── Cabeçalho do card ───
 	.indicator-header {
 		display: flex;
 		align-items: center;
-		gap: 0.5em;
+		gap: 0.4em;
+		min-height: 1.4em;
 
 		.indicator-flag {
-			font-size: 1.2em;
+			font-size: 1.1em;
+			line-height: 1;
+			flex-shrink: 0;
 		}
 
 		.indicator-title {
-			font-size: 0.85em;
+			font-size: 0.78em;
 			font-weight: 700;
 			color: #333;
 			text-transform: uppercase;
-			letter-spacing: 0.1em;
+			letter-spacing: 0.06em;
 			margin: 0;
 			flex: 1;
 			border: none;
 			padding: 0;
+			white-space: nowrap;        // nome não quebra em 2 linhas
+			overflow: hidden;
+			text-overflow: ellipsis;    // se faltar espaço, vira "..."
 
-			&::after {
-				display: none;
-			}
+			&::after { display: none; }
 		}
 
 		.indicator-source {
-			font-size: 0.6em;
+			font-size: 0.58em;
 			color: #aaa;
 			text-transform: uppercase;
 			letter-spacing: 0.05em;
+			flex-shrink: 0;
 		}
 	}
 
+	// ─── Corpo do card ───
 	.indicator-body {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3em;
+		margin-top: auto;             // empurra valores para a base (alinhamento uniforme)
+
 		.indicator-value {
-			font-size: 1.6em;
+			font-size: 1.5em;          // TAMANHO FIXO — igual em todos os cards
 			font-weight: 700;
 			color: $indicator-blue !important;
-			margin: 0 0 0.25em 0;
-			line-height: 1.2;
+			margin: 0;
+			line-height: 1.15;
+			white-space: nowrap;
 		}
 
-		.indicator-value-label {
+		// Unidade (pts, % a.a., % no mês) — menor e em cinza, não compete com o número
+		.indicator-unit {
 			font-size: 0.5em;
-			font-weight: 400;
+			font-weight: 600;
 			color: #999;
-			text-transform: uppercase;
-			letter-spacing: 0.05em;
+			text-transform: none;
+			letter-spacing: 0.02em;
 		}
 
 		.indicator-change {
-			font-size: 0.85em;
+			font-size: 0.82em;
 			color: #777;
 			margin: 0;
+			white-space: nowrap;
 		}
 	}
 
-	// Estados de variação
+	// ─── Estados de variação ───
 	.positive {
 		color: #1c9e63 !important;
 		&::before { content: "▲ "; font-size: 0.8em; }
@@ -122,9 +140,10 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 		&::before { content: "▼ "; font-size: 0.8em; }
 	}
 
-	// Skeleton loading (tom claro p/ fundo branco)
+	// ─── Skeleton loading ───
 	.ind-skeleton {
 		display: inline-block;
+		min-width: 3em;
 		background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
 		background-size: 200% 100%;
 		animation: skeleton-shimmer 1.5s infinite;
@@ -138,10 +157,9 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 		100% { background-position: -200% 0; }
 	}
 
-	// Erro de carregamento
 	.ind-error {
 		color: #d0342c;
-		font-size: 0.8em;
+		font-size: 0.85em;
 	}
 
 	.indicators-disclaimer {
@@ -152,14 +170,24 @@ $indicator-blue: #2065d1; // azul dos valores (padrão da identidade)
 		font-style: italic;
 	}
 
-	// Responsivo
-	@media screen and (max-width: 736px) {
+	// ─── Responsivo ───
+	// Tablet: 3 colunas
+	@media screen and (max-width: 980px) {
 		.indicator-grid {
-			grid-template-columns: 1fr 1fr;
+			grid-template-columns: repeat(3, 1fr);
 		}
 	}
-
-	@media screen and (max-width: 480px) {
+	// Mobile grande: 2 colunas
+	@media screen and (max-width: 736px) {
+		.indicator-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		.indicator-body .indicator-value {
+			font-size: 1.3em;
+		}
+	}
+	// Mobile pequeno: 1 coluna
+	@media screen and (max-width: 420px) {
 		.indicator-grid {
 			grid-template-columns: 1fr;
 		}

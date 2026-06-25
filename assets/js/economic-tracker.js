@@ -22,9 +22,9 @@
     EUR_BRL:    21619,  // Euro - Venda
     SELIC_META: 432,    // Meta SELIC definida pelo COPOM (% a.a.)
     CDI:        4389,   // CDI acumulado no mês
-    IPCA_MES:   433,    // IPCA - variação mensal
-    IPCA_12M:   13522,  // IPCA - acumulado 12 meses
+    IPCA_MES:   433,    // IPCA - variação mensal (base p/ acum. 12M)
     DESEMPREGO: 24369,  // Taxa de desocupação - PNAD Contínua
+    ICE:        4393,   // Índice de Confiança do Empresário (Fecomercio/SGS)
   };
 
   // ─── Proxy de cotações via Cloudflare Worker ───────────────────────────────
@@ -52,22 +52,52 @@
   }
 
   // ─── Fetch BCB SGS ─────────────────────────────────────────────────────────
+  // Usa /ultimos/N como método primário. Se falhar ou vier vazio (algumas séries
+  // pouco consultadas falham nesse endpoint), tenta de novo com filtro de data.
   async function fetchBCB(seriesId, lastN, ttlKey) {
     const cacheKey = 'bcb_' + seriesId;
     const cached = cacheGet(cacheKey, CACHE_TTL[ttlKey]);
     if (cached) return cached;
 
-    const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${seriesId}/dados/ultimos/${lastN}?formato=json`;
+    const base = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${seriesId}/dados`;
+
+    // Método 1: últimos N valores
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      cacheSet(cacheKey, data);
-      return data;
+      const res = await fetch(`${base}/ultimos/${lastN}?formato=json`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          cacheSet(cacheKey, data);
+          return data;
+        }
+      }
     } catch (err) {
-      console.warn('[BCB SGS ' + seriesId + '] Falha:', err.message);
-      return null;
+      console.warn('[BCB ' + seriesId + '] /ultimos falhou:', err.message);
     }
+
+    // Método 2 (fallback): filtro por data — últimos ~18 meses
+    try {
+      const hoje = new Date();
+      const inicio = new Date();
+      inicio.setMonth(inicio.getMonth() - 18);
+      const fmt = (d) =>
+        String(d.getDate()).padStart(2, '0') + '/' +
+        String(d.getMonth() + 1).padStart(2, '0') + '/' +
+        d.getFullYear();
+      const url = `${base}?formato=json&dataInicial=${fmt(inicio)}&dataFinal=${fmt(hoje)}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          cacheSet(cacheKey, data);
+          return data;
+        }
+      }
+    } catch (err) {
+      console.warn('[BCB ' + seriesId + '] filtro de data falhou:', err.message);
+    }
+
+    return null;
   }
 
   // ─── Fetch cotações via Cloudflare Worker ──────────────────────────────────
@@ -186,14 +216,23 @@
   }
 
   async function updateSelic() {
-    // Busca os 2 últimos valores da meta SELIC p/ calcular variação do último COPOM em bps
-    const data = await fetchBCB(BCB_SERIES.SELIC_META, 2, 'bcb_rate');
+    // A meta SELIC (série 432) é diária e repete o mesmo valor entre reuniões do COPOM.
+    // Buscamos o histórico recente e detectamos a ÚLTIMA mudança de patamar para
+    // calcular a variação do último COPOM em bps de forma automática.
+    const data = await fetchBCB(BCB_SERIES.SELIC_META, 400, 'bcb_rate');
     if (data && data.length >= 1) {
-      const latest = parseFloat(data[data.length - 1].valor.replace(',', '.'));
-      setVal('#selic-data .selic-current-value', latest.toFixed(2).replace('.', ','));
-      if (data.length >= 2) {
-        const previous = parseFloat(data[data.length - 2].valor.replace(',', '.'));
-        const bps = (latest - previous) * 100; // 1 ponto percentual = 100 bps
+      const valores = data.map((d) => parseFloat(d.valor.replace(',', '.')));
+      const atual = valores[valores.length - 1];
+      setVal('#selic-data .selic-current-value', atual.toFixed(2).replace('.', ','));
+
+      // Procura, de trás pra frente, o último valor DIFERENTE do atual
+      let anterior = null;
+      for (let i = valores.length - 2; i >= 0; i--) {
+        if (valores[i] !== atual) { anterior = valores[i]; break; }
+      }
+
+      if (anterior !== null) {
+        const bps = Math.round((atual - anterior) * 100); // 1 p.p. = 100 bps
         setBps('#selic-data .selic-copom-change', bps);
       } else {
         setVal('#selic-data .selic-copom-change', 'estável');
@@ -207,43 +246,66 @@
   async function updateCDI() {
     const data = await fetchBCB(BCB_SERIES.CDI, 1, 'bcb_rate');
     if (data && data.length > 0) {
-      const latest = parseFloat(data[0].valor.replace(',', '.'));
-      const date   = data[0].data;
+      const last   = data[data.length - 1];
+      const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#cdi-data .cdi-current-value', latest.toFixed(2).replace('.', ','));
-      setVal('#cdi-data .cdi-ref-date', date.substring(3));
+      setVal('#cdi-data .cdi-ref-date', last.data.substring(3)); // MM/YYYY
     } else {
       setError('#cdi-data .cdi-current-value', 'N/D');
+      setError('#cdi-data .cdi-ref-date', '');
     }
   }
 
   async function updateIPCA() {
-    // IPCA no mês
-    const mes = await fetchBCB(BCB_SERIES.IPCA_MES, 1, 'bcb_monthly');
-    if (mes && mes.length > 0) {
-      const latest = parseFloat(mes[0].valor.replace(',', '.'));
-      setVal('#ipca-data .ipca-current-value', latest.toFixed(2).replace('.', ','));
+    // Busca os últimos 12+ valores mensais do IPCA (série 433)
+    const serie = await fetchBCB(BCB_SERIES.IPCA_MES, 13, 'bcb_monthly');
+    if (serie && serie.length > 0) {
+      // IPCA do mês = último valor
+      const last = serie[serie.length - 1];
+      const mes  = parseFloat(last.valor.replace(',', '.'));
+      setVal('#ipca-data .ipca-current-value', mes.toFixed(2).replace('.', ','));
+
+      // IPCA acumulado 12 meses = produtório (1 + xi/100) - 1
+      if (serie.length >= 12) {
+        const ultimos12 = serie.slice(-12);
+        const acum = ultimos12.reduce(
+          (acc, d) => acc * (1 + parseFloat(d.valor.replace(',', '.')) / 100),
+          1
+        );
+        const pct12 = (acum - 1) * 100;
+        setVal('#ipca-data .ipca-12m-value', pct12.toFixed(2).replace('.', ',') + '%');
+      } else {
+        setError('#ipca-data .ipca-12m-value', 'N/D');
+      }
     } else {
       setError('#ipca-data .ipca-current-value', 'N/D');
-    }
-    // IPCA acumulado 12 meses
-    const acum = await fetchBCB(BCB_SERIES.IPCA_12M, 1, 'bcb_monthly');
-    if (acum && acum.length > 0) {
-      const latest12 = parseFloat(acum[0].valor.replace(',', '.'));
-      setVal('#ipca-data .ipca-12m-value', latest12.toFixed(2).replace('.', ',') + '%');
-    } else {
-      setError('#ipca-data .ipca-12m-value', 'N/D');
+      setError('#ipca-data .ipca-12m-value', '');
     }
   }
 
   async function updateDesemprego() {
-    const data = await fetchBCB(BCB_SERIES.DESEMPREGO, 1, 'bcb_monthly');
+    const data = await fetchBCB(BCB_SERIES.DESEMPREGO, 2, 'bcb_monthly');
     if (data && data.length > 0) {
-      const latest = parseFloat(data[0].valor.replace(',', '.'));
-      const date   = data[0].data;
+      const last   = data[data.length - 1];
+      const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#desemprego-data .desemprego-current-value', latest.toFixed(1).replace('.', ','));
-      setVal('#desemprego-data .desemprego-ref-date', date.substring(3));
+      setVal('#desemprego-data .desemprego-ref-date', last.data.substring(3)); // MM/YYYY
     } else {
       setError('#desemprego-data .desemprego-current-value', 'N/D');
+      setError('#desemprego-data .desemprego-ref-date', '');
+    }
+  }
+
+  async function updateICE() {
+    const data = await fetchBCB(BCB_SERIES.ICE, 2, 'bcb_monthly');
+    if (data && data.length > 0) {
+      const last   = data[data.length - 1];
+      const latest = parseFloat(last.valor.replace(',', '.'));
+      setVal('#ice-data .ice-current-value', latest.toFixed(1).replace('.', ','));
+      setVal('#ice-data .ice-ref-date', last.data.substring(3)); // MM/YYYY
+    } else {
+      setError('#ice-data .ice-current-value', 'N/D');
+      setError('#ice-data .ice-ref-date', '');
     }
   }
 
@@ -289,6 +351,7 @@
       updateCDI(),
       updateIPCA(),
       updateDesemprego(),
+      updateICE(),
       updateIbovespa(),
       updateSP500(),
       updateNasdaq(),
