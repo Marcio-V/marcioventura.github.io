@@ -133,19 +133,25 @@
   }
 
   // ─── Helpers de renderização ───────────────────────────────────────────────
+  // Remove o skeleton tanto de um span filho quanto do próprio elemento alvo
+  function clearSkeleton(el) {
+    if (!el) return;
+    el.classList.remove('ind-skeleton');
+    const child = el.querySelector('.ind-skeleton');
+    if (child) child.classList.remove('ind-skeleton');
+  }
+
   function setVal(selector, text) {
     const el = document.querySelector(selector);
     if (!el) return;
-    const skeleton = el.querySelector('.ind-skeleton');
-    if (skeleton) skeleton.classList.remove('ind-skeleton');
+    clearSkeleton(el);
     el.textContent = text;
   }
 
   function setChange(selector, pct) {
     const el = document.querySelector(selector);
     if (!el) return;
-    const skeleton = el.querySelector ? el.querySelector('.ind-skeleton') : null;
-    if (skeleton) skeleton.classList.remove('ind-skeleton');
+    clearSkeleton(el);
     const formatted = (pct >= 0 ? '+' : '') + pct.toFixed(2).replace('.', ',') + '%';
     el.textContent = formatted;
     el.className = el.className.replace(/\b(positive|negative|ind-skeleton)\b/g, '').trim();
@@ -156,8 +162,7 @@
   function setBps(selector, bps) {
     const el = document.querySelector(selector);
     if (!el) return;
-    const skeleton = el.querySelector ? el.querySelector('.ind-skeleton') : null;
-    if (skeleton) skeleton.classList.remove('ind-skeleton');
+    clearSkeleton(el);
     const rounded = Math.round(bps);
     const formatted = (rounded >= 0 ? '+' : '') + rounded + ' bps';
     el.textContent = formatted;
@@ -169,8 +174,7 @@
   function setError(selector, msg) {
     const el = document.querySelector(selector);
     if (!el) return;
-    const skeleton = el.querySelector ? el.querySelector('.ind-skeleton') : null;
-    if (skeleton) skeleton.classList.remove('ind-skeleton');
+    clearSkeleton(el);
     el.textContent = msg || 'indisponível';
     el.classList.add('ind-error');
   }
@@ -249,10 +253,10 @@
       const last   = data[data.length - 1];
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#cdi-data .cdi-current-value', latest.toFixed(2).replace('.', ','));
-      setVal('#cdi-data .cdi-ref-date', last.data.substring(3)); // MM/YYYY
+      setVal('#cdi-data .cdi-ref-date', last.data ? last.data.substring(3) : '—');
     } else {
       setError('#cdi-data .cdi-current-value', 'N/D');
-      setError('#cdi-data .cdi-ref-date', '');
+      setError('#cdi-data .cdi-ref-date', '—');
     }
   }
 
@@ -279,7 +283,7 @@
       }
     } else {
       setError('#ipca-data .ipca-current-value', 'N/D');
-      setError('#ipca-data .ipca-12m-value', '');
+      setError('#ipca-data .ipca-12m-value', '—');
     }
   }
 
@@ -289,10 +293,10 @@
       const last   = data[data.length - 1];
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#desemprego-data .desemprego-current-value', latest.toFixed(1).replace('.', ','));
-      setVal('#desemprego-data .desemprego-ref-date', last.data.substring(3)); // MM/YYYY
+      setVal('#desemprego-data .desemprego-ref-date', last.data ? last.data.substring(3) : '—');
     } else {
       setError('#desemprego-data .desemprego-current-value', 'N/D');
-      setError('#desemprego-data .desemprego-ref-date', '');
+      setError('#desemprego-data .desemprego-ref-date', '—');
     }
   }
 
@@ -302,10 +306,10 @@
       const last   = data[data.length - 1];
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#ice-data .ice-current-value', latest.toFixed(1).replace('.', ','));
-      setVal('#ice-data .ice-ref-date', last.data.substring(3)); // MM/YYYY
+      setVal('#ice-data .ice-ref-date', last.data ? last.data.substring(3) : '—');
     } else {
       setError('#ice-data .ice-current-value', 'N/D');
-      setError('#ice-data .ice-ref-date', '');
+      setError('#ice-data .ice-ref-date', '—');
     }
   }
 
