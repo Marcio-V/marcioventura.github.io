@@ -175,13 +175,17 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">09</span>
 		<h2>Juros Reais</h2>
-		<span class="term-module-tag soon">Em construção</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
-	<div class="term-placeholder">
-		<div class="term-placeholder-icon">🧮</div>
-		<div class="term-placeholder-title">Juro Real Ex-Ante = Selic − Inflação Esperada</div>
-		<div class="term-placeholder-desc">Cálculo do juro real ex-ante a partir da Selic e das expectativas Focus de inflação, com comparação histórica. Indicador-chave para posicionamento em renda fixa.</div>
+	<p class="term-prose" style="margin-bottom:1.2em;">
+		O <strong>juro real ex-ante</strong> mede o retorno acima da inflação <em>esperada</em>, sendo o indicador central para posicionamento em renda fixa. Calculado pela equação de Fisher a partir da Selic atual e da expectativa de inflação 12 meses da Pesquisa Focus.
+	</p>
+	<div class="term-grid">
+		<div class="term-card"><div class="term-card-label">Selic Meta</div><div class="term-card-value" data-macro="selic-jr"><span class="term-skeleton"></span></div><div class="term-card-sub">% a.a. (nominal)</div></div>
+		<div class="term-card"><div class="term-card-label">Inflação Esperada 12M</div><div class="term-card-value" data-macro="focus-inf"><span class="term-skeleton"></span></div><div class="term-card-sub">mediana Focus suavizada</div></div>
+		<div class="term-card"><div class="term-card-label">Juro Real Ex-Ante</div><div class="term-card-value" data-macro="juro-real"><span class="term-skeleton"></span></div><div class="term-card-sub">Fisher: (1+i)/(1+π)−1</div></div>
 	</div>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Fonte: Selic (BCB SGS 432) e expectativas de inflação 12M (Pesquisa Focus / API Olinda). Atualização automática.</p>
 </section>
 
 <!-- 10 CURVA DE JUROS -->
@@ -221,13 +225,17 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">12</span>
 		<h2>Commodities</h2>
-		<span class="term-module-tag soon">Em construção</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
-	<div class="term-placeholder">
-		<div class="term-placeholder-icon">🛢️</div>
-		<div class="term-placeholder-title">Petróleo · Minério · Soja · Milho · Cobre · Ouro</div>
-		<div class="term-placeholder-desc">Cotações de commodities via Yahoo Finance (através do Cloudflare Worker). Relevante para exportadoras brasileiras e dinâmica do câmbio.</div>
+	<div class="term-grid">
+		<div class="term-card"><div class="term-card-label">Petróleo WTI</div><div class="term-card-value" data-macro="wti"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="wti-chg">US$ / barril</div></div>
+		<div class="term-card"><div class="term-card-label">Petróleo Brent</div><div class="term-card-value" data-macro="brent"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="brent-chg">US$ / barril</div></div>
+		<div class="term-card"><div class="term-card-label">Ouro</div><div class="term-card-value" data-macro="ouro"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="ouro-chg">US$ / oz</div></div>
+		<div class="term-card"><div class="term-card-label">Cobre</div><div class="term-card-value" data-macro="cobre"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="cobre-chg">US$ / lb</div></div>
+		<div class="term-card"><div class="term-card-label">Soja</div><div class="term-card-value" data-macro="soja"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="soja-chg">¢ / bushel</div></div>
+		<div class="term-card"><div class="term-card-label">Milho</div><div class="term-card-value" data-macro="milho"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="milho-chg">¢ / bushel</div></div>
 	</div>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Futuros via Yahoo Finance (Cloudflare Worker). Petróleo e minério movem as exportadoras brasileiras (PETR4, VALE3) e o câmbio; grãos impactam o agronegócio e a balança comercial.</p>
 </section>
 
 <!-- 13 MUNDO -->

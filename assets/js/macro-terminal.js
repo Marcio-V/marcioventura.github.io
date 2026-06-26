@@ -40,6 +40,24 @@
     } catch(e){ return null; }
   }
 
+  // ─── Expectativa de inflação 12M (Pesquisa Focus via Olinda) ───────────────
+  // Retorna a mediana suavizada da inflação esperada para os próximos 12 meses.
+  async function fetchFocusInflacao12m() {
+    const ck = 'focus_ipca12m', c = cacheGet(ck, CACHE_TTL.monthly); if(c) return c;
+    const base = 'https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoInflacao12Meses';
+    const params = "?$top=1&$orderby=Data desc&$format=json&$select=Indicador,Data,Mediana,Suavizada&$filter=" + encodeURIComponent("Indicador eq 'IPCA' and Suavizada eq 'S'");
+    try {
+      const res = await fetch(base + params);
+      if (!res.ok) throw 0;
+      const j = await res.json();
+      const row = j && j.value && j.value[0];
+      if (!row) throw 0;
+      const d = { mediana: row.Mediana, data: row.Data };
+      cacheSet(ck, d);
+      return d;
+    } catch(e) { return null; }
+  }
+
   function set(macro, text, cls) {
     document.querySelectorAll('[data-macro="'+macro+'"]').forEach(function(el){
       const sk = el.querySelector('.term-skeleton'); if(sk) sk.remove();
@@ -83,8 +101,50 @@
   async function loadNasdaq(){ const d=await fetchMarket('^IXIC','mkt_nasdaq'); if(d){
     set('nasdaq',Math.round(d.current).toLocaleString('pt-BR')); setChg('nasdaq-chg',d.change);} else set('nasdaq','N/D'); }
 
+  // ─── Commodities (futuros via Worker) ──────────────────────────────────────
+  // priceFmt: como formatar o valor (cada commodity tem escala diferente)
+  async function loadCommodity(ticker, ck, macro, decimals){
+    const d = await fetchMarket(ticker, ck);
+    if (d){
+      set(macro, 'US$ ' + d.current.toFixed(decimals).replace('.',','));
+      setChg(macro+'-chg', d.change);
+    } else {
+      set(macro,'N/D');
+    }
+  }
+
+  function loadCommodities(){
+    return Promise.allSettled([
+      loadCommodity('CL=F','mkt_wti','wti',2),
+      loadCommodity('BZ=F','mkt_brent','brent',2),
+      loadCommodity('GC=F','mkt_ouro','ouro',2),
+      loadCommodity('HG=F','mkt_cobre','cobre',2),
+      loadCommodity('ZS=F','mkt_soja','soja',2),
+      loadCommodity('ZC=F','mkt_milho','milho',2),
+    ]);
+  }
+
+  // ─── Juros Reais (ex-ante, via equação de Fisher) ──────────────────────────
+  // juro_real = [(1 + Selic/100) / (1 + InflaçãoEsperada/100) − 1] × 100
+  async function loadJurosReais(){
+    const selicData = await fetchBCB(BCB.SELIC, 1, 'rate');
+    const focus = await fetchFocusInflacao12m();
+
+    if (selicData && selicData.length && focus && typeof focus.mediana === 'number') {
+      const selic = parseFloat(selicData[selicData.length-1].valor.replace(',','.'));
+      const infEsperada = focus.mediana;
+      const juroReal = ((1 + selic/100) / (1 + infEsperada/100) - 1) * 100;
+
+      set('selic-jr', selic.toFixed(2).replace('.',',') + '%');
+      set('focus-inf', infEsperada.toFixed(2).replace('.',',') + '%');
+      set('juro-real', juroReal.toFixed(2).replace('.',',') + '%', juroReal >= 0 ? 'up' : 'down');
+    } else {
+      set('selic-jr','N/D'); set('focus-inf','N/D'); set('juro-real','N/D');
+    }
+  }
+
   function loadAll(){
-    Promise.allSettled([loadDolar(),loadEuro(),loadSelic(),loadCDI(),loadIPCA(),loadDesemprego(),loadIbov(),loadSP500(),loadNasdaq()]);
+    Promise.allSettled([loadDolar(),loadEuro(),loadSelic(),loadCDI(),loadIPCA(),loadDesemprego(),loadIbov(),loadSP500(),loadNasdaq(),loadJurosReais(),loadCommodities()]);
   }
 
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', loadAll);
