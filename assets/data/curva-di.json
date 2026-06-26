@@ -1,23 +1,103 @@
 {
-  "refdate": "2026-06-25",
+  "refdate": "2026-06-26",
   "fonte": "ANBIMA — ETTJ Prefixada (DI x PRE)",
-  "atualizado_em": "2026-06-25",
+  "atualizado_em": "2026-06-26",
   "vertices": [
-    { "du": 21,   "anos": 0.08, "label": "1M",  "taxa": 13.9266 },
-    { "du": 42,   "anos": 0.17, "label": "2M",  "taxa": 13.9222 },
-    { "du": 63,   "anos": 0.25, "label": "3M",  "taxa": 13.9224 },
-    { "du": 126,  "anos": 0.5,  "label": "6M",  "taxa": 13.9439 },
-    { "du": 252,  "anos": 1,    "label": "1A",  "taxa": 14.0426 },
-    { "du": 378,  "anos": 1.5,  "label": "1A6M","taxa": 14.1647 },
-    { "du": 504,  "anos": 2,    "label": "2A",  "taxa": 14.2787 },
-    { "du": 630,  "anos": 2.5,  "label": "2A6M","taxa": 14.3723 },
-    { "du": 756,  "anos": 3,    "label": "3A",  "taxa": 14.4427 },
-    { "du": 1008, "anos": 4,    "label": "4A",  "taxa": 14.5223 },
-    { "du": 1260, "anos": 5,    "label": "5A",  "taxa": 14.5441 },
-    { "du": 1512, "anos": 6,    "label": "6A",  "taxa": 14.5334 },
-    { "du": 1764, "anos": 7,    "label": "7A",  "taxa": 14.5073 },
-    { "du": 2016, "anos": 8,    "label": "8A",  "taxa": 14.4754 },
-    { "du": 2268, "anos": 9,    "label": "9A",  "taxa": 14.4430 },
-    { "du": 2520, "anos": 10,   "label": "10A", "taxa": 14.4125 }
+    {
+      "du": 21,
+      "anos": 0.08,
+      "label": "1M",
+      "taxa": 13.9194
+    },
+    {
+      "du": 42,
+      "anos": 0.17,
+      "label": "2M",
+      "taxa": 13.9194
+    },
+    {
+      "du": 63,
+      "anos": 0.25,
+      "label": "3M",
+      "taxa": 13.9194
+    },
+    {
+      "du": 126,
+      "anos": 0.5,
+      "label": "6M",
+      "taxa": 13.9194
+    },
+    {
+      "du": 252,
+      "anos": 1,
+      "label": "1A",
+      "taxa": 13.9878
+    },
+    {
+      "du": 378,
+      "anos": 1.5,
+      "label": "1A6M",
+      "taxa": 14.0867
+    },
+    {
+      "du": 504,
+      "anos": 2,
+      "label": "2A",
+      "taxa": 14.1879
+    },
+    {
+      "du": 630,
+      "anos": 2.5,
+      "label": "2A6M",
+      "taxa": 14.2781
+    },
+    {
+      "du": 756,
+      "anos": 3,
+      "label": "3A",
+      "taxa": 14.3527
+    },
+    {
+      "du": 1008,
+      "anos": 4,
+      "label": "4A",
+      "taxa": 14.4543
+    },
+    {
+      "du": 1260,
+      "anos": 5,
+      "label": "5A",
+      "taxa": 14.5053
+    },
+    {
+      "du": 1512,
+      "anos": 6,
+      "label": "6A",
+      "taxa": 14.523
+    },
+    {
+      "du": 1764,
+      "anos": 7,
+      "label": "7A",
+      "taxa": 14.5212
+    },
+    {
+      "du": 2016,
+      "anos": 8,
+      "label": "8A",
+      "taxa": 14.5091
+    },
+    {
+      "du": 2268,
+      "anos": 9,
+      "label": "9A",
+      "taxa": 14.4921
+    },
+    {
+      "du": 2520,
+      "anos": 10,
+      "label": "10A",
+      "taxa": 14.4734
+    }
   ]
 }
