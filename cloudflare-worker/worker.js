@@ -14,7 +14,7 @@
 // Tickers permitidos (whitelist de segurança — evita uso indevido do seu Worker)
 const ALLOWED_TICKERS = [
   '^BVSP', '^GSPC', '^IXIC',
-  'PETR4.SA', 'VALE3.SA', 'GGBR4.SA', 'BPAC11.SA', 'SBSP3.SA', 'CSMG3.SA',
+  'PETR4.SA', 'VALE3.SA', 'GGBR4.SA', 'BPAC11.SA', 'SBSP3.SA', 'CSMG3.SA', 'ITUB4.SA', 'WEGE3.SA',
   // Commodities (futuros)
   'CL=F', 'BZ=F', 'GC=F', 'HG=F', 'ZS=F', 'ZC=F',
 ];

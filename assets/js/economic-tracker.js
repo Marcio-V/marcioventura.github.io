@@ -37,8 +37,14 @@
   // ─── Registro central de cotações (alimenta o ticker do topo) ──────────────
   // Cada updater grava aqui o que buscou; o ticker lê deste objeto.
   const tickerData = {};
-  function registerTicker(key, label, value, change) {
-    tickerData[key] = { label: label, value: value, change: change };
+  // change   = número da variação (percentual ou em pontos)
+  // invert   = true p/ desemprego e IPCA (alta = ruim = vermelho)
+  // chgSuffix= sufixo da variação no ticker ('%' para mercados, ' p.p.' para taxas, ' pts' para índices)
+  function registerTicker(key, label, value, change, invert, chgSuffix) {
+    tickerData[key] = {
+      label: label, value: value, change: change,
+      invert: !!invert, chgSuffix: (chgSuffix !== undefined ? chgSuffix : '%'),
+    };
     renderTicker();
   }
 
@@ -248,10 +254,11 @@
       if (anterior !== null) {
         const bps = Math.round((atual - anterior) * 100); // 1 p.p. = 100 bps
         setBps('#selic-data .selic-copom-change', bps);
+        registerTicker('selic', 'SELIC', atual.toFixed(2).replace('.', ',') + '% a.a.', atual - anterior, false, ' p.p.');
       } else {
         setVal('#selic-data .selic-copom-change', 'estável');
+        registerTicker('selic', 'SELIC', atual.toFixed(2).replace('.', ',') + '% a.a.', null);
       }
-      registerTicker('selic', 'SELIC', atual.toFixed(2).replace('.', ',') + '% a.a.', null);
     } else {
       setError('#selic-data .selic-current-value', 'N/D');
       setError('#selic-data .selic-copom-change', '');
@@ -259,13 +266,18 @@
   }
 
   async function updateCDI() {
-    const data = await fetchBCB(BCB_SERIES.CDI, 1, 'bcb_rate');
+    const data = await fetchBCB(BCB_SERIES.CDI, 2, 'bcb_rate');
     if (data && data.length > 0) {
       const last   = data[data.length - 1];
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#cdi-data .cdi-current-value', latest.toFixed(2).replace('.', ','));
       setVal('#cdi-data .cdi-ref-date', last.data ? last.data.substring(3) : '—');
-      registerTicker('cdi', 'CDI', latest.toFixed(2).replace('.', ',') + '% a.a.', null);
+      let chg = null;
+      if (data.length >= 2) {
+        const prev = parseFloat(data[data.length - 2].valor.replace(',', '.'));
+        chg = latest - prev;
+      }
+      registerTicker('cdi', 'CDI', latest.toFixed(2).replace('.', ',') + '% a.a.', chg, false, ' p.p.');
     } else {
       setError('#cdi-data .cdi-current-value', 'N/D');
       setError('#cdi-data .cdi-ref-date', '—');
@@ -273,25 +285,33 @@
   }
 
   async function updateIPCA() {
-    // Busca os últimos 12+ valores mensais do IPCA (série 433)
-    const serie = await fetchBCB(BCB_SERIES.IPCA_MES, 13, 'bcb_monthly');
+    // Busca os últimos 14 valores mensais do IPCA (série 433) — 13 p/ acum + 1 p/ comparar
+    const serie = await fetchBCB(BCB_SERIES.IPCA_MES, 14, 'bcb_monthly');
     if (serie && serie.length > 0) {
       // IPCA do mês = último valor
       const last = serie[serie.length - 1];
       const mes  = parseFloat(last.valor.replace(',', '.'));
       setVal('#ipca-data .ipca-current-value', mes.toFixed(2).replace('.', ','));
-      registerTicker('ipca', 'IPCA', mes.toFixed(2).replace('.', ',') + '% mês', null);
+      // Variação do IPCA mensal vs. mês anterior (invertido: alta = ruim = vermelho)
+      let mesChg = null;
+      if (serie.length >= 2) {
+        const mesPrev = parseFloat(serie[serie.length - 2].valor.replace(',', '.'));
+        mesChg = mes - mesPrev;
+      }
+      registerTicker('ipca', 'IPCA', mes.toFixed(2).replace('.', ',') + '% mês', mesChg, true, ' p.p.');
 
       // IPCA acumulado 12 meses = produtório (1 + xi/100) - 1
+      const calcAcum12 = (arr) => (arr.reduce((acc, d) => acc * (1 + parseFloat(d.valor.replace(',', '.')) / 100), 1) - 1) * 100;
       if (serie.length >= 12) {
-        const ultimos12 = serie.slice(-12);
-        const acum = ultimos12.reduce(
-          (acc, d) => acc * (1 + parseFloat(d.valor.replace(',', '.')) / 100),
-          1
-        );
-        const pct12 = (acum - 1) * 100;
+        const pct12 = calcAcum12(serie.slice(-12));
         setVal('#ipca-data .ipca-12m-value', pct12.toFixed(2).replace('.', ',') + '%');
-        registerTicker('ipca12m', 'IPCA 12M', pct12.toFixed(2).replace('.', ',') + '%', null);
+        // Variação do acumulado 12M vs. o acumulado 12M do mês anterior (invertido)
+        let chg12 = null;
+        if (serie.length >= 13) {
+          const pct12Prev = calcAcum12(serie.slice(-13, -1));
+          chg12 = pct12 - pct12Prev;
+        }
+        registerTicker('ipca12m', 'IPCA 12M', pct12.toFixed(2).replace('.', ',') + '%', chg12, true, ' p.p.');
       } else {
         setError('#ipca-data .ipca-12m-value', 'N/D');
       }
@@ -308,7 +328,13 @@
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#desemprego-data .desemprego-current-value', latest.toFixed(1).replace('.', ','));
       setVal('#desemprego-data .desemprego-ref-date', last.data ? last.data.substring(3) : '—');
-      registerTicker('desemprego', 'DESEMPREGO', latest.toFixed(1).replace('.', ',') + '%', null);
+      // Variação vs. dado anterior, em pontos percentuais. invert=true: subir=ruim=vermelho
+      let chg = null;
+      if (data.length >= 2) {
+        const prev = parseFloat(data[data.length - 2].valor.replace(',', '.'));
+        chg = latest - prev;
+      }
+      registerTicker('desemprego', 'DESEMPREGO', latest.toFixed(1).replace('.', ',') + '%', chg, true, ' p.p.');
     } else {
       setError('#desemprego-data .desemprego-current-value', 'N/D');
       setError('#desemprego-data .desemprego-ref-date', '—');
@@ -322,7 +348,13 @@
       const latest = parseFloat(last.valor.replace(',', '.'));
       setVal('#ice-data .ice-current-value', latest.toFixed(1).replace('.', ','));
       setVal('#ice-data .ice-ref-date', last.data ? last.data.substring(3) : '—');
-      registerTicker('ice', 'ICE', latest.toFixed(1).replace('.', ',') + ' pts', null);
+      // Variação vs. dado anterior, em pontos. invert=false: subir=confiança maior=verde
+      let chg = null;
+      if (data.length >= 2) {
+        const prev = parseFloat(data[data.length - 2].valor.replace(',', '.'));
+        chg = latest - prev;
+      }
+      registerTicker('ice', 'ICE', latest.toFixed(1).replace('.', ',') + ' pts', chg, false, ' pts');
     } else {
       setError('#ice-data .ice-current-value', 'N/D');
       setError('#ice-data .ice-ref-date', '—');
@@ -370,6 +402,8 @@
   const ACOES_B3 = [
     { key: 'petr4',  ticker: 'PETR4.SA',  label: 'PETR4' },
     { key: 'vale3',  ticker: 'VALE3.SA',  label: 'VALE3' },
+    { key: 'itub4',  ticker: 'ITUB4.SA',  label: 'ITUB4' },
+    { key: 'wege3',  ticker: 'WEGE3.SA',  label: 'WEGE3' },
     { key: 'ggbr4',  ticker: 'GGBR4.SA',  label: 'GGBR4' },
     { key: 'bpac11', ticker: 'BPAC11.SA', label: 'BPAC11' },
     { key: 'sbsp3',  ticker: 'SBSP3.SA',  label: 'SBSP3' },
@@ -394,7 +428,7 @@
   const TICKER_ORDER = [
     'dolar', 'euro',
     'ibov', 'sp500', 'nasdaq',
-    'petr4', 'vale3', 'ggbr4', 'bpac11', 'sbsp3', 'csmg3',
+    'petr4', 'vale3', 'itub4', 'wege3', 'ggbr4', 'bpac11', 'sbsp3', 'csmg3',
     'selic', 'cdi', 'ipca', 'ipca12m', 'desemprego', 'ice',
   ];
 
@@ -408,12 +442,17 @@
         const d = tickerData[k];
         let changeHtml = '';
         if (typeof d.change === 'number' && !isNaN(d.change)) {
-          const up = d.change >= 0;
-          const arrow = up ? '▲' : '▼';
+          const up = d.change >= 0;            // o valor subiu?
+          const arrow = up ? '▲' : '▼';        // seta sempre reflete a direção real
           const sign = up ? '+' : '';
+          // Cor: normalmente sobe=verde. Se invert=true (desemprego, IPCA),
+          // sobe=vermelho porque é economicamente ruim.
+          const good = d.invert ? !up : up;
+          const colorClass = good ? 'up' : 'down';
+          const suffix = d.chgSuffix !== undefined ? d.chgSuffix : '%';
           changeHtml =
-            '<span class="ticker-change ' + (up ? 'up' : 'down') + '">' +
-            arrow + ' ' + sign + d.change.toFixed(2).replace('.', ',') + '%</span>';
+            '<span class="ticker-change ' + colorClass + '">' +
+            arrow + ' ' + sign + d.change.toFixed(2).replace('.', ',') + suffix + '</span>';
         }
         return (
           '<span class="ticker-item">' +
