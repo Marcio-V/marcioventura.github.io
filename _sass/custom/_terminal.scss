@@ -151,16 +151,26 @@ $term-amber:     #d29922;
 			font-size: 0.65rem;
 			color: $term-muted;
 			text-transform: uppercase;
-			letter-spacing: 0.08em;
+			letter-spacing: 0.04em;
 			margin-bottom: 0.5em;
+			line-height: 1.25;
+			// Permite até 2 linhas em vez de cortar nomes longos (ex: "Petróleo Brent")
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			min-height: 2.3em;   // reserva espaço p/ 2 linhas → cards alinhados
 		}
 
 		.term-card-value {
-			font-size: 1.5rem;
+			font-size: 1.4rem;
 			font-weight: 700;
 			color: $term-text;
-			line-height: 1;
+			line-height: 1.1;
 			margin-bottom: 0.35em;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 
 			&.up   { color: $term-up; }
 			&.down { color: $term-down; }
@@ -169,6 +179,9 @@ $term-amber:     #d29922;
 		.term-card-sub {
 			font-size: 0.7rem;
 			color: $term-muted;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 
 			.up   { color: $term-up; }
 			.down { color: $term-down; }
@@ -356,5 +369,149 @@ $term-amber:     #d29922;
 			.term-nav-title { width: 100%; padding-bottom: 0.5em; }
 			a { border-left: none; border-radius: 4px; padding: 0.4em 0.8em; }
 		}
+	}
+}
+
+// ═══════════ Gráficos de séries históricas ═══════════
+.term-chart-wrap {
+	background: #0e1316;
+	border: 1px solid #2a3138;
+	border-radius: 6px;
+	padding: 1.25em;
+}
+
+.term-chart-title {
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: #8b949e;
+	margin-bottom: 1em;
+	font-weight: 700;
+}
+
+.term-chart-box {
+	position: relative;
+	height: 280px;
+	width: 100%;
+}
+
+@media screen and (max-width: 736px) {
+	.term-chart-box {
+		height: 220px;
+	}
+}
+
+// ═══════════ Insights / Research ═══════════
+.term-insights {
+	display: grid;
+	gap: 1em;
+}
+
+.term-insight {
+	background: #0e1316;
+	border: 1px solid #2a3138;
+	border-left: 3px solid $term-accent;
+	border-radius: 5px;
+	padding: 1.1em 1.25em;
+
+	.insight-date {
+		font-size: 0.62rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: $term-accent;
+		margin-bottom: 0.4em;
+	}
+
+	.insight-title {
+		font-size: 0.95rem;
+		color: $term-text;
+		margin: 0 0 0.5em 0;
+		border: none;
+		padding: 0;
+	}
+
+	.insight-body {
+		font-size: 0.8rem;
+		color: $term-muted;
+		line-height: 1.6;
+		margin: 0;
+	}
+}
+
+// ═══════════ Calculadoras interativas (módulo 20) ═══════════
+.term-calc-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 1em;
+}
+
+.term-calc {
+	background: #0e1316;
+	border: 1px solid #2a3138;
+	border-radius: 6px;
+	padding: 1.1em;
+
+	.term-calc-title {
+		font-size: 0.8rem;
+		font-weight: 700;
+		color: #4da3ff;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: 0.9em;
+		padding-bottom: 0.6em;
+		border-bottom: 1px solid #2a3138;
+	}
+
+	label {
+		display: block;
+		font-size: 0.68rem;
+		color: #8b949e;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		margin-bottom: 0.7em;
+	}
+
+	input {
+		display: block;
+		width: 100%;
+		margin-top: 0.3em;
+		background: #161c21;
+		border: 1px solid #2a3138;
+		border-radius: 4px;
+		padding: 0.5em 0.7em;
+		color: #e6e6e6;
+		font-family: "Courier New", monospace;
+		font-size: 0.9rem;
+
+		&:focus {
+			outline: none;
+			border-color: #4da3ff;
+		}
+	}
+
+	.term-calc-result {
+		margin-top: 1em;
+		padding-top: 0.9em;
+		border-top: 1px solid #2a3138;
+		font-size: 0.8rem;
+		color: #8b949e;
+
+		span {
+			font-size: 1.15rem;
+			font-weight: 700;
+			color: #e6e6e6;
+			font-family: "Courier New", monospace;
+
+			&.up   { color: #3fb950; }
+			&.down { color: #f85149; }
+		}
+	}
+
+	.term-calc-formula {
+		margin-top: 0.6em;
+		font-size: 0.65rem;
+		color: #5a6570;
+		font-family: "Courier New", monospace;
+		font-style: italic;
 	}
 }

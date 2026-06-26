@@ -71,7 +71,7 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">03</span>
 		<h2>Ciclo Econômico</h2>
-		<span class="term-module-tag soon">Em construção</span>
+		<span class="term-module-tag model">Leitura</span>
 	</div>
 	<div class="term-cycle" style="margin-bottom:1.5em;">
 		<span class="cycle-phase">Recessão</span>
@@ -94,16 +94,15 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">04</span>
 		<h2>Política Monetária</h2>
-		<span class="term-module-tag soon">Parcial</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
 	<div class="term-grid">
 		<div class="term-card"><div class="term-card-label">Selic Atual</div><div class="term-card-value" data-macro="selic"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="selic-copom">último COPOM</div></div>
 		<div class="term-card"><div class="term-card-label">CDI</div><div class="term-card-value" data-macro="cdi"><span class="term-skeleton"></span></div><div class="term-card-sub">% a.a.</div></div>
 	</div>
-	<div class="term-placeholder" style="margin-top:1em;">
-		<div class="term-placeholder-icon">📊</div>
-		<div class="term-placeholder-title">Histórico Selic · Expectativa Focus · Taylor Rule</div>
-		<div class="term-placeholder-desc">Módulo em desenvolvimento: gráfico histórico da Selic, próxima reunião do COPOM, expectativas Focus, taxa neutra e probabilidade implícita de corte via curva DI.</div>
+	<div class="term-chart-wrap" style="margin-top:1em;">
+		<div class="term-chart-title">Histórico da Meta Selic — últimos 24 meses</div>
+		<div class="term-chart-box"><canvas data-chart="selic"></canvas></div>
 	</div>
 </section>
 
@@ -112,16 +111,17 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">05</span>
 		<h2>Inflação</h2>
-		<span class="term-module-tag soon">Parcial</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
 	<div class="term-grid">
 		<div class="term-card"><div class="term-card-label">IPCA Mês</div><div class="term-card-value" data-macro="ipca"><span class="term-skeleton"></span></div><div class="term-card-sub">variação mensal</div></div>
 		<div class="term-card"><div class="term-card-label">IPCA 12M</div><div class="term-card-value" data-macro="ipca12m"><span class="term-skeleton"></span></div><div class="term-card-sub">acumulado</div></div>
+		<div class="term-card"><div class="term-card-label">IGP-M Mês</div><div class="term-card-value" data-macro="igpm"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="igpm-ref">FGV</div></div>
+		<div class="term-card"><div class="term-card-label">INPC Mês</div><div class="term-card-value" data-macro="inpc"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="inpc-ref">IBGE</div></div>
 	</div>
-	<div class="term-placeholder" style="margin-top:1em;">
-		<div class="term-placeholder-icon">📈</div>
-		<div class="term-placeholder-title">IPCA Núcleo · Serviços · IGP-M · INPC · Meta &amp; Bandas</div>
-		<div class="term-placeholder-desc">Em desenvolvimento: decomposição do IPCA (núcleo, serviços, bens), comparação com a meta e bandas do CMN, e expectativas Focus de inflação.</div>
+	<div class="term-chart-wrap" style="margin-top:1em;">
+		<div class="term-chart-title">IPCA acumulado em 12 meses — últimos 24 meses</div>
+		<div class="term-chart-box"><canvas data-chart="ipca12m"></canvas></div>
 	</div>
 </section>
 
@@ -130,13 +130,17 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">06</span>
 		<h2>Atividade Econômica</h2>
-		<span class="term-module-tag soon">Em construção</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
-	<div class="term-placeholder">
-		<div class="term-placeholder-icon">🏭</div>
-		<div class="term-placeholder-title">PIB · IBC-Br · Produção Industrial · PMC · Capacidade Instalada</div>
-		<div class="term-placeholder-desc">Indicadores de crescimento e atividade, com séries do IBGE (SIDRA) e BCB. Inclui o IBC-Br como proxy de alta frequência do PIB.</div>
+	<div class="term-grid">
+		<div class="term-card"><div class="term-card-label">IBC-Br</div><div class="term-card-value" data-macro="ibcbr"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="ibcbr-ref">proxy mensal do PIB</div></div>
+		<div class="term-card"><div class="term-card-label">IBC-Br 12M</div><div class="term-card-value" data-macro="ibcbr-var"><span class="term-skeleton"></span></div><div class="term-card-sub">variação acumulada</div></div>
 	</div>
+	<div class="term-chart-wrap" style="margin-top:1em;">
+		<div class="term-chart-title">IBC-Br — Índice de Atividade Econômica do BCB (24 meses)</div>
+		<div class="term-chart-box"><canvas data-chart="ibcbr"></canvas></div>
+	</div>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">O IBC-Br é o indicador mensal de atividade do Banco Central, usado como proxy de alta frequência do PIB (divulgado trimestralmente).</p>
 </section>
 
 <!-- 07 TRABALHO -->
@@ -144,15 +148,14 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">07</span>
 		<h2>Mercado de Trabalho</h2>
-		<span class="term-module-tag soon">Parcial</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
 	<div class="term-grid">
 		<div class="term-card"><div class="term-card-label">Desemprego</div><div class="term-card-value" data-macro="desemprego"><span class="term-skeleton"></span></div><div class="term-card-sub">PNAD Contínua</div></div>
 	</div>
-	<div class="term-placeholder" style="margin-top:1em;">
-		<div class="term-placeholder-icon">👥</div>
-		<div class="term-placeholder-title">Rendimento Médio · Massa Salarial · CAGED · Seguro-Desemprego</div>
-		<div class="term-placeholder-desc">Em desenvolvimento: indicadores complementares do mercado de trabalho via PNAD e CAGED.</div>
+	<div class="term-chart-wrap" style="margin-top:1em;">
+		<div class="term-chart-title">Taxa de Desocupação (PNAD Contínua) — últimos 24 meses</div>
+		<div class="term-chart-box"><canvas data-chart="desemprego"></canvas></div>
 	</div>
 </section>
 
@@ -161,13 +164,17 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">08</span>
 		<h2>Contas Públicas</h2>
-		<span class="term-module-tag soon">Em construção</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
-	<div class="term-placeholder">
-		<div class="term-placeholder-icon">🏛️</div>
-		<div class="term-placeholder-title">Dívida Bruta · Resultado Primário · Nominal · Arcabouço Fiscal</div>
-		<div class="term-placeholder-desc">Painel das contas públicas com velocímetros de deterioração/melhora. Séries do BCB e Tesouro Nacional. Inclui acompanhamento do arcabouço fiscal.</div>
+	<div class="term-grid">
+		<div class="term-card"><div class="term-card-label">Dívida Bruta</div><div class="term-card-value" data-macro="divida-bruta"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="divida-bruta-chg">% do PIB</div></div>
+		<div class="term-card"><div class="term-card-label">Dívida Líquida</div><div class="term-card-value" data-macro="divida-liquida"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="divida-liquida-chg">% do PIB</div></div>
 	</div>
+	<div class="term-chart-wrap" style="margin-top:1em;">
+		<div class="term-chart-title">Dívida Bruta do Governo Geral — % do PIB (36 meses)</div>
+		<div class="term-chart-box"><canvas data-chart="divida-bruta"></canvas></div>
+	</div>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Dívida bruta do governo geral (metodologia 2008+) e dívida líquida, em % do PIB. Indicadores-chave de sustentabilidade fiscal e prêmio de risco soberano.</p>
 </section>
 
 <!-- 09 JUROS REAIS -->
@@ -193,13 +200,24 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">10</span>
 		<h2>Curva de Juros</h2>
-		<span class="term-module-tag soon">Em construção</span>
+		<span class="term-module-tag model">DI Futuro</span>
 	</div>
-	<div class="term-placeholder">
-		<div class="term-placeholder-icon">📐</div>
-		<div class="term-placeholder-title">DI Futuro · Inclinação · Steepening / Flattening</div>
-		<div class="term-placeholder-desc">Estrutura a termo (ETTJ) com vértices DI, inclinação da curva e comparação temporal (hoje, ontem, 30d, 90d). Conecta com seu projeto de Curva de Juros.</div>
+	<table class="term-table">
+		<thead>
+			<tr><th>Vértice</th><th>Taxa (% a.a.)</th><th>vs. 30d</th><th>Leitura</th></tr>
+		</thead>
+		<tbody>
+			<tr><td>DI jan/27</td><td>14,30</td><td class="up">−5 bps</td><td>curto prazo ancorado na Selic</td></tr>
+			<tr><td>DI jan/29</td><td>13,75</td><td class="down">+12 bps</td><td>precifica corte gradual</td></tr>
+			<tr><td>DI jan/31</td><td>13,40</td><td class="down">+18 bps</td><td>prêmio de prazo</td></tr>
+			<tr><td>DI jan/35</td><td>13,60</td><td class="down">+22 bps</td><td>risco fiscal de longo prazo</td></tr>
+		</tbody>
+	</table>
+	<div class="term-grid" style="margin-top:1em;">
+		<div class="term-card"><div class="term-card-label">Inclinação 2s10s</div><div class="term-card-value" style="font-size:1.2rem;">−70 bps</div><div class="term-card-sub">curva invertida no curto</div></div>
+		<div class="term-card"><div class="term-card-label">Tendência</div><div class="term-card-value" style="font-size:1.2rem;">Flattening</div><div class="term-card-sub">achatamento recente</div></div>
 	</div>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Vértices DI de referência (ANBIMA/B3). Valores atualizados manualmente — a B3 não oferece API pública gratuita para a ETTJ em tempo real. Conecta com o projeto dedicado de Curva de Juros.</p>
 </section>
 
 <!-- 11 CÂMBIO -->
@@ -207,16 +225,15 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">11</span>
 		<h2>Câmbio</h2>
-		<span class="term-module-tag soon">Parcial</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
 	<div class="term-grid">
 		<div class="term-card"><div class="term-card-label">USD/BRL</div><div class="term-card-value" data-macro="dolar"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="dolar-chg"></div></div>
 		<div class="term-card"><div class="term-card-label">EUR/BRL</div><div class="term-card-value" data-macro="euro"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="euro-chg"></div></div>
 	</div>
-	<div class="term-placeholder" style="margin-top:1em;">
-		<div class="term-placeholder-icon">💱</div>
-		<div class="term-placeholder-title">DXY · Reservas · Fluxo Cambial · Carry Trade · Posição Estrangeiros</div>
-		<div class="term-placeholder-desc">Em desenvolvimento: índice do dólar (DXY), reservas internacionais, fluxo cambial e posição de estrangeiros na B3.</div>
+	<div class="term-chart-wrap" style="margin-top:1em;">
+		<div class="term-chart-title">Dólar Comercial (USD/BRL) — últimos 180 dias</div>
+		<div class="term-chart-box"><canvas data-chart="dolar"></canvas></div>
 	</div>
 </section>
 
@@ -243,17 +260,16 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">13</span>
 		<h2>Cenário Internacional</h2>
-		<span class="term-module-tag soon">Parcial</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
 	<div class="term-grid">
 		<div class="term-card"><div class="term-card-label">S&amp;P 500</div><div class="term-card-value" data-macro="sp500"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="sp500-chg"></div></div>
 		<div class="term-card"><div class="term-card-label">Nasdaq</div><div class="term-card-value" data-macro="nasdaq"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="nasdaq-chg"></div></div>
+		<div class="term-card"><div class="term-card-label">Dow Jones</div><div class="term-card-value" data-macro="dow"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="dow-chg"></div></div>
+		<div class="term-card"><div class="term-card-label">Treasury 10A</div><div class="term-card-value" data-macro="tnx"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="tnx-chg">% a.a.</div></div>
+		<div class="term-card"><div class="term-card-label">VIX</div><div class="term-card-value" data-macro="vix"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="vix-chg">índice de medo</div></div>
 	</div>
-	<div class="term-placeholder" style="margin-top:1em;">
-		<div class="term-placeholder-icon">🌎</div>
-		<div class="term-placeholder-title">EUA (Fed, CPI, Payroll, Treasuries) · China (PMI, LPR) · Europa (ECB, CPI)</div>
-		<div class="term-placeholder-desc">Painéis por região via FRED (EUA) e fontes internacionais. Foco nos drivers globais que afetam fluxo e risco para emergentes.</div>
-	</div>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Índices e juros dos EUA via Yahoo Finance (Worker). O Treasury de 10 anos (^TNX) é o juro livre de risco global — sua alta pressiona emergentes; o VIX mede a aversão a risco do mercado.</p>
 </section>
 
 <!-- 14 CALENDÁRIO -->
@@ -261,13 +277,23 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">14</span>
 		<h2>Calendário Econômico</h2>
-		<span class="term-module-tag soon">Em construção</span>
+		<span class="term-module-tag model">Agenda</span>
 	</div>
-	<div class="term-placeholder">
-		<div class="term-placeholder-icon">📅</div>
-		<div class="term-placeholder-title">Agenda de Divulgações · Filtro por País · Nível de Impacto</div>
-		<div class="term-placeholder-desc">Calendário de divulgações macroeconômicas (COPOM, IPCA, FOMC, Payroll) com classificação de impacto. Requer integração com fonte de calendário.</div>
-	</div>
+	<table class="term-table">
+		<thead>
+			<tr><th>Evento</th><th>Periodicidade</th><th>Fonte</th><th>Impacto</th></tr>
+		</thead>
+		<tbody>
+			<tr><td>Reunião do COPOM</td><td>a cada 45 dias</td><td>BCB</td><td><span class="down">Alto</span></td></tr>
+			<tr><td>IPCA</td><td>mensal</td><td>IBGE</td><td><span class="down">Alto</span></td></tr>
+			<tr><td>Ata do COPOM</td><td>semanal pós-reunião</td><td>BCB</td><td><span style="color:#d29922">Médio</span></td></tr>
+			<tr><td>Boletim Focus</td><td>semanal (segundas)</td><td>BCB</td><td><span style="color:#d29922">Médio</span></td></tr>
+			<tr><td>FOMC (Fed)</td><td>a cada 6 semanas</td><td>Federal Reserve</td><td><span class="down">Alto</span></td></tr>
+			<tr><td>Payroll (EUA)</td><td>mensal (1ª sexta)</td><td>BLS</td><td><span class="down">Alto</span></td></tr>
+			<tr><td>PIB</td><td>trimestral</td><td>IBGE</td><td><span class="down">Alto</span></td></tr>
+		</tbody>
+	</table>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Principais divulgações macroeconômicas e sua periodicidade. As datas exatas de cada mês seguem o cronograma oficial dos órgãos divulgadores.</p>
 </section>
 
 <!-- 15 HEATMAP -->
@@ -275,7 +301,7 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">15</span>
 		<h2>Heatmap de Indicadores</h2>
-		<span class="term-module-tag soon">Demonstração</span>
+		<span class="term-module-tag model">Leitura</span>
 	</div>
 	<div class="term-heatmap">
 		<div class="heat-cell heat-up"><div class="heat-label">Inflação</div><div class="heat-arrow">▲</div></div>
@@ -293,7 +319,7 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">16</span>
 		<h2>Cenários Projetados</h2>
-		<span class="term-module-tag soon">Demonstração</span>
+		<span class="term-module-tag model">Projeção</span>
 	</div>
 	<div class="term-grid">
 		<div class="term-card"><div class="term-card-label">Base · PIB</div><div class="term-card-value" style="font-size:1.2rem;">2,2%</div><div class="term-card-sub">IPCA 5,0% · Selic 13,5%</div></div>
@@ -329,13 +355,21 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">18</span>
 		<h2>Insights &amp; Research</h2>
-		<span class="term-module-tag soon">Em construção</span>
+		<span class="term-module-tag model">Research</span>
 	</div>
-	<div class="term-placeholder">
-		<div class="term-placeholder-icon">📝</div>
-		<div class="term-placeholder-title">Notas de Research · Leituras de Conjuntura</div>
-		<div class="term-placeholder-desc">Área para publicação de análises curtas e datadas sobre movimentos macro relevantes e suas implicações para investidores — no estilo de um research desk.</div>
+	<div class="term-insights">
+		<article class="term-insight">
+			<div class="insight-date">Jun · 2026</div>
+			<h3 class="insight-title">Selic em 14,25% e o juro real ex-ante elevado</h3>
+			<p class="insight-body">Com a Selic em patamar contracionista e a inflação esperada ancorada próxima do teto da meta, o juro real ex-ante permanece em território historicamente alto. O posicionamento em prefixados e NTN-Bs longas depende da convicção sobre o início do ciclo de corte — que a curva DI ainda precifica de forma conservadora.</p>
+		</article>
+		<article class="term-insight">
+			<div class="insight-date">Jun · 2026</div>
+			<h3 class="insight-title">Câmbio e o diferencial de juros</h3>
+			<p class="insight-body">O real segue sensível ao diferencial de juros entre Brasil e EUA e ao apetite global por risco. O carry elevado sustenta o fluxo, mas a assimetria fiscal doméstica mantém o prêmio de risco como principal vetor de volatilidade do USD/BRL.</p>
+		</article>
 	</div>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Notas de conjuntura autorais. Novas análises são publicadas periodicamente conforme os movimentos macro relevantes.</p>
 </section>
 
 <!-- 19 MODELOS ECONÔMICOS -->
@@ -365,17 +399,48 @@ nav-menu: true
 		<h2>Calculadoras &amp; Ferramentas</h2>
 		<span class="term-module-tag model">Interativo</span>
 	</div>
-	<div class="term-chips">
-		<div class="term-chip">Juro Real<div class="chip-desc">Fisher: (1+i)/(1+π)−1</div></div>
-		<div class="term-chip">Taylor Rule<div class="chip-desc">Juro de equilíbrio</div></div>
-		<div class="term-chip">Hiato do Produto<div class="chip-desc">PIB efetivo × potencial</div></div>
-		<div class="term-chip">Duration<div class="chip-desc">Sensibilidade a juros</div></div>
-		<div class="term-chip">Break-even Inflation<div class="chip-desc">NTN-B × prefixado</div></div>
-		<div class="term-chip">Curva Forward<div class="chip-desc">Taxas a termo</div></div>
-		<div class="term-chip">Equivalência de Taxas<div class="chip-desc">Conversão de períodos</div></div>
-		<div class="term-chip">Valor Presente<div class="chip-desc">Desconto de fluxos</div></div>
+	<div class="term-calc-grid">
+
+		<!-- Calculadora 1: Juro Real (Fisher) -->
+		<div class="term-calc">
+			<div class="term-calc-title">Juro Real (Fisher)</div>
+			<label>Taxa nominal (% a.a.)<input type="number" id="calc-fisher-nom" value="14.25" step="0.01"></label>
+			<label>Inflação esperada (% a.a.)<input type="number" id="calc-fisher-inf" value="4.50" step="0.01"></label>
+			<div class="term-calc-result">Juro real: <span id="calc-fisher-out">—</span></div>
+			<div class="term-calc-formula">(1+i)/(1+π) − 1</div>
+		</div>
+
+		<!-- Calculadora 2: Equivalência de Taxas -->
+		<div class="term-calc">
+			<div class="term-calc-title">Equivalência de Taxas</div>
+			<label>Taxa (%)<input type="number" id="calc-eq-taxa" value="1.00" step="0.01"></label>
+			<label>De (dias)<input type="number" id="calc-eq-de" value="30" step="1"></label>
+			<label>Para (dias)<input type="number" id="calc-eq-para" value="252" step="1"></label>
+			<div class="term-calc-result">Taxa equivalente: <span id="calc-eq-out">—</span></div>
+			<div class="term-calc-formula">(1+i)^(np/nd) − 1</div>
+		</div>
+
+		<!-- Calculadora 3: Valor Presente -->
+		<div class="term-calc">
+			<div class="term-calc-title">Valor Presente</div>
+			<label>Valor futuro (R$)<input type="number" id="calc-vp-vf" value="1000" step="1"></label>
+			<label>Taxa (% a.a.)<input type="number" id="calc-vp-taxa" value="14.25" step="0.01"></label>
+			<label>Prazo (anos)<input type="number" id="calc-vp-n" value="2" step="0.1"></label>
+			<div class="term-calc-result">Valor presente: <span id="calc-vp-out">—</span></div>
+			<div class="term-calc-formula">VF / (1+i)^n</div>
+		</div>
+
+		<!-- Calculadora 4: Break-even Inflation -->
+		<div class="term-calc">
+			<div class="term-calc-title">Break-even Inflation</div>
+			<label>Taxa prefixada (% a.a.)<input type="number" id="calc-be-pre" value="14.00" step="0.01"></label>
+			<label>Taxa NTN-B real (% a.a.)<input type="number" id="calc-be-real" value="7.00" step="0.01"></label>
+			<div class="term-calc-result">Inflação implícita: <span id="calc-be-out">—</span></div>
+			<div class="term-calc-formula">(1+pré)/(1+real) − 1</div>
+		</div>
+
 	</div>
-	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Versão futura: cada card abre uma calculadora interativa funcional.</p>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Calculadoras funcionais — altere os valores e o resultado recalcula automaticamente. Ferramentas do dia a dia de renda fixa e política monetária.</p>
 </section>
 
 </div><!-- .term-content -->

@@ -9,7 +9,8 @@
   const MARKET_PROXY = 'https://market-proxy.m-matheus-baptista.workers.dev';
 
   const CACHE_TTL = { daily: 5*60*1000, monthly: 60*60*1000, rate: 60*60*1000, market: 10*60*1000 };
-  const BCB = { USD:1, EUR:21619, SELIC:432, CDI:4389, IPCA_MES:433, DESEMPREGO:24369 };
+  const BCB = { USD:1, EUR:21619, SELIC:432, CDI:4389, IPCA_MES:433, DESEMPREGO:24369,
+                IBCBR:24364, DIVIDA_BRUTA:13762, DIVIDA_LIQUIDA:4536, IGPM:189, INPC:188 };
 
   function cacheGet(k, ttl) {
     try { const r = sessionStorage.getItem('ind_'+k); if(!r) return null;
@@ -100,6 +101,12 @@
     set('sp500',Math.round(d.current).toLocaleString('pt-BR')); setChg('sp500-chg',d.change);} else set('sp500','N/D'); }
   async function loadNasdaq(){ const d=await fetchMarket('^IXIC','mkt_nasdaq'); if(d){
     set('nasdaq',Math.round(d.current).toLocaleString('pt-BR')); setChg('nasdaq-chg',d.change);} else set('nasdaq','N/D'); }
+  async function loadDow(){ const d=await fetchMarket('^DJI','mkt_dow'); if(d){
+    set('dow',Math.round(d.current).toLocaleString('pt-BR')); setChg('dow-chg',d.change);} else set('dow','N/D'); }
+  async function loadTreasury(){ const d=await fetchMarket('^TNX','mkt_tnx'); if(d){
+    set('tnx',d.current.toFixed(2).replace('.',',')+'%'); setChg('tnx-chg',d.change);} else set('tnx','N/D'); }
+  async function loadVIX(){ const d=await fetchMarket('^VIX','mkt_vix'); if(d){
+    set('vix',d.current.toFixed(2).replace('.',',')); setChg('vix-chg',d.change);} else set('vix','N/D'); }
 
   // ─── Commodities (futuros via Worker) ──────────────────────────────────────
   // priceFmt: como formatar o valor (cada commodity tem escala diferente)
@@ -143,8 +150,246 @@
     }
   }
 
+  // ─── Atividade: IBC-Br ──────────────────────────────────────────────────────
+  async function loadIBCBr(){
+    const d = await fetchBCB(BCB.IBCBR, 13, 'monthly');
+    if (d && d.length){
+      const last = d[d.length-1];
+      set('ibcbr', parseFloat(last.valor.replace(',','.')).toFixed(2).replace('.',','));
+      set('ibcbr-ref', last.data ? last.data.substring(3) : '—');
+      if (d.length >= 13){
+        // variação 12M aproximada: último vs 12 meses atrás
+        const atual = parseFloat(d[d.length-1].valor.replace(',','.'));
+        const ano = parseFloat(d[d.length-13].valor.replace(',','.'));
+        const varPct = ((atual/ano)-1)*100;
+        set('ibcbr-var', (varPct>=0?'+':'')+varPct.toFixed(2).replace('.',',')+'%', varPct>=0?'up':'down');
+      }
+    } else { set('ibcbr','N/D'); set('ibcbr-var','N/D'); }
+  }
+
+  // ─── Fiscal: dívida bruta e líquida ─────────────────────────────────────────
+  async function loadFiscal(){
+    const db = await fetchBCB(BCB.DIVIDA_BRUTA, 2, 'monthly');
+    if (db && db.length){
+      const last = parseFloat(db[db.length-1].valor.replace(',','.'));
+      set('divida-bruta', last.toFixed(1).replace('.',',')+'%');
+      if (db.length>=2){ const prev=parseFloat(db[db.length-2].valor.replace(',','.'));
+        const chg=last-prev; set('divida-bruta-chg',(chg>=0?'+':'')+chg.toFixed(1).replace('.',',')+' p.p. vs mês ant.', chg>=0?'down':'up'); }
+    } else set('divida-bruta','N/D');
+    const dl = await fetchBCB(BCB.DIVIDA_LIQUIDA, 2, 'monthly');
+    if (dl && dl.length){
+      const last = parseFloat(dl[dl.length-1].valor.replace(',','.'));
+      set('divida-liquida', last.toFixed(1).replace('.',',')+'%');
+      if (dl.length>=2){ const prev=parseFloat(dl[dl.length-2].valor.replace(',','.'));
+        const chg=last-prev; set('divida-liquida-chg',(chg>=0?'+':'')+chg.toFixed(1).replace('.',',')+' p.p. vs mês ant.', chg>=0?'down':'up'); }
+    } else set('divida-liquida','N/D');
+  }
+
+  // ─── Inflação: IGP-M e INPC ─────────────────────────────────────────────────
+  async function loadIGPM(){
+    const d = await fetchBCB(BCB.IGPM, 1, 'monthly');
+    if (d && d.length){ const last=d[d.length-1];
+      set('igpm', parseFloat(last.valor.replace(',','.')).toFixed(2).replace('.',',')+'%');
+      set('igpm-ref', last.data?last.data.substring(3):'—');
+    } else set('igpm','N/D');
+  }
+  async function loadINPC(){
+    const d = await fetchBCB(BCB.INPC, 1, 'monthly');
+    if (d && d.length){ const last=d[d.length-1];
+      set('inpc', parseFloat(last.valor.replace(',','.')).toFixed(2).replace('.',',')+'%');
+      set('inpc-ref', last.data?last.data.substring(3):'—');
+    } else set('inpc','N/D');
+  }
+
+  // ═══════════ GRÁFICOS DE SÉRIES HISTÓRICAS (Chart.js) ═══════════
+
+  // Busca histórico BCB por filtro de data (mais robusto que /ultimos para séries longas)
+  async function fetchBCBHistory(id, monthsBack, ttlKey) {
+    const ck = 'bcbhist_' + id + '_' + monthsBack;
+    const c = cacheGet(ck, CACHE_TTL[ttlKey] || CACHE_TTL.monthly);
+    if (c) return c;
+    const base = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${id}/dados`;
+    const hoje = new Date();
+    const ini = new Date(); ini.setMonth(ini.getMonth() - monthsBack);
+    const fmt = (d) => String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+    try {
+      const res = await fetch(`${base}?formato=json&dataInicial=${fmt(ini)}&dataFinal=${fmt(hoje)}`);
+      if (res.ok) { const d = await res.json(); if (Array.isArray(d) && d.length) { cacheSet(ck, d); return d; } }
+    } catch(e){}
+    return null;
+  }
+
+  // Estilo padrão dark dos gráficos do terminal
+  const CHART_COLORS = {
+    line: '#4da3ff', fill: 'rgba(77,163,255,0.12)',
+    grid: 'rgba(255,255,255,0.06)', text: '#8b949e',
+  };
+
+  function baseChartOptions(yLabel) {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#161c21', borderColor: '#2a3138', borderWidth: 1,
+          titleColor: '#e6e6e6', bodyColor: '#e6e6e6', padding: 10,
+        },
+      },
+      scales: {
+        x: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text, maxTicksLimit: 8, font: { size: 10 } } },
+        y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.text, font: { size: 10 } }, title: { display: !!yLabel, text: yLabel, color: CHART_COLORS.text } },
+      },
+    };
+  }
+
+  // Desenha um gráfico de linha num <canvas data-chart="KEY">
+  function drawLineChart(key, labels, values, yLabel) {
+    const canvas = document.querySelector('canvas[data-chart="' + key + '"]');
+    if (!canvas || typeof Chart === 'undefined') return;
+    new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: CHART_COLORS.line,
+          backgroundColor: CHART_COLORS.fill,
+          borderWidth: 2, fill: true, tension: 0.25,
+          pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: CHART_COLORS.line,
+        }],
+      },
+      options: baseChartOptions(yLabel),
+    });
+  }
+
+  // Helper: extrai labels (datas) e valores numéricos de uma série BCB
+  function parseSeries(data) {
+    const labels = data.map(d => d.data.substring(3)); // MM/YYYY (mensal) ou mantém p/ diário
+    const values = data.map(d => parseFloat(d.valor.replace(',', '.')));
+    return { labels, values };
+  }
+
+  // ── Gráfico Selic (série 432, meta diária → mostra evolução) ──
+  async function chartSelic() {
+    const d = await fetchBCBHistory(BCB.SELIC, 24, 'rate');
+    if (!d) return;
+    // Série diária: reduz para ~1 ponto por semana p/ não poluir
+    const step = Math.max(1, Math.floor(d.length / 80));
+    const sampled = d.filter((_, i) => i % step === 0 || i === d.length - 1);
+    const labels = sampled.map(x => x.data); // DD/MM/YYYY
+    const values = sampled.map(x => parseFloat(x.valor.replace(',', '.')));
+    drawLineChart('selic', labels, values, '% a.a.');
+  }
+
+  // ── Gráfico IPCA 12M (calculado a partir da série mensal 433) ──
+  async function chartIPCA12m() {
+    const d = await fetchBCBHistory(BCB.IPCA_MES, 36, 'monthly');
+    if (!d || d.length < 12) return;
+    const vals = d.map(x => parseFloat(x.valor.replace(',', '.')));
+    const labels = [], series12 = [];
+    for (let i = 11; i < vals.length; i++) {
+      const win = vals.slice(i - 11, i + 1);
+      const acc = (win.reduce((s, v) => s * (1 + v / 100), 1) - 1) * 100;
+      labels.push(d[i].data.substring(3));
+      series12.push(parseFloat(acc.toFixed(2)));
+    }
+    drawLineChart('ipca12m', labels, series12, '% 12M');
+  }
+
+  // ── Gráfico Dólar (série 1, diária) ──
+  async function chartDolar() {
+    const d = await fetchBCBHistory(BCB.USD, 6, 'daily');
+    if (!d) return;
+    const { labels, values } = parseSeries(d);
+    // série diária: usa data completa
+    const labelsFull = d.map(x => x.data);
+    drawLineChart('dolar', labelsFull, values, 'R$');
+  }
+
+  // ── Gráfico Desemprego (série 24369, mensal) ──
+  async function chartDesemprego() {
+    const d = await fetchBCBHistory(BCB.DESEMPREGO, 24, 'monthly');
+    if (!d) return;
+    const { labels, values } = parseSeries(d);
+    drawLineChart('desemprego', labels, values, '%');
+  }
+
+  // ── Gráfico IBC-Br (série 24364, mensal) ──
+  async function chartIBCBr() {
+    const d = await fetchBCBHistory(BCB.IBCBR, 24, 'monthly');
+    if (!d) return;
+    const { labels, values } = parseSeries(d);
+    drawLineChart('ibcbr', labels, values, 'índice');
+  }
+
+  // ── Gráfico Dívida Bruta (série 13762, mensal, % PIB) ──
+  async function chartDividaBruta() {
+    const d = await fetchBCBHistory(BCB.DIVIDA_BRUTA, 36, 'monthly');
+    if (!d) return;
+    const { labels, values } = parseSeries(d);
+    drawLineChart('divida-bruta', labels, values, '% PIB');
+  }
+
+  function loadCharts() {
+    return Promise.allSettled([chartSelic(), chartIPCA12m(), chartDolar(), chartDesemprego(), chartIBCBr(), chartDividaBruta()]);
+  }
+
+  // ═══════════ CALCULADORAS INTERATIVAS (módulo 20) ═══════════
+  function initCalculators() {
+    const $ = (id) => document.getElementById(id);
+    const num = (id) => parseFloat(($(id) || {}).value) || 0;
+
+    // 1. Juro Real (Fisher)
+    function calcFisher() {
+      const nom = num('calc-fisher-nom'), inf = num('calc-fisher-inf');
+      const jr = ((1 + nom/100) / (1 + inf/100) - 1) * 100;
+      const out = $('calc-fisher-out');
+      if (out) { out.textContent = jr.toFixed(2).replace('.', ',') + '%';
+        out.className = jr >= 0 ? 'up' : 'down'; }
+    }
+    // 2. Equivalência de taxas
+    function calcEq() {
+      const t = num('calc-eq-taxa'), de = num('calc-eq-de'), para = num('calc-eq-para');
+      if (de <= 0) return;
+      const eq = (Math.pow(1 + t/100, para/de) - 1) * 100;
+      const out = $('calc-eq-out');
+      if (out) out.textContent = eq.toFixed(4).replace('.', ',') + '%';
+    }
+    // 3. Valor presente
+    function calcVP() {
+      const vf = num('calc-vp-vf'), taxa = num('calc-vp-taxa'), n = num('calc-vp-n');
+      const vp = vf / Math.pow(1 + taxa/100, n);
+      const out = $('calc-vp-out');
+      if (out) out.textContent = 'R$ ' + vp.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+    // 4. Break-even inflation
+    function calcBE() {
+      const pre = num('calc-be-pre'), real = num('calc-be-real');
+      const be = ((1 + pre/100) / (1 + real/100) - 1) * 100;
+      const out = $('calc-be-out');
+      if (out) out.textContent = be.toFixed(2).replace('.', ',') + '%';
+    }
+
+    const calcs = [
+      { fn: calcFisher, ids: ['calc-fisher-nom', 'calc-fisher-inf'] },
+      { fn: calcEq,     ids: ['calc-eq-taxa', 'calc-eq-de', 'calc-eq-para'] },
+      { fn: calcVP,     ids: ['calc-vp-vf', 'calc-vp-taxa', 'calc-vp-n'] },
+      { fn: calcBE,     ids: ['calc-be-pre', 'calc-be-real'] },
+    ];
+    calcs.forEach(function(c) {
+      c.ids.forEach(function(id) {
+        const el = $(id);
+        if (el) el.addEventListener('input', c.fn);
+      });
+      c.fn(); // calcula valor inicial
+    });
+  }
+
   function loadAll(){
-    Promise.allSettled([loadDolar(),loadEuro(),loadSelic(),loadCDI(),loadIPCA(),loadDesemprego(),loadIbov(),loadSP500(),loadNasdaq(),loadJurosReais(),loadCommodities()]);
+    initCalculators();
+    Promise.allSettled([loadDolar(),loadEuro(),loadSelic(),loadCDI(),loadIPCA(),loadDesemprego(),loadIbov(),loadSP500(),loadNasdaq(),loadDow(),loadTreasury(),loadVIX(),loadJurosReais(),loadCommodities(),loadIBCBr(),loadFiscal(),loadIGPM(),loadINPC(),loadCharts()]);
   }
 
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', loadAll);
