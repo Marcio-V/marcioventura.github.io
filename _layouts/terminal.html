@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+{% include head.html %}
+
+<body class="is-terminal">
+
+	{% include header.html %}
+
+	<div class="macro-terminal">
+		{{ content }}
+	</div>
+
+	{% include footer.html %}
+
+	<script src="{{ site.baseurl }}/assets/js/macro-terminal.js"></script>
+
+</body>
+</html>

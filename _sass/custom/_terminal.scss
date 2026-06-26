@@ -1,0 +1,360 @@
+// ============================================================
+// Terminal Macroeconômico — página Economia
+// Estética Bloomberg/Terminal, grafite escuro
+// ============================================================
+
+$term-bg:        #0a0e12;
+$term-panel:     #11171d;
+$term-panel-alt: #161d24;
+$term-border:    #232c35;
+$term-text:      #e6edf3;
+$term-muted:     #8b98a5;
+$term-accent:    #daa520;   // dourado (identidade)
+$term-blue:      #4493f8;
+$term-up:        #3fb950;
+$term-down:      #f85149;
+$term-amber:     #d29922;
+
+.macro-terminal {
+	background: $term-bg;
+	color: $term-text;
+	min-height: 100vh;
+	font-family: "Roboto Mono", "Courier New", monospace;
+
+	* { box-sizing: border-box; }
+
+	// ─── Layout: sidebar + conteúdo ───
+	.term-layout {
+		display: grid;
+		grid-template-columns: 240px 1fr;
+		gap: 0;
+		max-width: 1600px;
+		margin: 0 auto;
+	}
+
+	// ─── Sidebar de navegação ───
+	.term-nav {
+		position: sticky;
+		top: 52px;             // abaixo do ticker
+		align-self: start;
+		height: calc(100vh - 52px);
+		overflow-y: auto;
+		background: $term-panel;
+		border-right: 1px solid $term-border;
+		padding: 1.5em 0;
+
+		.term-nav-title {
+			font-size: 0.7rem;
+			color: $term-accent;
+			text-transform: uppercase;
+			letter-spacing: 0.15em;
+			padding: 0 1.5em 1em;
+			font-weight: 700;
+		}
+
+		a {
+			display: flex;
+			align-items: center;
+			gap: 0.6em;
+			padding: 0.55em 1.5em;
+			color: $term-muted;
+			font-size: 0.8rem;
+			text-decoration: none;
+			border-left: 2px solid transparent;
+			transition: all 0.15s ease;
+
+			&:hover {
+				color: $term-text;
+				background: $term-panel-alt;
+				border-left-color: $term-accent;
+			}
+
+			.term-nav-num {
+				color: $term-border;
+				font-size: 0.7rem;
+				min-width: 1.5em;
+			}
+		}
+	}
+
+	// ─── Área de conteúdo ───
+	.term-content {
+		padding: 2em;
+		overflow-x: hidden;
+	}
+
+	// ─── Cabeçalho de cada módulo ───
+	.term-module {
+		margin-bottom: 3.5em;
+		scroll-margin-top: 60px;
+
+		.term-module-header {
+			display: flex;
+			align-items: center;
+			gap: 0.75em;
+			margin-bottom: 1.25em;
+			padding-bottom: 0.6em;
+			border-bottom: 1px solid $term-border;
+
+			.term-module-num {
+				font-size: 0.75rem;
+				color: $term-bg;
+				background: $term-accent;
+				padding: 0.15em 0.5em;
+				border-radius: 3px;
+				font-weight: 700;
+			}
+
+			h2 {
+				font-size: 1.05rem;
+				color: $term-text;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				margin: 0;
+				border: none;
+				padding: 0;
+				&::after { display: none; }
+			}
+
+			.term-module-tag {
+				margin-left: auto;
+				font-size: 0.62rem;
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				padding: 0.2em 0.6em;
+				border-radius: 3px;
+
+				&.live    { background: rgba(63,185,80,.15);  color: $term-up;    border: 1px solid rgba(63,185,80,.3); }
+				&.soon    { background: rgba(210,153,34,.12); color: $term-amber; border: 1px solid rgba(210,153,34,.3); }
+				&.model   { background: rgba(68,147,248,.12); color: $term-blue;  border: 1px solid rgba(68,147,248,.3); }
+			}
+		}
+	}
+
+	// ─── Grid de cards de dados ───
+	.term-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+		gap: 1em;
+	}
+
+	.term-card {
+		background: $term-panel;
+		border: 1px solid $term-border;
+		border-radius: 5px;
+		padding: 1em 1.1em;
+		transition: border-color 0.2s ease;
+
+		&:hover { border-color: $term-accent; }
+
+		.term-card-label {
+			font-size: 0.65rem;
+			color: $term-muted;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			margin-bottom: 0.5em;
+		}
+
+		.term-card-value {
+			font-size: 1.5rem;
+			font-weight: 700;
+			color: $term-text;
+			line-height: 1;
+			margin-bottom: 0.35em;
+
+			&.up   { color: $term-up; }
+			&.down { color: $term-down; }
+		}
+
+		.term-card-sub {
+			font-size: 0.7rem;
+			color: $term-muted;
+
+			.up   { color: $term-up; }
+			.down { color: $term-down; }
+		}
+
+		.term-skeleton {
+			display: inline-block;
+			min-width: 3em;
+			height: 0.8em;
+			background: linear-gradient(90deg, $term-border 25%, $term-panel-alt 50%, $term-border 75%);
+			background-size: 200% 100%;
+			animation: term-shimmer 1.5s infinite;
+			border-radius: 3px;
+		}
+	}
+
+	@keyframes term-shimmer {
+		0% { background-position: 200% 0; }
+		100% { background-position: -200% 0; }
+	}
+
+	// ─── Texto/prosa nos módulos ───
+	.term-prose {
+		color: $term-muted;
+		font-size: 0.85rem;
+		line-height: 1.7;
+		max-width: 70ch;
+
+		strong { color: $term-text; }
+	}
+
+	// ─── Placeholder elegante para módulos futuros ───
+	.term-placeholder {
+		background: repeating-linear-gradient(
+			45deg,
+			$term-panel,
+			$term-panel 10px,
+			$term-panel-alt 10px,
+			$term-panel-alt 20px
+		);
+		border: 1px dashed $term-border;
+		border-radius: 5px;
+		padding: 2.5em 2em;
+		text-align: center;
+		color: $term-muted;
+
+		.term-placeholder-icon {
+			font-size: 1.5rem;
+			margin-bottom: 0.5em;
+			opacity: 0.6;
+		}
+
+		.term-placeholder-title {
+			font-size: 0.85rem;
+			color: $term-text;
+			font-weight: 700;
+			margin-bottom: 0.4em;
+		}
+
+		.term-placeholder-desc {
+			font-size: 0.72rem;
+			line-height: 1.6;
+			max-width: 50ch;
+			margin: 0 auto;
+		}
+	}
+
+	// ─── Heatmap ───
+	.term-heatmap {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+		gap: 0.6em;
+
+		.heat-cell {
+			padding: 1em;
+			border-radius: 5px;
+			text-align: center;
+			border: 1px solid $term-border;
+
+			.heat-label {
+				font-size: 0.65rem;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				margin-bottom: 0.4em;
+				color: $term-muted;
+			}
+			.heat-arrow { font-size: 1.3rem; font-weight: 700; }
+
+			&.heat-up   { background: rgba(63,185,80,.1);  .heat-arrow { color: $term-up; } }
+			&.heat-down { background: rgba(248,81,73,.1);  .heat-arrow { color: $term-down; } }
+			&.heat-flat { background: rgba(210,153,34,.1); .heat-arrow { color: $term-amber; } }
+		}
+	}
+
+	// ─── Tabela de impacto por classe de ativos ───
+	.term-table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.78rem;
+
+		th, td {
+			padding: 0.7em 1em;
+			text-align: center;
+			border: 1px solid $term-border;
+		}
+		th {
+			background: $term-panel-alt;
+			color: $term-accent;
+			text-transform: uppercase;
+			font-size: 0.68rem;
+			letter-spacing: 0.06em;
+		}
+		td:first-child, th:first-child { text-align: left; color: $term-text; }
+		tbody tr:hover { background: $term-panel; }
+	}
+
+	// ─── Ciclo econômico ───
+	.term-cycle {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		align-items: center;
+
+		.cycle-phase {
+			padding: 0.6em 1.2em;
+			border: 1px solid $term-border;
+			border-radius: 20px;
+			font-size: 0.75rem;
+			color: $term-muted;
+
+			&.active {
+				background: $term-accent;
+				color: $term-bg;
+				font-weight: 700;
+				border-color: $term-accent;
+			}
+		}
+		.cycle-arrow { color: $term-border; }
+	}
+
+	// ─── Cards de modelos/ferramentas ───
+	.term-chips {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		gap: 0.7em;
+
+		.term-chip {
+			background: $term-panel;
+			border: 1px solid $term-border;
+			border-radius: 5px;
+			padding: 0.9em 1em;
+			font-size: 0.78rem;
+			color: $term-text;
+			transition: all 0.15s ease;
+			cursor: default;
+
+			&:hover {
+				border-color: $term-blue;
+				transform: translateY(-2px);
+			}
+
+			.chip-desc {
+				font-size: 0.65rem;
+				color: $term-muted;
+				margin-top: 0.3em;
+				line-height: 1.4;
+			}
+		}
+	}
+
+	// ─── Responsivo ───
+	@media screen and (max-width: 980px) {
+		.term-layout { grid-template-columns: 1fr; }
+		.term-nav {
+			position: relative;
+			top: 0;
+			height: auto;
+			border-right: none;
+			border-bottom: 1px solid $term-border;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.3em;
+			padding: 1em;
+
+			.term-nav-title { width: 100%; padding-bottom: 0.5em; }
+			a { border-left: none; border-radius: 4px; padding: 0.4em 0.8em; }
+		}
+	}
+}
