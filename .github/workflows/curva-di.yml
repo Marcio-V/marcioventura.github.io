@@ -1,0 +1,37 @@
+name: Atualizar Curva DI (ANBIMA)
+
+on:
+  schedule:
+    # Roda às 22h UTC (19h Brasília) em dias úteis, após fechamento da ANBIMA
+    - cron: '0 22 * * 1-5'
+  workflow_dispatch:  # permite rodar manualmente pelo painel Actions
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Baixar e atualizar a curva DI
+        run: python scripts/atualizar_curva_di.py
+
+      - name: Commit do JSON atualizado (se mudou)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/data/curva-di.json
+          if git diff --staged --quiet; then
+            echo "Sem mudanças na curva — nada a commitar."
+          else
+            git commit -m "chore: atualiza curva DI (ANBIMA) [skip ci]"
+            git push
+          fi

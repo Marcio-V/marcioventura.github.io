@@ -387,9 +387,48 @@
     });
   }
 
+  // ═══════════ CURVA DE JUROS (ETTJ ANBIMA, via JSON estático) ═══════════
+  async function loadCurvaDI() {
+    try {
+      const res = await fetch('/assets/data/curva-di.json?v=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const j = await res.json();
+      if (!j.vertices || !j.vertices.length) throw new Error('sem vértices');
+
+      // Cards-resumo
+      const v1 = j.vertices.find(v => v.du === 252) || j.vertices.find(v => v.anos >= 1);
+      const v10 = j.vertices.find(v => v.du === 2520) || j.vertices[j.vertices.length - 1];
+      if (v1) set('curva-curto', v1.taxa.toFixed(2).replace('.', ',') + '%');
+      if (v10) set('curva-longo', v10.taxa.toFixed(2).replace('.', ',') + '%');
+      if (v1 && v10) {
+        const incl = Math.round((v10.taxa - v1.taxa) * 100); // bps
+        const el = document.querySelector('[data-macro="curva-incl"]');
+        if (el) {
+          el.textContent = (incl >= 0 ? '+' : '') + incl + ' bps';
+          el.classList.add(incl >= 0 ? 'up' : 'down');
+        }
+        const desc = document.querySelector('[data-macro="curva-incl-desc"]');
+        if (desc) desc.textContent = incl >= 0 ? 'curva normal (positiva)' : 'curva invertida';
+      }
+      if (j.refdate) {
+        const d = j.refdate.split('-');
+        set('curva-data', d.length === 3 ? d[2] + '/' + d[1] + '/' + d[0] : j.refdate);
+      }
+
+      // Gráfico da curva
+      const labels = j.vertices.map(v => v.label);
+      const values = j.vertices.map(v => v.taxa);
+      drawLineChart('curva', labels, values, '% a.a.');
+    } catch (e) {
+      console.warn('[Curva DI] falha:', e.message);
+      set('curva-curto', 'N/D'); set('curva-longo', 'N/D');
+      set('curva-incl', 'N/D'); set('curva-data', 'N/D');
+    }
+  }
+
   function loadAll(){
     initCalculators();
-    Promise.allSettled([loadDolar(),loadEuro(),loadSelic(),loadCDI(),loadIPCA(),loadDesemprego(),loadIbov(),loadSP500(),loadNasdaq(),loadDow(),loadTreasury(),loadVIX(),loadJurosReais(),loadCommodities(),loadIBCBr(),loadFiscal(),loadIGPM(),loadINPC(),loadCharts()]);
+    Promise.allSettled([loadDolar(),loadEuro(),loadSelic(),loadCDI(),loadIPCA(),loadDesemprego(),loadIbov(),loadSP500(),loadNasdaq(),loadDow(),loadTreasury(),loadVIX(),loadJurosReais(),loadCommodities(),loadIBCBr(),loadFiscal(),loadIGPM(),loadINPC(),loadCurvaDI(),loadCharts()]);
   }
 
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', loadAll);

@@ -200,24 +200,19 @@ nav-menu: true
 	<div class="term-module-header">
 		<span class="term-module-num">10</span>
 		<h2>Curva de Juros</h2>
-		<span class="term-module-tag model">DI Futuro</span>
+		<span class="term-module-tag live">Ao vivo</span>
 	</div>
-	<table class="term-table">
-		<thead>
-			<tr><th>Vértice</th><th>Taxa (% a.a.)</th><th>vs. 30d</th><th>Leitura</th></tr>
-		</thead>
-		<tbody>
-			<tr><td>DI jan/27</td><td>14,30</td><td class="up">−5 bps</td><td>curto prazo ancorado na Selic</td></tr>
-			<tr><td>DI jan/29</td><td>13,75</td><td class="down">+12 bps</td><td>precifica corte gradual</td></tr>
-			<tr><td>DI jan/31</td><td>13,40</td><td class="down">+18 bps</td><td>prêmio de prazo</td></tr>
-			<tr><td>DI jan/35</td><td>13,60</td><td class="down">+22 bps</td><td>risco fiscal de longo prazo</td></tr>
-		</tbody>
-	</table>
-	<div class="term-grid" style="margin-top:1em;">
-		<div class="term-card"><div class="term-card-label">Inclinação 2s10s</div><div class="term-card-value" style="font-size:1.2rem;">−70 bps</div><div class="term-card-sub">curva invertida no curto</div></div>
-		<div class="term-card"><div class="term-card-label">Tendência</div><div class="term-card-value" style="font-size:1.2rem;">Flattening</div><div class="term-card-sub">achatamento recente</div></div>
+	<div class="term-grid" style="margin-bottom:1em;">
+		<div class="term-card"><div class="term-card-label">Curto (1A)</div><div class="term-card-value" data-macro="curva-curto" style="font-size:1.2rem;"><span class="term-skeleton"></span></div><div class="term-card-sub">vértice 252 du</div></div>
+		<div class="term-card"><div class="term-card-label">Longo (10A)</div><div class="term-card-value" data-macro="curva-longo" style="font-size:1.2rem;"><span class="term-skeleton"></span></div><div class="term-card-sub">vértice 2520 du</div></div>
+		<div class="term-card"><div class="term-card-label">Inclinação 1s10s</div><div class="term-card-value" data-macro="curva-incl" style="font-size:1.2rem;"><span class="term-skeleton"></span></div><div class="term-card-sub" data-macro="curva-incl-desc">spread longo − curto</div></div>
+		<div class="term-card"><div class="term-card-label">Referência</div><div class="term-card-value" data-macro="curva-data" style="font-size:1.2rem;"><span class="term-skeleton"></span></div><div class="term-card-sub">data da curva</div></div>
 	</div>
-	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Vértices DI de referência (ANBIMA/B3). Valores atualizados manualmente — a B3 não oferece API pública gratuita para a ETTJ em tempo real. Conecta com o projeto dedicado de Curva de Juros.</p>
+	<div class="term-chart-wrap">
+		<div class="term-chart-title">Estrutura a Termo das Taxas de Juros (ETTJ Prefixada) — ANBIMA</div>
+		<div class="term-chart-box"><canvas data-chart="curva"></canvas></div>
+	</div>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Curva DI prefixada (DI x PRE) da ANBIMA, com 16 vértices de 1 mês a 10 anos. Atualizada automaticamente todo dia útil após o fechamento, via GitHub Action. Curva ascendente = mercado precifica juros maiores no longo prazo; invertida = expectativa de cortes de Selic.</p>
 </section>
 
 <!-- 11 CÂMBIO -->

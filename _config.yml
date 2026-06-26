@@ -60,3 +60,4 @@ exclude:
   - package-lock.json
   - Gemfile
   - Gemfile.lock
+  - scripts/
