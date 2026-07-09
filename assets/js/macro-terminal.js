@@ -271,16 +271,150 @@
     return { labels, values };
   }
 
-  // ── Gráfico Selic (série 432, meta diária → mostra evolução) ──
-  async function chartSelic() {
-    const d = await fetchBCBHistory(BCB.SELIC, 24, 'rate');
-    if (!d) return;
-    // Série diária: reduz para ~1 ponto por semana p/ não poluir
-    const step = Math.max(1, Math.floor(d.length / 80));
-    const sampled = d.filter((_, i) => i % step === 0 || i === d.length - 1);
-    const labels = sampled.map(x => x.data); // DD/MM/YYYY
-    const values = sampled.map(x => parseFloat(x.valor.replace(',', '.')));
-    drawLineChart('selic', labels, values, '% a.a.');
+  // ── Selic × Regra de Taylor (desde 2015, com parâmetros editáveis) ──
+  let taylorHist = null;       // { labels, selic, ipca } — guardado p/ recalcular sem re-buscar
+  let taylorChart = null;      // instância Chart.js
+
+  // Reduz série diária da Selic a 1 ponto por mês (último valor de cada mês)
+  function monthlyFromDaily(data) {
+    const byMonth = {};
+    data.forEach(d => {
+      const mk = d.data.substring(3); // MM/YYYY
+      byMonth[mk] = parseFloat(d.valor.replace(',', '.')); // sobrescreve → fica o último do mês
+    });
+    return byMonth;
+  }
+
+  function taylorParams() {
+    const g = (id, def) => { const el = document.getElementById(id); return el ? parseFloat(el.value) : def; };
+    return {
+      rstar: g('tr-rstar', 4.5), pistar: g('tr-pistar', 3.0),
+      alpha: g('tr-alpha', 0.5), beta: g('tr-beta', 0.5), hiato: g('tr-hiato', 0.0),
+    };
+  }
+
+  // Calcula a linha Taylor a partir do IPCA histórico e dos parâmetros atuais
+  function computeTaylor() {
+    if (!taylorHist) return [];
+    const p = taylorParams();
+    return taylorHist.ipca.map(pi => {
+      if (pi === null) return null;
+      // i = r* + π + α(π − π*) + β·hiato
+      return p.rstar + pi + p.alpha * (pi - p.pistar) + p.beta * p.hiato;
+    });
+  }
+
+  function renderTaylorChart() {
+    const canvas = document.querySelector('canvas[data-chart="taylor"]');
+    if (!canvas || typeof Chart === 'undefined' || !taylorHist) return;
+    const taylorLine = computeTaylor();
+
+    if (taylorChart) {
+      taylorChart.data.datasets[1].data = taylorLine;
+      taylorChart.update('none');
+    } else {
+      taylorChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: taylorHist.labels,
+          datasets: [
+            { label: 'Selic efetiva', data: taylorHist.selic, borderColor: '#4da3ff',
+              backgroundColor: 'rgba(77,163,255,0.10)', borderWidth: 2, fill: true, tension: 0.2, pointRadius: 0, pointHoverRadius: 4 },
+            { label: 'Taylor', data: taylorLine, borderColor: '#f0a830',
+              backgroundColor: 'transparent', borderWidth: 2, borderDash: [5,4], fill: false, tension: 0.2, pointRadius: 0, pointHoverRadius: 4 },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: true, labels: { color: '#8b949e', font: { size: 11 }, usePointStyle: true, boxWidth: 8 } },
+            tooltip: { backgroundColor: '#161c21', borderColor: '#2a3138', borderWidth: 1, titleColor: '#e6e6e6', bodyColor: '#e6e6e6',
+              callbacks: { label: c => c.dataset.label + ': ' + (c.parsed.y != null ? c.parsed.y.toFixed(2).replace('.', ',') + '%' : 'N/D') } },
+          },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8b949e', maxTicksLimit: 10, font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8b949e', font: { size: 10 }, callback: v => v + '%' } },
+          },
+        },
+      });
+    }
+    updateTaylorReadout(taylorLine);
+  }
+
+  // Mostra o valor atual da Taylor vs Selic no rodapé
+  function updateTaylorReadout(taylorLine) {
+    const el = document.getElementById('tr-current');
+    if (!el || !taylorHist) return;
+    const i = taylorHist.selic.length - 1;
+    const selicNow = taylorHist.selic[i];
+    const taylorNow = taylorLine[i];
+    if (selicNow == null || taylorNow == null) return;
+    const gap = selicNow - taylorNow;
+    const sinal = gap >= 0 ? 'acima' : 'abaixo';
+    el.innerHTML = 'Hoje: Selic ' + selicNow.toFixed(2).replace('.', ',') + '% vs Taylor ' +
+      taylorNow.toFixed(2).replace('.', ',') + '% → política ' +
+      '<strong style="color:' + (gap >= 0 ? '#3fb950' : '#f85149') + '">' +
+      Math.abs(gap).toFixed(2).replace('.', ',') + ' p.p. ' + sinal + '</strong>';
+  }
+
+  async function chartTaylor() {
+    // Busca Selic (diária→mensal) e IPCA mensal desde ~2015 (135 meses)
+    const [selicRaw, ipcaRaw] = await Promise.all([
+      fetchBCBHistory(BCB.SELIC, 135, 'rate'),
+      fetchBCBHistory(BCB.IPCA_MES, 135, 'monthly'),
+    ]);
+    if (!selicRaw || !ipcaRaw) return;
+
+    const selicByMonth = monthlyFromDaily(selicRaw);
+
+    // IPCA 12M acumulado por mês (produtório móvel)
+    const ipcaVals = ipcaRaw.map(x => ({ mk: x.data.substring(3), v: parseFloat(x.valor.replace(',', '.')) }));
+    const ipca12ByMonth = {};
+    for (let i = 11; i < ipcaVals.length; i++) {
+      const win = ipcaVals.slice(i - 11, i + 1);
+      const acc = (win.reduce((s, x) => s * (1 + x.v / 100), 1) - 1) * 100;
+      ipca12ByMonth[ipcaVals[i].mk] = parseFloat(acc.toFixed(2));
+    }
+
+    // Alinha as duas séries pelos meses em que AMBAS existem
+    const labels = [], selic = [], ipca = [];
+    Object.keys(selicByMonth).forEach(mk => {
+      if (ipca12ByMonth[mk] !== undefined) {
+        labels.push(mk);
+        selic.push(selicByMonth[mk]);
+        ipca.push(ipca12ByMonth[mk]);
+      }
+    });
+    // Ordena cronologicamente (MM/YYYY → YYYYMM)
+    const order = labels.map((mk, idx) => ({ mk, idx, key: mk.substring(3) + mk.substring(0,2) }))
+                        .sort((a,b) => a.key.localeCompare(b.key));
+    taylorHist = {
+      labels: order.map(o => o.mk),
+      selic:  order.map(o => selic[o.idx]),
+      ipca:   order.map(o => ipca[o.idx]),
+    };
+
+    renderTaylorChart();
+    bindTaylorControls();
+  }
+
+  // Liga os sliders ao recálculo ao vivo
+  function bindTaylorControls() {
+    const map = [
+      ['tr-rstar', 'tr-rstar-v', 1], ['tr-pistar', 'tr-pistar-v', 1],
+      ['tr-alpha', 'tr-alpha-v', 2], ['tr-beta', 'tr-beta-v', 2], ['tr-hiato', 'tr-hiato-v', 1],
+    ];
+    map.forEach(([inId, outId, dec]) => {
+      const inp = document.getElementById(inId), out = document.getElementById(outId);
+      if (!inp) return;
+      const sync = () => {
+        if (out) out.textContent = parseFloat(inp.value).toFixed(dec).replace('.', ',');
+        renderTaylorChart();
+      };
+      inp.addEventListener('input', sync);
+      sync();
+    });
   }
 
   // ── Gráfico IPCA 12M (calculado a partir da série mensal 433) ──
@@ -333,7 +467,7 @@
   }
 
   function loadCharts() {
-    return Promise.allSettled([chartSelic(), chartIPCA12m(), chartDolar(), chartDesemprego(), chartIBCBr(), chartDividaBruta()]);
+    return Promise.allSettled([chartTaylor(), chartIPCA12m(), chartDolar(), chartDesemprego(), chartIBCBr(), chartDividaBruta()]);
   }
 
   // ═══════════ CALCULADORAS INTERATIVAS (módulo 20) ═══════════

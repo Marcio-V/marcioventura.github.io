@@ -101,8 +101,16 @@ nav-menu: true
 		<div class="term-card"><div class="term-card-label">CDI</div><div class="term-card-value" data-macro="cdi"><span class="term-skeleton"></span></div><div class="term-card-sub">% a.a.</div></div>
 	</div>
 	<div class="term-chart-wrap" style="margin-top:1em;">
-		<div class="term-chart-title">Histórico da Meta Selic — últimos 24 meses</div>
-		<div class="term-chart-box"><canvas data-chart="selic"></canvas></div>
+		<div class="term-chart-title">Selic efetiva × Regra de Taylor — desde 2015</div>
+		<div class="term-taylor-controls">
+			<label>r* — juro real neutro (%)<input type="range" id="tr-rstar" min="0" max="8" step="0.25" value="4.5"><output id="tr-rstar-v">4,5</output></label>
+			<label>π* — meta de inflação (%)<input type="range" id="tr-pistar" min="2" max="6" step="0.25" value="3.0"><output id="tr-pistar-v">3,0</output></label>
+			<label>α — peso da inflação<input type="range" id="tr-alpha" min="0" max="2" step="0.05" value="0.5"><output id="tr-alpha-v">0,50</output></label>
+			<label>β — peso do hiato<input type="range" id="tr-beta" min="0" max="2" step="0.05" value="0.5"><output id="tr-beta-v">0,50</output></label>
+			<label>Hiato do produto (%)<input type="range" id="tr-hiato" min="-5" max="5" step="0.25" value="0"><output id="tr-hiato-v">0,0</output></label>
+		</div>
+		<div class="term-chart-box" style="height:340px;"><canvas data-chart="taylor"></canvas></div>
+		<div class="term-taylor-formula">i<sub>Taylor</sub> = r* + π + α(π − π*) + β·hiato &nbsp;|&nbsp; <span id="tr-current"></span></div>
 	</div>
 </section>
 

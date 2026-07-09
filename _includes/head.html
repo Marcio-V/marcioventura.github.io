@@ -1,6 +1,25 @@
 <head>
 	<title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
 	<meta charset="utf-8" />
+
+	<!-- ═══ Segurança: Content-Security-Policy ═══
+	     Restringe de onde scripts/estilos/conexões podem vir.
+	     Se adicionar um novo domínio (API, CDN), inclua-o aqui ou será bloqueado. -->
+	<meta http-equiv="Content-Security-Policy" content="
+		default-src 'self';
+		script-src 'self' 'unsafe-inline' https://www.googletagmanager.com;
+		style-src 'self' 'unsafe-inline';
+		img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com;
+		font-src 'self';
+		connect-src 'self' https://api.bcb.gov.br https://olinda.bcb.gov.br https://market-proxy.m-matheus-baptista.workers.dev https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com;
+		form-action https://formspree.io;
+		base-uri 'self';
+		object-src 'none';
+		upgrade-insecure-requests
+	" />
+	<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+	<meta name="referrer" content="strict-origin-when-cross-origin" />
+
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
 	<meta name="author" content="{{ site.author }}" />
