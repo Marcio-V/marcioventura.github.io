@@ -1,103 +1,103 @@
 {
-  "refdate": "2026-07-15",
+  "refdate": "2026-07-16",
   "fonte": "ANBIMA — ETTJ Prefixada (DI x PRE)",
-  "atualizado_em": "2026-07-15",
+  "atualizado_em": "2026-07-16",
   "vertices": [
     {
       "du": 21,
       "anos": 0.08,
       "label": "1M",
-      "taxa": 13.7296
+      "taxa": 13.7186
     },
     {
       "du": 42,
       "anos": 0.17,
       "label": "2M",
-      "taxa": 13.7296
+      "taxa": 13.7186
     },
     {
       "du": 63,
       "anos": 0.25,
       "label": "3M",
-      "taxa": 13.7296
+      "taxa": 13.7186
     },
     {
       "du": 126,
       "anos": 0.5,
       "label": "6M",
-      "taxa": 13.7296
+      "taxa": 13.7186
     },
     {
       "du": 252,
       "anos": 1,
       "label": "1A",
-      "taxa": 13.7185
+      "taxa": 13.7494
     },
     {
       "du": 378,
       "anos": 1.5,
       "label": "1A6M",
-      "taxa": 13.8094
+      "taxa": 13.866
     },
     {
       "du": 504,
       "anos": 2,
       "label": "2A",
-      "taxa": 13.9362
+      "taxa": 14.0072
     },
     {
       "du": 630,
       "anos": 2.5,
       "label": "2A6M",
-      "taxa": 14.0654
+      "taxa": 14.1436
     },
     {
       "du": 756,
       "anos": 3,
       "label": "3A",
-      "taxa": 14.1813
+      "taxa": 14.2626
     },
     {
       "du": 1008,
       "anos": 4,
       "label": "4A",
-      "taxa": 14.3556
+      "taxa": 14.4382
     },
     {
       "du": 1260,
       "anos": 5,
       "label": "5A",
-      "taxa": 14.4586
+      "taxa": 14.5418
     },
     {
       "du": 1512,
       "anos": 6,
       "label": "6A",
-      "taxa": 14.5106
+      "taxa": 14.5963
     },
     {
       "du": 1764,
       "anos": 7,
       "label": "7A",
-      "taxa": 14.5304
+      "taxa": 14.6204
     },
     {
       "du": 2016,
       "anos": 8,
       "label": "8A",
-      "taxa": 14.5317
+      "taxa": 14.6271
     },
     {
       "du": 2268,
       "anos": 9,
       "label": "9A",
-      "taxa": 14.5229
+      "taxa": 14.6244
     },
     {
       "du": 2520,
       "anos": 10,
       "label": "10A",
-      "taxa": 14.5094
+      "taxa": 14.617
     }
   ]
 }
