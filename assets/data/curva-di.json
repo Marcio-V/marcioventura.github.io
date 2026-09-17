@@ -1,85 +1,85 @@
 {
-  "refdate": "2026-09-16",
+  "refdate": "2026-09-17",
   "fonte": "ANBIMA — ETTJ Prefixada (DI x PRE)",
-  "atualizado_em": "2026-09-16",
+  "atualizado_em": "2026-09-17",
   "vertices": [
     {
       "du": 126,
       "anos": 0.5,
       "label": "6M",
-      "taxa": 13.5503
+      "taxa": 13.4899
     },
     {
       "du": 252,
       "anos": 1,
       "label": "1A",
-      "taxa": 13.5503
+      "taxa": 13.4899
     },
     {
       "du": 378,
       "anos": 1.5,
       "label": "1A6M",
-      "taxa": 13.7165
+      "taxa": 13.6536
     },
     {
       "du": 504,
       "anos": 2,
       "label": "2A",
-      "taxa": 13.8575
+      "taxa": 13.7976
     },
     {
       "du": 630,
       "anos": 2.5,
       "label": "2A6M",
-      "taxa": 13.976
+      "taxa": 13.9207
     },
     {
       "du": 756,
       "anos": 3,
       "label": "3A",
-      "taxa": 14.0754
+      "taxa": 14.0248
     },
     {
       "du": 1008,
       "anos": 4,
       "label": "4A",
-      "taxa": 14.227
+      "taxa": 14.1845
     },
     {
       "du": 1260,
       "anos": 5,
       "label": "5A",
-      "taxa": 14.3286
+      "taxa": 14.2915
     },
     {
       "du": 1512,
       "anos": 6,
       "label": "6A",
-      "taxa": 14.3921
+      "taxa": 14.358
     },
     {
       "du": 1764,
       "anos": 7,
       "label": "7A",
-      "taxa": 14.4267
+      "taxa": 14.3937
     },
     {
       "du": 2016,
       "anos": 8,
       "label": "8A",
-      "taxa": 14.4398
+      "taxa": 14.4063
     },
     {
       "du": 2268,
       "anos": 9,
       "label": "9A",
-      "taxa": 14.4367
+      "taxa": 14.4016
     },
     {
       "du": 2520,
       "anos": 10,
       "label": "10A",
-      "taxa": 14.4218
+      "taxa": 14.3843
     }
   ]
 }
