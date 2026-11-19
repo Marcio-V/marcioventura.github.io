@@ -10,26 +10,42 @@
 
   <body>
 
-    {% include header.html %} 
-    
-    
+    {% include header.html %}
+
+
     <!-- Main -->
     <div id="main" class="alt">
 
       <!-- One -->
       <section id="one">
-	<div class="inner">
+        <div class="inner">
+          <header class="major">
+            <h1>{{ page.landing-title | default: page.title }}</h1>
+          </header>
+
           {% for post in site.posts %}
-	  {% if post.title != 404 %}
-	  <header class="major">
-	    <h1>{{ post.title }}</h1>
-	  </header>
-	  {% if post.image %}<span class="image main"><img src="{{ site.baseurl }}/{{ post.image }}" alt="" /></span>{% endif %}
-	  {% if post.date %}<p>{{ post.date }}</p>{% endif %}
-	  <p>{{ post.content }}</p>
-	  {% endif %}
+          {% if post.title != 404 %}
+          <article class="post-card">
+            <header class="major">
+              <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+              <p class="post-meta">
+                {% if post.provider %}{{ post.provider }}{% endif %}
+                {% if post.date %}&middot; {{ post.date | date: "%d/%m/%Y" }}{% endif %}
+              </p>
+            </header>
+            {% if post.image %}
+            <a href="{{ post.url | relative_url }}" class="image main"><img src="{{ site.baseurl }}/{{ post.image }}" alt="{{ post.title }}" loading="lazy" /></a>
+            {% endif %}
+            {% if post.description %}<p>{{ post.description }}</p>{% endif %}
+            <ul class="actions">
+              <li><a href="{{ post.url | relative_url }}" class="button">Ler resumo</a></li>
+              {% if post.pdf %}<li><a href="{{ site.baseurl }}/{{ post.pdf }}" class="button special" target="_blank" rel="noopener">Baixar PDF</a></li>{% endif %}
+            </ul>
+            <hr />
+          </article>
+          {% endif %}
           {% endfor %}
-	</div>
+        </div>
       </section>
 
     </div>

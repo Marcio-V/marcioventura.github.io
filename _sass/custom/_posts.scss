@@ -1,0 +1,32 @@
+// ============================================================
+// Posts / All posts — cards de cursos e metadados
+// ============================================================
+
+.post-meta {
+	font-size: 0.8em;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.55);
+	margin-top: -0.75em;
+}
+
+.post-card {
+	margin-bottom: 1em;
+
+	.post-meta {
+		margin-top: 0.25em;
+		margin-bottom: 1em;
+	}
+
+	h2 a {
+		border-bottom: none;
+	}
+
+	hr {
+		margin: 2.5em 0 2.5em 0;
+	}
+
+	&:last-child hr {
+		display: none;
+	}
+}

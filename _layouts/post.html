@@ -10,9 +10,9 @@
 
 <body>
 
-    {% include header.html %} 
-    
-    
+    {% include header.html %}
+
+
 <!-- Main -->
 <div id="main" class="alt">
 
@@ -21,9 +21,20 @@
 	<div class="inner">
 		<header class="major">
 			<h1>{{ page.title }}</h1>
+			{% if page.provider or page.date %}
+			<p class="post-meta">
+				{% if page.provider %}{{ page.provider }}{% endif %}
+				{% if page.course_type %}&middot; {{ page.course_type }}{% endif %}
+				{% if page.date %}&middot; {{ page.date | date: "%d/%m/%Y" }}{% endif %}
+			</p>
+			{% endif %}
 		</header>
-		{% if page.image %}<span class="image main"><img src="{{ site.baseurl }}/{{ page.image }}" alt="" /></span>{% endif %}
+		{% if page.image %}<span class="image main"><img src="{{ site.baseurl }}/{{ page.image }}" alt="{{ page.title }}" /></span>{% endif %}
 		{{ content }}
+		<ul class="actions" style="margin-top: 2em;">
+			<li><a href="{{ site.baseurl }}/all_posts.html" class="button">&larr; Voltar aos posts</a></li>
+			{% if page.pdf %}<li><a href="{{ site.baseurl }}/{{ page.pdf }}" class="button special" target="_blank" rel="noopener">Baixar resumo (PDF)</a></li>{% endif %}
+		</ul>
 	</div>
 </section>
 
