@@ -26,8 +26,8 @@ Curso de educação executiva do **Insper** sobre a tesouraria de instituições
 
 ## Comentário
 
-> *Rascunho — ajuste com a sua leitura pessoal antes de publicar.*
+> *Impressõres sobre o curso.*
 
-Esse foi o curso que costurou tudo o que eu operava em pedaços soltos numa visão única de tesouraria. A sequência mapear → medir → decidir → monitorar é a mesma disciplina que tento aplicar ao meu livro proprietário, só que aqui vista pela ótica da instituição inteira, e não de uma estrutura isolada. A parte de duration, DV01 e convexidade formalizou o ferramental que eu já usava intuitivamente para pensar sensibilidade a juros, e o bloco de ALM/IRRBB — EVE versus NII — foi o que mais consolidou minha direção de carreira rumo a uma mesa de ALM Treasury. O estudo do Silicon Valley Bank, em particular, é um lembrete concreto de que gestão de liquidez e descasamento de prazo não são abstração regulatória: quebram bancos.
+Esse foi o curso que costurou tudo o que eu operava em pedaços soltos numa visão única de tesouraria. A sequência mapear → medir → decidir → monitorar é a mesma disciplina que tento aplicar ao meu livro proprietário, só que aqui vista pela ótica da instituição inteira, e não de uma estrutura isolada. A parte de duration, DV01 e convexidade formalizou o ferramental que eu já usava intuitivamente para pensar sensibilidade a juros, e o bloco de ALM/IRRBB, EVE versus NII, foi o que mais consolidou minha direção de carreira rumo a uma mesa de ALM Treasury. O estudo do Silicon Valley Bank, em particular, é um lembrete concreto de que gestão de liquidez e descasamento de prazo não são abstração regulatória: quebram bancos.
 
 **[Baixar o resumo completo (PDF)]({{ site.baseurl }}/assets/pdf/operacoes-tesouraria-instituicoes-financeiras.pdf)**

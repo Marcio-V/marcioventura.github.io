@@ -23,8 +23,8 @@ Curso de educação executiva do **Insper** dedicado ao ecossistema de derivativ
 
 ## Comentário
 
-> *Rascunho — ajuste com a sua leitura pessoal antes de publicar.*
+> *Impressõres sobre o curso.*
 
-Esse foi o curso mais diretamente colado ao meu dia a dia na mesa. O arcabouço de hedge — identificação, mensuração, decisão e validação — é exatamente o que separa montar uma estrutura de carregá-la com disciplina ao longo do tempo. A precificação por não arbitragem e a construção do dólar sintético me fizeram revisitar como penso o custo de carrego das travas que monto para clientes, e a lógica de "o ajuste do hedge anda em sentido oposto à exposição protegida" (eficiência −1) é o princípio que uso para distinguir hedge de aposta. O bloco de commodities, com collar e 3-way, e os casos de hedge corporativo (JBS, Minerva, Klabin) mostram bem como a mesma engenharia de opções que aplico em renda recorrente serve para proteger margem operacional.
+Esse foi o curso mais diretamente colado ao meu dia a dia na mesa. O arcabouço de hedge, identificação, mensuração, decisão e validação. É exatamente o que separa montar uma estrutura de carregá-la com disciplina ao longo do tempo. A precificação por não arbitragem e a construção do dólar sintético me fizeram revisitar como penso o custo de carrego das travas que monto para clientes, e a lógica de "o ajuste do hedge anda em sentido oposto à exposição protegida" (eficiência −1) é o princípio que uso para distinguir hedge de aposta. O bloco de commodities, com collar e 3-way, e os casos de hedge corporativo (JBS, Minerva, Klabin) mostram bem como a mesma engenharia de opções que aplico em renda recorrente serve para proteger margem operacional.
 
 **[Baixar o resumo completo (PDF)]({{ site.baseurl }}/assets/pdf/derivativos-negociacao-precificacao-hedge.pdf)**

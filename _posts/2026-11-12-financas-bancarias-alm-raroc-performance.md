@@ -24,8 +24,8 @@ Curso de educação executiva do **Insper** que monta, peça por peça, o result
 
 ## Comentário
 
-> *Rascunho — ajuste com a sua leitura pessoal antes de publicar.*
+> *Impressõres sobre o curso.*
 
-Esse é o curso que mais conversa com a direção que estou construindo em ALM e tesouraria bancária, e o que me deu a visão mais "de cima" das três. O Funds Transfer Pricing foi o conceito que mais me marcou: ele dá um vocabulário preciso para separar quem gera valor de quem apenas transfere risco dentro do banco — algo que eu tateava ao estruturar carrego em crédito privado, mas aqui formalizado da ótica da instituição. O RAROC é a ponte que eu procurava entre risco e alocação de capital: medir retorno por unidade de risco consumido, e não em termos absolutos, é a disciplina que quero levar para a gestão de livros proprietários. Fechar o curso decompondo o ROE de bancos privados versus digitais amarrou tudo num só número — que é, no fim, a régua pela qual qualquer tesouraria é cobrada.
+Esse é o curso que mais conversa com a direção que estou construindo em ALM e tesouraria bancária, e o que me deu a visão mais "de cima" das três. O Funds Transfer Pricing foi o conceito que mais me marcou: ele dá um vocabulário preciso para separar quem gera valor de quem apenas transfere risco dentro do banco — algo que eu tateava ao estruturar carrego em crédito privado, mas aqui formalizado da ótica da instituição. O RAROC é a ponte que eu procurava entre risco e alocação de capital: medir retorno por unidade de risco consumido, e não em termos absolutos, é a disciplina que quero levar para a gestão de livros proprietários. Fechar o curso decompondo o ROE de bancos privados versus digitais amarrou tudo num só número, que é, no fim, a régua pela qual qualquer tesouraria é cobrada.
 
 **[Baixar o resumo completo (PDF)]({{ site.baseurl }}/assets/pdf/financas-bancarias-alm-raroc-performance.pdf)**
