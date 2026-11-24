@@ -5,42 +5,64 @@
 
 <body>
 
-    {% include header.html %}
+    {% include header.html %}
 
-        <section id="banner" class="major">
-        <div class="inner">
-            <header class="major">
-                <h1>{{ page.landing-title }}</h1>
-            </header>
-            <div class="content">
-                <p style="text-transform: uppercase;">{{ page.hero-subtitle | default: site.description }}</p>
-                <ul class="actions">
-                    <li><a href="#one" class="button next scrolly">Começar</a></li>
-                </ul>
-            </div>
-        </div>
-    </section>
+    <!-- Hero -->
+    <section id="banner" class="major">
+        <div class="inner">
+            <header class="major">
+                <h1>{{ page.landing-title }}</h1>
+            </header>
+            <div class="content">
+                <p style="text-transform: uppercase;">{{ page.hero-subtitle | default: site.description }}</p>
+                <ul class="actions">
+                    <li><a href="#one" class="button next scrolly">Explorar</a></li>
+                    <li><a href="{{ '/consultoria.html' | relative_url }}" class="button primary">Consultoria</a></li>
+                </ul>
+                <div class="credibility">
+                    <span>Economista · <strong>UERJ</strong></span>
+                    <span>Educação executiva · <strong>Insper</strong></span>
+                    <span>Renda Variável · <strong>B3</strong></span>
+                    <span><strong>Arbitrium</strong> Capital</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <div id="main">
+    <div id="main">
 
-                {% include tiles.html %}
+        {% include tiles.html %}
 
-                <section id="two">
-            <div class="inner">
-                <header class="major">
-                    <h2>Introdução</h2>
-                </header>
-                <p>{{ content }}</p>
-                <ul class="actions">
-                    <li><a href="landing.html" class="button next">Começar</a></li>
-                </ul>
-            </div>
-        </section>
+        <!-- Introdução -->
+        <section id="two">
+            <div class="inner">
+                <header class="major">
+                    <h2>Introdução</h2>
+                </header>
+                <p>{{ content }}</p>
+                <ul class="actions">
+                    <li><a href="{{ '/generic.html' | relative_url }}" class="button next">Sobre mim</a></li>
+                </ul>
+            </div>
+        </section>
 
-                {% include economic_indicators.html %}
-            </div>
+        <!-- Faixa: Consultoria -->
+        <section class="home-consult">
+            <div class="inner">
+                <span class="eyebrow">Arbitrium Consulting</span>
+                <h2>Consultoria econômica, dados e ferramentas</h2>
+                <p>Análises de conjuntura, automação de dados e desenvolvimento de ferramentas quantitativas sob medida para o mercado financeiro.</p>
+                <ul class="actions special">
+                    <li><a href="{{ '/consultoria.html' | relative_url }}" class="button primary">Conhecer serviços</a></li>
+                </ul>
+            </div>
+        </section>
 
-    {% include footer.html %}
+        {% include economic_indicators.html %}
+
+    </div>
+
+    {% include footer.html %}
 
 </body>
 

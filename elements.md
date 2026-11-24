@@ -1,9 +1,13 @@
 ---
 layout: terminal
 title: Economia
-description: Terminal Macroeconômico • Indicadores • Conjuntura • Modelos
+description: Terminal macroeconômico — indicadores em tempo real, conjuntura e modelos.
 image: assets/images/bloomberg1.jpg
 nav-menu: true
+tile-category: Terminal
+tile-order: 1
+tile-position: center center
+menu-order: 1
 ---
 
 <div class="term-layout">

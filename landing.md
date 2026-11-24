@@ -1,9 +1,13 @@
 ---
 title: Projetos
 layout: landing
-description: Economia • Finanças • Dados
+description: Aplicações em economia, finanças quantitativas e engenharia.
 image: assets/images/blur.jpg
 nav-menu: true
+tile-category: Portfólio
+tile-order: 3
+tile-position: center center
+menu-order: 2
 ---
 
 <!-- Main -->

@@ -1,0 +1,102 @@
+// ============================================================
+// Consultoria — serviços, processo, CTA, disclaimer
+// ============================================================
+
+$c-gold:  #e7b788;
+$c-blue:  #8ea9e8;
+$c-line:  rgba(212,212,255,0.10);
+
+/* Grade de serviços */
+.service-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1.5em;
+}
+@media screen and (max-width: 736px) {
+	.service-grid { grid-template-columns: 1fr; }
+}
+
+.service-card {
+	background: #0e1316;
+	border: 1px solid $c-line;
+	border-radius: 5px;
+	padding: 2em 2em 1.75em;
+	transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+
+	.icon.major {
+		color: $c-gold;
+		margin: 0 0 0.5em 0;
+		&:before { font-size: 2.25em; }
+	}
+
+	h3 {
+		font-size: 1.15em;
+		font-weight: 600;
+		margin-bottom: 0.5em;
+	}
+
+	p {
+		color: rgba(255,255,255,0.74);
+		font-size: 0.9em;
+		line-height: 1.65;
+		margin: 0;
+	}
+
+	&:hover {
+		transform: translateY(-5px);
+		border-color: rgba(231,183,136,0.5);
+		box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+	}
+}
+
+/* Processo */
+.process-steps {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1.5em;
+}
+@media screen and (max-width: 736px) {
+	.process-steps { grid-template-columns: 1fr; }
+}
+
+.process-step {
+	padding: 1.5em 0;
+	border-top: 2px solid $c-gold;
+
+	.process-num {
+		display: block;
+		font-family: "Courier New", monospace;
+		font-size: 1.1em;
+		color: $c-gold;
+		letter-spacing: 0.1em;
+		margin-bottom: 0.5em;
+	}
+	h4 { font-size: 1.1em; font-weight: 600; margin-bottom: 0.35em; }
+	p  { color: rgba(255,255,255,0.72); font-size: 0.9em; margin: 0; }
+}
+
+/* CTA */
+.consult-cta {
+	text-align: center;
+	padding: 4em 0;
+	background: #0e1316;
+	border-top: 1px solid $c-line;
+	border-bottom: 1px solid $c-line;
+
+	.inner { max-width: 42em; }
+	h2 { font-weight: 600; }
+	p  { color: rgba(255,255,255,0.78); margin-bottom: 1.5em; }
+}
+
+/* Disclaimer */
+.consult-disclaimer {
+	padding: 2.5em 0 4em;
+	.inner { max-width: 50em; }
+	p {
+		font-size: 0.72em;
+		line-height: 1.7;
+		color: rgba(255,255,255,0.45);
+		font-style: italic;
+		margin: 0;
+	}
+}

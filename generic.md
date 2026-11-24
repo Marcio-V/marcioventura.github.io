@@ -1,13 +1,39 @@
 ---
 layout: post
-title: Resumo 
-description: Sobre mim
+title: Resumo
+description: Quem sou, trajetória e competências técnicas.
 image: assets/images/eu.jpg
 nav-menu: true
+tile-category: Sobre
+tile-order: 2
+menu-order: 5
 ---
 
-Graduando em Ciências Econômicas pela Universidade do Estado do Rio de Janeiro (UERJ), desenvolvo minha trajetória com foco em finanças quantitativas, modelagem econômica e análise de dados aplicados ao mercado financeiro e à análise econômica. Tenho experiência prática com R, Python e Excel, voltada ao desenvolvimento de soluções técnicas para avaliação de ativos, automação de processos, integração de dados econômicos e análise de séries temporais. Atuo como Sales de renda variável, especialista em alocação e programador de ferramentas de apoio, tanto para a tomada de decisão quanto para a otimização de processos complexos e repetitivos, com ênfase em eficiência operacional e precisão analítica.
+<p class="lead">
+Operador de renda variável (Sales &amp; Trading) e economista em formação, atuo na intersecção entre
+economia aplicada, finanças quantitativas e engenharia de software — transformando dados e teoria
+econômica em decisões de investimento e ferramentas de mercado.
+</p>
 
-Entre os projetos desenvolvidos, destaco a criação de um hub automatizado de séries temporais econômicas a partir da integração de APIs do Banco Central (SGS), IBGE (SIDRA) e IPEADATA, voltado a análises macroeconômicas e modelos preditivos. Desenvolvi também uma ferramenta para análise de notas de corretagem com cálculo de apuração fiscal em renda variável, estruturada para facilitar o controle tributário e a rastreabilidade das operações. Além disso, estruturei modelos de mensuração de carrego e ágio para fundos imobiliários e títulos de crédito privado, com foco na precificação relativa e na eficiência intertemporal dos investimentos.
+Graduando em Ciências Econômicas pela **Universidade do Estado do Rio de Janeiro (UERJ)**, com TCC sobre a
+dinâmica da inflação brasileira, construo minha trajetória na mesa de operações, com foco em derivativos,
+estruturas de opções, renda fixa e alocação. Complemento a formação acadêmica com educação executiva no
+**Insper** (Operações de Tesouraria, Derivativos, e Gestão das Finanças Bancárias — ALM, RAROC e Performance),
+direcionada à gestão de risco e tesouraria.
 
-Minha formação e experiência me permitem unir fundamentos econômicos à aplicação técnica, com capacidade de atuação em research, structuring e gestão. Estou constantemente em busca de desafios que exijam excelência analítica, inovação metodológica e visão estratégica em ambientes de alta performance, contribuindo para a formulação de soluções com impacto mensurável.
+Desenvolvo a maior parte das minhas próprias ferramentas — dashboards, relatórios e calculadoras — com **R,
+Python e Excel/VBA**, voltadas à avaliação de ativos, automação de processos, integração de dados econômicos
+e análise de séries temporais. Entre as entregas, destaco um hub automatizado de séries econômicas integrando
+as APIs de Banco Central (SGS), IBGE (SIDRA) e IPEADATA; uma engine de apuração fiscal a partir de notas de
+corretagem; e modelos de mensuração de carrego e ágio para fundos imobiliários e crédito privado.
+
+## Competências
+
+- **Mercado:** derivativos, estruturas de opções, renda fixa, hedge e gestão de carteiras
+- **Quant & dados:** séries temporais, backtesting, precificação, modelagem de risco (duration, VaR)
+- **Engenharia:** Python, R, SQL, VBA, APIs (BCB, IBGE, ANBIMA), dashboards e automação
+- **Economia:** macroeconomia aplicada, política monetária, conjuntura e inflação
+
+Minha formação e experiência me permitem unir fundamento econômico à aplicação técnica, com atuação em
+**research, structuring e gestão**. Busco desafios que exijam excelência analítica, rigor metodológico e
+visão estratégica em ambientes de alta performance.

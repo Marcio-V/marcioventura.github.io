@@ -1,15 +1,16 @@
 ---
 layout: home
 title: Home
-landing-title: 'Bem-vindo'
-hero-subtitle: 'Economia, Dados e Soluções'
+landing-title: 'Economia, dados e mercado.'
+hero-subtitle: 'Operador de Renda Variável · Finanças Quantitativas · Engenharia Financeira'
 description: Finanças Quantitativas, Economia Aplicada e Engenharia Financeira
 image: null
 author: null
 show_tile: false
 ---
 
-Economista em formação pela UERJ e assessor de investimentos na Arbitrium Capital (BX Investimentos / XP).
-Atuo na intersecção entre economia aplicada, finanças quantitativas e engenharia de software — desenvolvendo modelos, plataformas e análises orientadas a dados para o mercado financeiro brasileiro.
+Operador de renda variável (Sales &amp; Trading) e economista em formação pela UERJ, atuo na intersecção entre
+economia aplicada, finanças quantitativas e engenharia de software — desenvolvendo modelos, plataformas e
+análises orientadas a dados para o mercado financeiro brasileiro.
 
-Explore os projetos, acompanhe os indicadores de mercado em tempo real e entre em contato.
+Explore os projetos, acompanhe os indicadores de mercado em tempo real e conheça os serviços de consultoria.

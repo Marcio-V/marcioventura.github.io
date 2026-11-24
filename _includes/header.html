@@ -16,15 +16,15 @@
   <ul class="links">
     <li><a href="{{ '/' | relative_url }}">Home</a></li>
 
-    {% for page in site.html_pages %}
-      {% if page.layout != "home" and page.nav-menu == true %}
+    {% assign nav_pages = site.html_pages | where_exp: "item", "item.nav-menu == true" | sort: "menu-order" %}
+    {% for page in nav_pages %}
+      {% if page.layout != "home" %}
         <li><a href="{{ page.url | relative_url }}">{{ page.title }}</a></li>
       {% endif %}
     {% endfor %}
   </ul>
 
   <ul class="actions vertical">
-    <li><a href="#" class="button special fit">Começar</a></li>
+    <li><a href="{{ '/consultoria.html' | relative_url }}" class="button special fit">Consultoria</a></li>
   </ul>
 </nav>
-
