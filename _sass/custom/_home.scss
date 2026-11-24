@@ -26,12 +26,36 @@ $c-line:  rgba(212,212,255,0.10);
 		color: rgba(255,255,255,0.72);
 	}
 
-	.actions { margin-top: 1.5em; }
+	// Botões do hero: flex com espaçamento nos dois sentidos (resolve o "colado")
+	.actions {
+		margin-top: 1.75em;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.9em;
+
+		li { padding: 0; margin: 0; }
+
+		.button {
+			margin: 0;
+			min-width: 11em;      // larguras iguais → alinhados
+			text-align: center;
+		}
+	}
 }
 
 @media screen and (max-width: 736px) {
 	#banner.major h1 { font-size: 2.25em; }
 	#banner.major .content p { letter-spacing: 0.14em; }
+}
+
+// No celular: botões empilhados, largura total e alinhados
+@media screen and (max-width: 480px) {
+	#banner.major .actions {
+		flex-direction: column;
+		align-items: stretch;
+
+		li, .button { width: 100%; min-width: 0; }
+	}
 }
 
 /* Faixa de credibilidade sob o hero */
