@@ -708,5 +708,49 @@ $term-amber:     #d29922;
 		.model-eq { white-space: normal; font-size: 0.75rem; }
 		.model-chart { height: 220px; }
 	}
+
+	// ─── Cards dos modelos: famílias (acento + micro-rótulo) ───
+	.term-chip.clickable { position: relative; overflow: hidden; padding-top: 1.05em; }
+	.term-chip.clickable::before {
+		content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+		background: $term-border; transition: background 0.15s ease;
+	}
+	.term-chip.clickable .chip-family {
+		font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase;
+		color: $term-muted; font-weight: 600; margin-bottom: 0.1em;
+	}
+	$fam-mon:   #4493f8; $fam-ativ: #3fb950; $fam-cambio: #a371f7;
+	$fam-econ:  #d29922; $fam-curva: $term-accent; $fam-aloc: #e8905a;
+	.term-chip.fam-mon::before    { background: $fam-mon; }    .term-chip.fam-mon    .chip-family { color: $fam-mon; }
+	.term-chip.fam-ativ::before   { background: $fam-ativ; }   .term-chip.fam-ativ   .chip-family { color: $fam-ativ; }
+	.term-chip.fam-cambio::before { background: $fam-cambio; } .term-chip.fam-cambio .chip-family { color: $fam-cambio; }
+	.term-chip.fam-econ::before   { background: $fam-econ; }   .term-chip.fam-econ   .chip-family { color: $fam-econ; }
+	.term-chip.fam-curva::before  { background: $fam-curva; }  .term-chip.fam-curva  .chip-family { color: $fam-curva; }
+	.term-chip.fam-aloc::before   { background: $fam-aloc; }   .term-chip.fam-aloc   .chip-family { color: $fam-aloc; }
+
+	// ─── Módulos ao vivo (15–18) ───
+	.heat-cell { transition: background 0.25s ease, border-color 0.25s ease; }
+	.heat-val {
+		font-family: "Roboto Mono", "Courier New", monospace;
+		font-size: 0.7rem; margin-top: 0.3em; color: $term-text; opacity: 0.9;
+	}
+	.term-table tr.regime-active {
+		background: rgba(218,165,32,0.08);
+		td:first-child { border-left: 3px solid $term-accent; font-weight: 600; color: $term-accent; }
+	}
+	.term-module-tag[data-live-tag].is-live {
+		background: rgba(63,185,80,0.12); color: $term-up; border: 1px solid rgba(63,185,80,0.3);
+		display: inline-flex; align-items: center; gap: 0.45em;
+		&::before {
+			content: ""; width: 6px; height: 6px; border-radius: 50%; background: $term-up;
+			box-shadow: 0 0 0 0 rgba(63,185,80,0.6); animation: ml-pulse 1.8s infinite;
+		}
+	}
+	@keyframes ml-pulse {
+		0%   { box-shadow: 0 0 0 0 rgba(63,185,80,0.55); }
+		70%  { box-shadow: 0 0 0 6px rgba(63,185,80,0); }
+		100% { box-shadow: 0 0 0 0 rgba(63,185,80,0); }
+	}
+	.term-live-updated { font-size: 0.6rem; color: $term-muted; margin-left: auto; letter-spacing: 0.04em; }
 }
 /* ==MODELOS-MODAL:END== */

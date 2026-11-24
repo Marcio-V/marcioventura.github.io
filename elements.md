@@ -308,17 +308,18 @@ menu-order: 1
 	<div class="term-module-header">
 		<span class="term-module-num">15</span>
 		<h2>Heatmap de Indicadores</h2>
-		<span class="term-module-tag model">Leitura</span>
+		<span class="term-module-tag model" data-live-tag="Leitura">Leitura</span>
+		<span id="live-updated" class="term-live-updated"></span>
 	</div>
 	<div class="term-heatmap">
-		<div class="heat-cell heat-up"><div class="heat-label">Inflação</div><div class="heat-arrow">▲</div></div>
-		<div class="heat-cell heat-down"><div class="heat-label">Atividade</div><div class="heat-arrow">▼</div></div>
-		<div class="heat-cell heat-up"><div class="heat-label">Emprego</div><div class="heat-arrow">▲</div></div>
-		<div class="heat-cell heat-down"><div class="heat-label">Fiscal</div><div class="heat-arrow">▼</div></div>
-		<div class="heat-cell heat-down"><div class="heat-label">Crédito</div><div class="heat-arrow">▼</div></div>
-		<div class="heat-cell heat-flat"><div class="heat-label">Confiança</div><div class="heat-arrow">→</div></div>
+		<div class="heat-cell heat-flat" data-dim="inflacao"><div class="heat-label">Inflação</div><div class="heat-arrow">→</div><div class="heat-val">—</div></div>
+		<div class="heat-cell heat-flat" data-dim="atividade"><div class="heat-label">Atividade</div><div class="heat-arrow">→</div><div class="heat-val">—</div></div>
+		<div class="heat-cell heat-flat" data-dim="emprego"><div class="heat-label">Emprego</div><div class="heat-arrow">→</div><div class="heat-val">—</div></div>
+		<div class="heat-cell heat-flat" data-dim="fiscal"><div class="heat-label">Fiscal</div><div class="heat-arrow">→</div><div class="heat-val">—</div></div>
+		<div class="heat-cell heat-flat" data-dim="juros"><div class="heat-label">Juros</div><div class="heat-arrow">→</div><div class="heat-val">—</div></div>
+		<div class="heat-cell heat-flat" data-dim="cambio"><div class="heat-label">Câmbio</div><div class="heat-arrow">→</div><div class="heat-val">—</div></div>
 	</div>
-	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Leitura qualitativa ilustrativa. Versão futura calculará automaticamente a direção de cada dimensão a partir das séries.</p>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Seta = direção recente da série · cor = leitura favorável (verde) ou desfavorável (vermelho) para ativos de risco. Fontes: BCB/SGS e IBGE, ao vivo.</p>
 </section>
 
 <!-- 16 CENÁRIOS -->
@@ -326,14 +327,14 @@ menu-order: 1
 	<div class="term-module-header">
 		<span class="term-module-num">16</span>
 		<h2>Cenários Projetados</h2>
-		<span class="term-module-tag model">Projeção</span>
+		<span class="term-module-tag model" data-live-tag="Projeção">Projeção</span>
 	</div>
 	<div class="term-grid">
-		<div class="term-card"><div class="term-card-label">Base · PIB</div><div class="term-card-value" style="font-size:1.2rem;">2,2%</div><div class="term-card-sub">IPCA 5,0% · Selic 13,5%</div></div>
-		<div class="term-card"><div class="term-card-label">Otimista · PIB</div><div class="term-card-value up" style="font-size:1.2rem;">3,0%</div><div class="term-card-sub">IPCA 4,2% · Selic 12,0%</div></div>
-		<div class="term-card"><div class="term-card-label">Pessimista · PIB</div><div class="term-card-value down" style="font-size:1.2rem;">0,8%</div><div class="term-card-sub">IPCA 6,5% · Selic 15,0%</div></div>
+		<div class="term-card" data-cen="base"><div class="term-card-label">Base · PIB</div><div class="term-card-value" style="font-size:1.2rem;">2,2%</div><div class="term-card-sub">IPCA 5,0% · Selic 13,5%</div></div>
+		<div class="term-card" data-cen="otim"><div class="term-card-label">Otimista · PIB</div><div class="term-card-value up" style="font-size:1.2rem;">3,0%</div><div class="term-card-sub">IPCA 4,2% · Selic 12,0%</div></div>
+		<div class="term-card" data-cen="pess"><div class="term-card-label">Pessimista · PIB</div><div class="term-card-value down" style="font-size:1.2rem;">0,8%</div><div class="term-card-sub">IPCA 6,5% · Selic 15,0%</div></div>
 	</div>
-	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Valores ilustrativos. Versão futura: simulador interativo onde o usuário altera premissas e vê impactos em renda fixa, ações e câmbio.</p>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Valores ilustrativos. Versão futura: simulador interativo.</p>
 </section>
 
 <!-- 17 IMPACTO POR CLASSE DE ATIVOS -->
@@ -341,12 +342,10 @@ menu-order: 1
 	<div class="term-module-header">
 		<span class="term-module-num">17</span>
 		<h2>Impacto por Classe de Ativos</h2>
-		<span class="term-module-tag model">Matriz</span>
+		<span class="term-module-tag model" data-live-tag="Matriz">Matriz</span>
 	</div>
 	<table class="term-table">
-		<thead>
-			<tr><th>Evento</th><th>Ações</th><th>Juros (RF)</th><th>Dólar</th><th>Ouro</th><th>FIIs</th></tr>
-		</thead>
+		<thead><tr><th>Evento</th><th>Ações</th><th>Juros (RF)</th><th>Dólar</th><th>Ouro</th><th>FIIs</th></tr></thead>
 		<tbody>
 			<tr><td>Alta da Selic</td><td>🔴</td><td>🟢</td><td>🟢</td><td>🟡</td><td>🔴</td></tr>
 			<tr><td>Queda da Inflação</td><td>🟢</td><td>🟢</td><td>🔴</td><td>🔴</td><td>🟢</td></tr>
@@ -362,21 +361,13 @@ menu-order: 1
 	<div class="term-module-header">
 		<span class="term-module-num">18</span>
 		<h2>Insights &amp; Research</h2>
-		<span class="term-module-tag model">Research</span>
+		<span class="term-module-tag model" data-live-tag="Research">Research</span>
 	</div>
 	<div class="term-insights">
-		<article class="term-insight">
-			<div class="insight-date">Jun · 2026</div>
-			<h3 class="insight-title">Selic em 14,25% e o juro real ex-ante elevado</h3>
-			<p class="insight-body">Com a Selic em patamar contracionista e a inflação esperada ancorada próxima do teto da meta, o juro real ex-ante permanece em território historicamente alto. O posicionamento em prefixados e NTN-Bs longas depende da convicção sobre o início do ciclo de corte — que a curva DI ainda precifica de forma conservadora.</p>
-		</article>
-		<article class="term-insight">
-			<div class="insight-date">Jun · 2026</div>
-			<h3 class="insight-title">Câmbio e o diferencial de juros</h3>
-			<p class="insight-body">O real segue sensível ao diferencial de juros entre Brasil e EUA e ao apetite global por risco. O carry elevado sustenta o fluxo, mas a assimetria fiscal doméstica mantém o prêmio de risco como principal vetor de volatilidade do USD/BRL.</p>
-		</article>
+		<article class="term-insight"><div class="insight-date">Jun · 2026</div><h3 class="insight-title">Selic e o juro real ex-ante</h3><p class="insight-body">—</p></article>
+		<article class="term-insight"><div class="insight-date">Jun · 2026</div><h3 class="insight-title">Câmbio e o diferencial de juros</h3><p class="insight-body">—</p></article>
 	</div>
-	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Notas de conjuntura autorais. Novas análises são publicadas periodicamente conforme os movimentos macro relevantes.</p>
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Indicadores atualizados automaticamente a partir de BCB/Focus. Leitura de conjuntura.</p>
 </section>
 
 <!-- 19 MODELOS ECONÔMICOS -->
@@ -388,18 +379,18 @@ menu-order: 1
 	</div>
 	<p class="term-prose" style="font-size:0.74rem;margin-bottom:1.1em;">Clique em um modelo para abrir teoria, equações, um gráfico dinâmico e a leitura para investimentos.</p>
 	<div class="term-chips models-grid">
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="taylor" aria-label="Abrir Taylor Rule"><span class="chip-name">Taylor Rule</span><span class="chip-desc">Regra de juros do banco central</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="phillips" aria-label="Abrir Phillips Curve"><span class="chip-name">Phillips Curve</span><span class="chip-desc">Trade-off inflação × desemprego</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="islm" aria-label="Abrir IS-LM"><span class="chip-name">IS-LM</span><span class="chip-desc">Equilíbrio bens × moeda</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="mundell" aria-label="Abrir Mundell-Fleming"><span class="chip-name">Mundell-Fleming</span><span class="chip-desc">Economia aberta</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="var" aria-label="Abrir VAR"><span class="chip-name">VAR</span><span class="chip-desc">Vetores autorregressivos</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="nowcasting" aria-label="Abrir Nowcasting"><span class="chip-name">Nowcasting</span><span class="chip-desc">Estimativa em tempo real</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="nelson" aria-label="Abrir Nelson-Siegel"><span class="chip-name">Nelson-Siegel</span><span class="chip-desc">Modelagem da curva de juros</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="blacklitt" aria-label="Abrir Black-Litterman"><span class="chip-name">Black-Litterman</span><span class="chip-desc">Alocação de portfólio</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="solow" aria-label="Abrir Solow"><span class="chip-name">Solow</span><span class="chip-desc">Crescimento de longo prazo</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="dornbusch" aria-label="Abrir Overshooting"><span class="chip-name">Overshooting</span><span class="chip-desc">Dinâmica cambial (Dornbusch)</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="capm" aria-label="Abrir CAPM"><span class="chip-name">CAPM</span><span class="chip-desc">Precificação de ativos</span><span class="chip-cta">abrir &rsaquo;</span></div>
-		<div class="term-chip clickable" role="button" tabindex="0" data-model="blackscholes" aria-label="Abrir Black-Scholes-Merton"><span class="chip-name">Black-Scholes-Merton</span><span class="chip-desc">Precificação de opções</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-mon" role="button" tabindex="0" data-model="taylor" aria-label="Abrir Taylor Rule"><span class="chip-family">Política monetária</span><span class="chip-name">Taylor Rule</span><span class="chip-desc">Regra de juros do banco central</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-ativ" role="button" tabindex="0" data-model="phillips" aria-label="Abrir Phillips Curve"><span class="chip-family">Inflação & atividade</span><span class="chip-name">Phillips Curve</span><span class="chip-desc">Trade-off inflação × desemprego</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-mon" role="button" tabindex="0" data-model="islm" aria-label="Abrir IS-LM"><span class="chip-family">Política monetária</span><span class="chip-name">IS-LM</span><span class="chip-desc">Equilíbrio bens × moeda</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-cambio" role="button" tabindex="0" data-model="mundell" aria-label="Abrir Mundell-Fleming"><span class="chip-family">Câmbio & externo</span><span class="chip-name">Mundell-Fleming</span><span class="chip-desc">Economia aberta</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-econ" role="button" tabindex="0" data-model="var" aria-label="Abrir VAR"><span class="chip-family">Econometria</span><span class="chip-name">VAR</span><span class="chip-desc">Vetores autorregressivos</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-econ" role="button" tabindex="0" data-model="nowcasting" aria-label="Abrir Nowcasting"><span class="chip-family">Econometria</span><span class="chip-name">Nowcasting</span><span class="chip-desc">Estimativa em tempo real</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-curva" role="button" tabindex="0" data-model="nelson" aria-label="Abrir Nelson-Siegel"><span class="chip-family">Curva de juros</span><span class="chip-name">Nelson-Siegel</span><span class="chip-desc">Modelagem da curva de juros</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-aloc" role="button" tabindex="0" data-model="blacklitt" aria-label="Abrir Black-Litterman"><span class="chip-family">Alocação</span><span class="chip-name">Black-Litterman</span><span class="chip-desc">Alocação de portfólio</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-ativ" role="button" tabindex="0" data-model="solow" aria-label="Abrir Solow"><span class="chip-family">Crescimento</span><span class="chip-name">Solow</span><span class="chip-desc">Crescimento de longo prazo</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-cambio" role="button" tabindex="0" data-model="dornbusch" aria-label="Abrir Overshooting"><span class="chip-family">Câmbio & externo</span><span class="chip-name">Overshooting</span><span class="chip-desc">Dinâmica cambial (Dornbusch)</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-aloc" role="button" tabindex="0" data-model="capm" aria-label="Abrir CAPM"><span class="chip-family">Alocação</span><span class="chip-name">CAPM</span><span class="chip-desc">Precificação de ativos</span><span class="chip-cta">abrir &rsaquo;</span></div>
+		<div class="term-chip clickable fam-aloc" role="button" tabindex="0" data-model="blackscholes" aria-label="Abrir Black-Scholes-Merton"><span class="chip-family">Derivativos</span><span class="chip-name">Black-Scholes-Merton</span><span class="chip-desc">Precificação de opções</span><span class="chip-cta">abrir &rsaquo;</span></div>
 	</div>
 
 	<div id="model-details" hidden>
