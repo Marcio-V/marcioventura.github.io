@@ -585,3 +585,196 @@ $term-amber:     #d29922;
 
 	sub { font-size: 0.7em; }
 }
+
+
+// ═══════════════ Modelos Econômicos — chips clicáveis + modal ═══════════════
+.macro-terminal {
+
+	.term-chips .term-chip.clickable {
+		cursor: pointer;
+		text-align: left;
+		width: 100%;
+		display: block;
+		font-family: inherit;
+		position: relative;
+		appearance: none;
+		color: $term-text;
+
+		.chip-cta {
+			display: block;
+			margin-top: 0.55em;
+			font-size: 0.6rem;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: $term-accent;
+			opacity: 0;
+			transform: translateY(2px);
+			transition: all 0.15s ease;
+		}
+		&:hover, &:focus-visible {
+			border-color: $term-accent;
+			outline: none;
+			.chip-cta { opacity: 1; transform: translateY(0); }
+		}
+	}
+
+	// ─── Modal ───
+	.model-modal {
+		position: fixed;
+		inset: 0;
+		z-index: 9999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1.2rem;
+
+		&[hidden] { display: none; }
+
+		.model-modal-backdrop {
+			position: absolute;
+			inset: 0;
+			background: rgba(3, 6, 9, 0.78);
+			backdrop-filter: blur(3px);
+			opacity: 0;
+			transition: opacity 0.18s ease;
+		}
+		&.is-open .model-modal-backdrop { opacity: 1; }
+
+		.model-modal-panel {
+			position: relative;
+			width: min(760px, 100%);
+			max-height: 88vh;
+			display: flex;
+			flex-direction: column;
+			background: $term-panel;
+			border: 1px solid $term-border;
+			border-radius: 8px;
+			box-shadow: 0 24px 60px rgba(0,0,0,.55);
+			opacity: 0;
+			transform: translateY(12px) scale(.98);
+			transition: opacity 0.18s ease, transform 0.18s ease;
+		}
+		&.is-open .model-modal-panel { opacity: 1; transform: translateY(0) scale(1); }
+
+		.model-modal-head {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 1rem;
+			padding: 1.3rem 1.5rem 1rem;
+			border-bottom: 1px solid $term-border;
+
+			.model-modal-kicker {
+				font-size: 0.6rem;
+				letter-spacing: 0.2em;
+				text-transform: uppercase;
+				color: $term-accent;
+				margin-bottom: 0.4em;
+			}
+			h3 {
+				margin: 0;
+				font-size: 1.3rem;
+				color: $term-text;
+				line-height: 1.15;
+			}
+			.model-modal-sub {
+				margin-top: 0.3em;
+				font-size: 0.72rem;
+				color: $term-muted;
+			}
+		}
+		.model-modal-close {
+			flex: none;
+			background: transparent;
+			border: 1px solid $term-border;
+			color: $term-muted;
+			width: 2rem;
+			height: 2rem;
+			border-radius: 5px;
+			font-size: 1.1rem;
+			line-height: 1;
+			cursor: pointer;
+			transition: all 0.15s ease;
+			&:hover { color: $term-text; border-color: $term-down; background: rgba(248,81,73,.1); }
+		}
+
+		.model-modal-body {
+			padding: 1.3rem 1.5rem 1.6rem;
+			overflow-y: auto;
+		}
+	}
+
+	// ─── Seções do detalhe ───
+	.model-section {
+		padding: 0 0 1.25rem;
+		margin-bottom: 1.25rem;
+		border-bottom: 1px dashed $term-border;
+		&:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+
+		h4 {
+			display: flex;
+			align-items: center;
+			gap: 0.55em;
+			margin: 0 0 0.6em;
+			font-size: 0.72rem;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+			color: $term-text;
+
+			span {
+				font-size: 0.62rem;
+				color: $term-bg;
+				background: $term-muted;
+				border-radius: 3px;
+				padding: 0.15em 0.45em;
+				font-weight: 700;
+			}
+		}
+		p {
+			margin: 0;
+			font-size: 0.82rem;
+			line-height: 1.7;
+			color: $term-muted;
+			max-width: 68ch;
+			strong { color: $term-text; }
+			em { color: $term-blue; font-style: normal; }
+		}
+
+		&.invest {
+			h4 span { background: $term-accent; }
+			p { color: #cdd6df; }
+		}
+	}
+
+	.model-eq {
+		background: $term-bg;
+		border: 1px solid $term-border;
+		border-left: 2px solid $term-accent;
+		border-radius: 4px;
+		padding: 0.6em 0.9em;
+		margin-bottom: 0.5em;
+		font-family: "Roboto Mono", "Courier New", monospace;
+		font-size: 0.82rem;
+		color: $term-text;
+		line-height: 1.6;
+		overflow-x: auto;
+		white-space: nowrap;
+
+		& + .model-eq { margin-top: -0.1em; }
+		sub, sup { color: $term-blue; }
+	}
+	.model-eqnote {
+		font-size: 0.72rem !important;
+		color: $term-muted !important;
+		margin-top: 0.6em !important;
+		font-style: italic;
+	}
+
+	@media screen and (max-width: 560px) {
+		.model-modal .model-modal-panel { max-height: 92vh; }
+		.model-modal .model-modal-head { padding: 1rem 1.1rem 0.8rem; h3 { font-size: 1.1rem; } }
+		.model-modal .model-modal-body { padding: 1.1rem; }
+		.model-eq { white-space: normal; font-size: 0.76rem; }
+	}
+}
+
