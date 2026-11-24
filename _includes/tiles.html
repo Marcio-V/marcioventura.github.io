@@ -1,4 +1,4 @@
-{% comment %} Tiles da home — ordenados por tile-order, com chip de categoria {% endcomment %}
+{% comment %} Tiles da home — ordenados por tile-order {% endcomment %}
 {% assign tiles = site.html_pages | where_exp: "item", "item.show_tile != false" | sort: "tile-order" %}
 <section id="one" class="tiles">
   {% for tile in tiles limit:site.tiles-count %}
@@ -7,7 +7,6 @@
       <img src="{{ tile.image | relative_url }}" alt="{{ tile.title }}" {% if tile.tile-position %}data-position="{{ tile.tile-position }}"{% endif %} />
     </span>
     <header class="major">
-      {% if tile.tile-category %}<span class="tile-chip">{{ tile.tile-category }}</span>{% endif %}
       <h3><a href="{{ tile.url | relative_url }}" class="link">{{ tile.title }}</a></h3>
       <p>{{ tile.description }}</p>
     </header>
