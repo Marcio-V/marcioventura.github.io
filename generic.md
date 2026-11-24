@@ -11,7 +11,7 @@ menu-order: 5
 
 <p class="lead">
 Operador de renda variável (Sales &amp; Trading) e economista em formação, atuo na intersecção entre
-economia aplicada, finanças quantitativas e engenharia de software — transformando dados e teoria
+economia aplicada, finanças quantitativas e engenharia de software transformando dados e teoria
 econômica em decisões de investimento e ferramentas de mercado.
 </p>
 
@@ -21,7 +21,7 @@ estruturas de opções, renda fixa e alocação. Complemento a formação acadê
 **Insper** (Operações de Tesouraria, Derivativos, e Gestão das Finanças Bancárias — ALM, RAROC e Performance),
 direcionada à gestão de risco e tesouraria.
 
-Desenvolvo a maior parte das minhas próprias ferramentas — dashboards, relatórios e calculadoras — com **R,
+Desenvolvo a maior parte das minhas próprias ferramentas: dashboards, relatórios e calculadoras — com **R,
 Python e Excel/VBA**, voltadas à avaliação de ativos, automação de processos, integração de dados econômicos
 e análise de séries temporais. Entre as entregas, destaco um hub automatizado de séries econômicas integrando
 as APIs de Banco Central (SGS), IBGE (SIDRA) e IPEADATA; uma engine de apuração fiscal a partir de notas de
