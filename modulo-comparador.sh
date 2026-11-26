@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Adiciona o Modulo 21 'Comparador de Ativos' (renda fixa: indexador, prazo, taxa, IR regressivo/isento,
-# curva de rentabilidade liquida e veredito). Tambem traz o grafico do modulo 04 e o research por IA.
+# Modulo 21 'Comparador de Ativos' (renda fixa) + link na barra lateral.
+# Inclui tambem o grafico do modulo 04 e o research por IA (macro-live.js completo).
 # Uso: bash modulo-comparador.sh https://SEU-WORKER.workers.dev/   (ou sem URL)
 set -e
 for f in _config.yml elements.md _sass/custom/_terminal.scss; do [ -f "$f" ] || { echo "ERRO: $f nao encontrado (rode na raiz)."; exit 1; }; done
@@ -540,28 +540,35 @@ cat > .tmp-cmp/macro-live.js <<'MLJS_EOF'
 MLJS_EOF
 python3 -I - <<'PY_EOF'
 # coding: utf-8
-# elements.md: insere modulo 21
 md=open('elements.md',encoding='utf-8').read()
 new=open('.tmp-cmp/mod21.html',encoding='utf-8').read().rstrip('\n')
+# 1) secao do modulo 21
 if 'id="comparador"' in md:
-    print('  - elements.md: modulo 21 ja presente (pulando)')
+    print('  - elements.md: modulo 21 ja presente (pulando secao)')
 else:
     anchor='</div><!-- .term-content -->'
-    if anchor in md:
-        md=md.replace(anchor, new+'\n\n'+anchor, 1); open('elements.md','w',encoding='utf-8').write(md)
-        print('  - elements.md: modulo 21 inserido apos o 20')
+    if anchor not in md: raise SystemExit('ERRO: ancora .term-content nao encontrada')
+    md=md.replace(anchor, new+'\n\n'+anchor, 1); print('  - elements.md: secao do modulo 21 inserida')
+# 2) link na barra lateral
+if 'href="#comparador"' in md:
+    print('  - elements.md: link 21 ja na barra (pulando)')
+else:
+    navline='\t<a href="#ferramentas"><span class="term-nav-num">20</span> Ferramentas</a>'
+    if navline in md:
+        md=md.replace(navline, navline+'\n\t<a href="#comparador"><span class="term-nav-num">21</span> Comparador</a>', 1)
+        print('  - elements.md: link "21 Comparador" adicionado na barra')
     else:
-        raise SystemExit('ERRO: ancora .term-content nao encontrada em elements.md')
-# scss comparador
+        print('  ! barra lateral: item 20 nao encontrado (adicione o link manualmente)')
+open('elements.md','w',encoding='utf-8').write(md)
+# scss
 f='_sass/custom/_terminal.scss'; s=open(f,encoding='utf-8').read()
 cs=open('.tmp-cmp/cmp.scss',encoding='utf-8').read().rstrip('\n')
 B='/* ==COMPARADOR:BEGIN== */'; E='/* ==COMPARADOR:END== */'
 if B in s and E in s:
-    bi=s.index(B); ei=s.index(E)+len(E); s=s[:bi]+cs+s[ei:]; print('  - _terminal.scss: estilos do comparador atualizados')
+    bi=s.index(B); ei=s.index(E)+len(E); s=s[:bi]+cs+s[ei:]; print('  - _terminal.scss: estilos atualizados')
 else:
-    s=s.rstrip()+chr(10)+chr(10)+cs+chr(10); print('  - _terminal.scss: estilos do comparador adicionados')
+    s=s.rstrip()+chr(10)+chr(10)+cs+chr(10); print('  - _terminal.scss: estilos adicionados')
 open(f,'w',encoding='utf-8').write(s)
-# macro-live.js
 import os; os.makedirs('assets/js',exist_ok=True)
 open('assets/js/macro-live.js','w',encoding='utf-8').write(open('.tmp-cmp/macro-live.js',encoding='utf-8').read().rstrip(chr(10))+chr(10))
 print('  - assets/js/macro-live.js atualizado')
@@ -569,9 +576,8 @@ print('  - assets/js/macro-live.js atualizado')
 PY_EOF
 if [ -n "$1" ]; then python3 -I - "$1" <<'PY2'
 import sys; url=sys.argv[1].replace(chr(39),"")
-p="assets/js/macro-live.js"; s=open(p,encoding="utf-8").read()
-s=s.replace("var RESEARCH_URL = '';","var RESEARCH_URL = '"+url+"';",1); open(p,"w",encoding="utf-8").write(s); print("  - RESEARCH_URL = "+url)
+p="assets/js/macro-live.js"; s=open(p,encoding="utf-8").read(); s=s.replace("var RESEARCH_URL = '';","var RESEARCH_URL = '"+url+"';",1); open(p,"w",encoding="utf-8").write(s); print("  - RESEARCH_URL = "+url)
 PY2
 else echo "  - sem URL: modulo 18 usa fallback ao vivo"; fi
 rm -rf .tmp-cmp
-echo "==> Pronto. Publicar: git add -A && git commit -m \"feat: modulo 21 comparador de ativos\" && git push"
+echo "==> Pronto. Publicar: git add -A && git commit -m \"feat: modulo 21 + link na barra\" && git push"

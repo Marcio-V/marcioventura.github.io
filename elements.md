@@ -35,6 +35,7 @@ menu-order: 1
 	<a href="#insights"><span class="term-nav-num">18</span> Insights</a>
 	<a href="#modelos"><span class="term-nav-num">19</span> Modelos</a>
 	<a href="#ferramentas"><span class="term-nav-num">20</span> Ferramentas</a>
+	<a href="#comparador"><span class="term-nav-num">21</span> Comparador</a>
 </nav>
 
 <!-- ═══════════ CONTEÚDO ═══════════ -->
