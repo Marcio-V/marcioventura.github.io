@@ -66,7 +66,7 @@ menu-order: 1
 		<h2>Panorama Econômico</h2>
 	</div>
 	<p class="term-prose">
-		A economia se move em <strong>ciclos</strong>. Nesta seção acompanho os principais indicadores brasileiros e internacionais, relacionando política monetária, inflação, atividade e mercados financeiros. O objetivo não é apenas apresentar dados — é <strong>interpretar como eles impactam diferentes classes de ativos</strong> e informar decisões de alocação e operação na mesa.
+		A economia se move em <strong>ciclos</strong>. Nesta seção acompanho os principais indicadores brasileiros e internacionais, relacionando política monetária, inflação, atividade e mercados financeiros. O objetivo não é apenas apresentar dados, é <strong>interpretar como eles impactam diferentes classes de ativos</strong> e informar decisões de alocação e operação na mesa.
 	</p>
 </section>
 
