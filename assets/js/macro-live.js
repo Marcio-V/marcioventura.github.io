@@ -5,6 +5,8 @@
  * ============================================================ */
 (function () {
   'use strict';
+  // >>> Cole aqui a URL do seu Worker de research (deixe '' para usar só o fallback local) <<<
+  var RESEARCH_URL = 'https://arbitrium-research.SEU-SUBDOMINIO.workers.dev/research';
   var TTL = { daily: 9e5, rate: 36e5, monthly: 2.16e7, focus: 2.16e7 }; // ms
   var SGS = { SELIC:432, CDI:4389, IPCA:433, DESEMP:24369, IBCBR:24364, DIVIDA:13762, USD:1 };
 
@@ -34,6 +36,22 @@
     var d=await bcbFetch(id, n);
     if(d){ cs('b'+id, d); return d; }
     return (mt&&mt.length)?mt:(mine||null);
+  }
+
+
+  async function focus12m(){
+    var ck='f12', c=cg(ck,TTL.focus); if(c) return c;
+    var base='https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoInflacao12Meses';
+    var p="?$top=1&$orderby=Data desc&$format=json&$select=Mediana,Data&$filter="+encodeURIComponent("Indicador eq 'IPCA' and Suavizada eq 'S'");
+    try{ var r=await fetch(base+p); if(r.ok){ var j=await r.json(); var row=j&&j.value&&j.value[0]; if(row){ cs(ck,row); return row; } } }catch(e){}
+    return null;
+  }
+  async function focusAnual(ind){
+    var yr=new Date().getFullYear(), ck='fa_'+ind+'_'+yr, c=cg(ck,TTL.focus); if(c) return c;
+    var base='https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais';
+    var p="?$top=1&$orderby=Data desc&$format=json&$select=Mediana,DataReferencia&$filter="+encodeURIComponent("Indicador eq '"+ind+"' and DataReferencia eq '"+yr+"'");
+    try{ var r=await fetch(base+p); if(r.ok){ var j=await r.json(); var row=j&&j.value&&j.value[0]; if(row){ cs(ck,row); return row; } } }catch(e){}
+    return null;
   }
 
   function v(row){ return parseFloat(String(row.valor).replace(',','.')); }
@@ -77,7 +95,7 @@
       var r; try{ r=await h.load(); }catch(e){ r=null; }
       var arrEl=cell.querySelector('.heat-arrow'), valEl=cell.querySelector('.heat-val');
       cell.classList.remove('heat-up','heat-down','heat-flat');
-      if(!r){ cell.classList.add('heat-flat'); if(arrEl)arrEl.textContent='→'; if(valEl)valEl.textContent='N/D'; return; }
+      if(!r){ cell.classList.add('heat-flat'); if(arrEl)arrEl.textContent=(passes>=4?'→':'·'); if(valEl)valEl.textContent=(passes>=4?'N/D':'···'); return; }
       var t=trend(r.cur,r.prev,h.favUp,h.eps);
       cell.classList.add(t.cls); if(arrEl) arrEl.textContent=t.arrow;
       if(valEl) valEl.textContent=r.disp;
@@ -132,28 +150,84 @@
 
   // ═══════════ 18 · INSIGHTS ao vivo ═══════════
   function mesAno(){ var m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; var d=new Date(); return m[d.getMonth()]+' · '+d.getFullYear(); }
+  // Monta um snapshot compacto do cenario a partir do que ja esta na tela/calculado
+  function buildSnapshot(selic, infE, usd, jr){
+    var heat={};
+    document.querySelectorAll('.heat-cell').forEach(function(c){
+      var dim=c.getAttribute('data-dim'); if(!dim) return;
+      heat[dim]={ valor:(c.querySelector('.heat-val')||{}).textContent||null,
+                  direcao:(c.querySelector('.heat-arrow')||{}).textContent||null,
+                  leitura: c.classList.contains('heat-up')?'favoravel':(c.classList.contains('heat-down')?'desfavoravel':'neutro') };
+    });
+    var cen={};
+    document.querySelectorAll('#cenarios [data-cen]').forEach(function(card){
+      cen[card.getAttribute('data-cen')]={ pib:(card.querySelector('.term-card-value')||{}).textContent||null,
+                                           detalhe:(card.querySelector('.term-card-sub')||{}).textContent||null };
+    });
+    return {
+      selic_percent: selic, inflacao_esperada_focus_12m: infE, usdbrl: usd, juro_real_ex_ante: jr,
+      heatmap: heat, cenarios: cen,
+      data: new Date().toISOString()
+    };
+  }
+
+  async function fetchResearch(snapshot){
+    if(!RESEARCH_URL) return null;
+    var c=cg('research', 30*60*1000); if(c && c.cards) return c.cards;
+    try{
+      var r=await fetch(RESEARCH_URL, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(snapshot) });
+      if(!r.ok) return null;
+      var j=await r.json();
+      if(j && Array.isArray(j.cards) && j.cards.length){ cs('research', {cards:j.cards}); return j.cards; }
+    }catch(e){}
+    return null;
+  }
+
+  function paintInsight(art, title, bodyHTML, tag){
+    if(!art) return;
+    var t=art.querySelector('.insight-title'), b=art.querySelector('.insight-body'), dt=art.querySelector('.insight-date');
+    if(dt) dt.textContent=mesAno()+(tag?' · IA':'');
+    if(t) t.textContent=title;
+    if(b) b.innerHTML=bodyHTML;
+    if(tag){ art.setAttribute('data-ia','1'); }
+  }
+
   async function renderInsights(){
     var box=document.getElementById('insights'); if(!box) return;
+    var arts=box.querySelectorAll('.term-insight');
     var selD=await bcb(SGS.SELIC,140,TTL.rate,1), f=await focus12m(), usdD=await bcb(SGS.USD,30,TTL.daily,1);
     var selic=selD?v(selD[selD.length-1]):null, infE=f?f.Mediana:null, usd=usdD?v(usdD[usdD.length-1]):null;
     var jr = (selic!=null&&infE!=null) ? ((1+selic/100)/(1+infE/100)-1)*100 : null;
-    var arts=box.querySelectorAll('.term-insight');
+
+    // 1) Tenta IA (Worker) com o snapshot ao vivo
+    var cards=null;
+    try{ cards=await fetchResearch(buildSnapshot(selic, infE, usd, jr)); }catch(e){ cards=null; }
+    if(cards && cards.length){
+      for(var i=0;i<arts.length;i++){
+        if(cards[i]) paintInsight(arts[i], cards[i].title, (''+cards[i].body).replace(/</g,'&lt;'), true);
+      }
+      var capA=box.querySelector('.term-prose');
+      if(capA) capA.innerHTML='Research gerado por IA (Claude) a partir dos indicadores ao vivo (BCB/Focus) · '+mesAno()+'. Conteúdo informativo, não é recomendação de investimento.';
+      return true;
+    }
+
+    // 2) Fallback: notas com os números ao vivo (nunca fica vazio)
     if(arts[0] && selic!=null){
-      var t=arts[0].querySelector('.insight-title'), b=arts[0].querySelector('.insight-body'), dt=arts[0].querySelector('.insight-date');
-      if(dt) dt.textContent=mesAno();
-      if(t) t.textContent='Selic em '+nf(selic,2)+'% e o juro real ex-ante'+(jr!=null?' de ~'+nf(jr,1)+'%':'');
-      if(b) b.innerHTML='Com a Selic em '+nf(selic,2)+'% a.a. e a inflação esperada (Focus) em '+(infE!=null?nf(infE,2)+'%':'—')+', o juro real ex-ante segue'+(jr!=null?' em torno de <strong>'+nf(jr,1)+'%</strong>':'')+' — patamar historicamente alto. O posicionamento em prefixados e NTN-Bs longas depende da convicção sobre o ritmo do ciclo de corte, que a curva DI ainda precifica de forma conservadora.';
+      paintInsight(arts[0], 'Selic em '+nf(selic,2)+'% e o juro real ex-ante'+(jr!=null?' de ~'+nf(jr,1)+'%':''),
+        'Com a Selic em '+nf(selic,2)+'% a.a. e a inflação esperada (Focus) em '+(infE!=null?nf(infE,2)+'%':'—')+', o juro real ex-ante segue'+(jr!=null?' em torno de <strong>'+nf(jr,1)+'%</strong>':'')+' — patamar historicamente alto. O posicionamento em prefixados e NTN-Bs longas depende da convicção sobre o ritmo do ciclo de corte, que a curva DI ainda precifica de forma conservadora.');
     }
     if(arts[1] && usd!=null){
-      var t2=arts[1].querySelector('.insight-title'), b2=arts[1].querySelector('.insight-body'), dt2=arts[1].querySelector('.insight-date');
-      if(dt2) dt2.textContent=mesAno();
-      if(t2) t2.textContent='Câmbio em R$ '+nf(usd,2)+' e o diferencial de juros';
-      if(b2) b2.innerHTML='Com o USD/BRL em <strong>R$ '+nf(usd,2)+'</strong> e a Selic em '+(selic!=null?nf(selic,2)+'%':'—')+', o real segue sensível ao diferencial de juros Brasil–EUA e ao apetite global por risco. O carry elevado sustenta o fluxo, mas a assimetria fiscal doméstica mantém o prêmio de risco como principal vetor de volatilidade.';
+      paintInsight(arts[1], 'Câmbio em R$ '+nf(usd,2)+' e o diferencial de juros',
+        'Com o USD/BRL em <strong>R$ '+nf(usd,2)+'</strong> e a Selic em '+(selic!=null?nf(selic,2)+'%':'—')+', o real segue sensível ao diferencial de juros Brasil–EUA e ao apetite global por risco. O carry elevado sustenta o fluxo, mas a assimetria fiscal doméstica mantém o prêmio de risco como principal vetor de volatilidade.');
     }
     return (selic!=null||usd!=null);
   }
 
   // ─────────── Orquestração + auto-refresh ───────────
+  var passes=0;
+  function setLoading(){
+    document.querySelectorAll('.heat-cell .heat-val').forEach(function(el){ if(el.textContent==='—'||el.textContent==='N/D'||!el.textContent.trim()) el.textContent='···'; });
+  }
   function stamp(ok){
     document.querySelectorAll('[data-live-tag]').forEach(function(el){
       el.classList.toggle('is-live', !!ok);
@@ -163,11 +237,16 @@
     if(t){ var d=new Date(); t.textContent='atualizado '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
   }
   async function runAll(){
+    passes++;
     var res=await Promise.allSettled([renderHeat(),renderCenarios(),renderRegime(),renderInsights()]);
     var ok=res.some(function(r){return r.status==='fulfilled' && r.value!==false && r.value!==undefined;});
     stamp(true);
   }
-  function boot(){ setTimeout(runAll, 2500); setTimeout(runAll, 7000); setInterval(runAll, 5*60*1000); }
+  function boot(){
+    setLoading();
+    [500,1500,3500,8000].forEach(function(ms){ setTimeout(runAll, ms); });
+    setInterval(runAll, 5*60*1000);
+  }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
   // hooks de teste
