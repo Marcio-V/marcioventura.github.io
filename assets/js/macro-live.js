@@ -248,8 +248,27 @@
   function taylorLine(){ if(!monHist) return []; var p=taylorP();
     return monHist.ipca.map(function(pi){ return (pi==null)?null:(p.r+pi+p.a*(pi-p.pi)+p.b*p.h); }); }
 
+  // Busca intervalo [fromM..toM] meses atrás (série diária -> <=10 anos por chamada)
+  async function bcbRange(id, fromM, toM){
+    var hoje=new Date();
+    var ini=new Date(); ini.setMonth(ini.getMonth()-fromM);
+    var fim=new Date(); fim.setMonth(fim.getMonth()-toM);
+    function fmt(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
+    var url='https://api.bcb.gov.br/dados/serie/bcdata.sgs.'+id+'/dados?formato=json&dataInicial='+fmt(ini)+'&dataFinal='+fmt(fim);
+    for(var i=0;i<3;i++){ try{ var r=await fetch(url); if(r.ok){ var d=await r.json(); if(Array.isArray(d)&&d.length) return d; } }catch(e){} await sleep(600*(i+1)); }
+    return null;
+  }
+  // Selic diária desde ~2015 em duas janelas (contorna o limite de 10 anos)
+  async function selicDaily(){
+    var ck='selicD', c=cg(ck,TTL.rate); if(c) return c;
+    var a=await bcbRange(SGS.SELIC,135,16), b=await bcbRange(SGS.SELIC,16,0);
+    var out=(a||[]).concat(b||[]);
+    if(out.length){ cs(ck,out); return out; }
+    return null;
+  }
+
   async function buildMonHist(){
-    var selicRaw=await bcbHist(SGS.SELIC,135), ipcaRaw=await bcbHist(SGS.IPCA,135);
+    var selicRaw=await selicDaily(), ipcaRaw=await bcbHist(SGS.IPCA,135);
     if(!selicRaw||!ipcaRaw) return false;
     var selicByMonth={}; selicRaw.forEach(function(d){ selicByMonth[d.data.substring(3)]=parseFloat(String(d.valor).replace(',','.')); });
     var iv=ipcaRaw.map(function(x){ return { mk:x.data.substring(3), v:parseFloat(String(x.valor).replace(',','.')) }; });
@@ -334,7 +353,7 @@
     if(!monHist){ var ok=await buildMonHist(); if(!ok) return; }
     drawMon(canvas); bindTaylor(); updateTaylorReadout();
     var ti=document.querySelector('#monetaria .term-chart-title');
-    if(ti) ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor — desde 2015 (forecast Focus)';
+    if(ti) ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor — desde 2016 (forecast Focus)';
     return true;
   }
 

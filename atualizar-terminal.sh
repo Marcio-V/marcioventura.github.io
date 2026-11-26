@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 # Atualiza o terminal macro (assets/js/macro-live.js):
 #  - Modulo 04: grafico Selic + IPCA 12M + meta/bandas + forecast Focus + Regra de Taylor dinamica
+#    (Selic buscada em 2 janelas de <=10 anos p/ contornar o limite do BCB)
 #  - Modulo 18: research por IA (Worker/Claude) com fallback ao vivo
-#  - Modulos 15-17 ao vivo (ja existentes)
-# Uso:
-#   bash atualizar-terminal.sh https://SEU-WORKER.workers.dev/    # pluga a URL do Worker de research
-#   bash atualizar-terminal.sh                                    # sem IA (so fallback ao vivo)
+# Uso: bash atualizar-terminal.sh https://SEU-WORKER.workers.dev/   (ou sem URL p/ so fallback)
 set -e
 if [ ! -f _config.yml ]; then echo "ERRO: rode na raiz do repo."; exit 1; fi
 mkdir -p assets/js
@@ -260,8 +258,27 @@ cat > assets/js/macro-live.js <<'MLJS_EOF'
   function taylorLine(){ if(!monHist) return []; var p=taylorP();
     return monHist.ipca.map(function(pi){ return (pi==null)?null:(p.r+pi+p.a*(pi-p.pi)+p.b*p.h); }); }
 
+  // Busca intervalo [fromM..toM] meses atrás (série diária -> <=10 anos por chamada)
+  async function bcbRange(id, fromM, toM){
+    var hoje=new Date();
+    var ini=new Date(); ini.setMonth(ini.getMonth()-fromM);
+    var fim=new Date(); fim.setMonth(fim.getMonth()-toM);
+    function fmt(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
+    var url='https://api.bcb.gov.br/dados/serie/bcdata.sgs.'+id+'/dados?formato=json&dataInicial='+fmt(ini)+'&dataFinal='+fmt(fim);
+    for(var i=0;i<3;i++){ try{ var r=await fetch(url); if(r.ok){ var d=await r.json(); if(Array.isArray(d)&&d.length) return d; } }catch(e){} await sleep(600*(i+1)); }
+    return null;
+  }
+  // Selic diária desde ~2015 em duas janelas (contorna o limite de 10 anos)
+  async function selicDaily(){
+    var ck='selicD', c=cg(ck,TTL.rate); if(c) return c;
+    var a=await bcbRange(SGS.SELIC,135,16), b=await bcbRange(SGS.SELIC,16,0);
+    var out=(a||[]).concat(b||[]);
+    if(out.length){ cs(ck,out); return out; }
+    return null;
+  }
+
   async function buildMonHist(){
-    var selicRaw=await bcbHist(SGS.SELIC,135), ipcaRaw=await bcbHist(SGS.IPCA,135);
+    var selicRaw=await selicDaily(), ipcaRaw=await bcbHist(SGS.IPCA,135);
     if(!selicRaw||!ipcaRaw) return false;
     var selicByMonth={}; selicRaw.forEach(function(d){ selicByMonth[d.data.substring(3)]=parseFloat(String(d.valor).replace(',','.')); });
     var iv=ipcaRaw.map(function(x){ return { mk:x.data.substring(3), v:parseFloat(String(x.valor).replace(',','.')) }; });
@@ -346,7 +363,7 @@ cat > assets/js/macro-live.js <<'MLJS_EOF'
     if(!monHist){ var ok=await buildMonHist(); if(!ok) return; }
     drawMon(canvas); bindTaylor(); updateTaylorReadout();
     var ti=document.querySelector('#monetaria .term-chart-title');
-    if(ti) ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor — desde 2015 (forecast Focus)';
+    if(ti) ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor — desde 2016 (forecast Focus)';
     return true;
   }
 
@@ -386,9 +403,7 @@ import sys
 url=sys.argv[1].replace(chr(39),"")
 p="assets/js/macro-live.js"; s=open(p,encoding="utf-8").read()
 s=s.replace("var RESEARCH_URL = '';", "var RESEARCH_URL = '"+url+"';",1)
-open(p,"w",encoding="utf-8").write(s)
-print("  - RESEARCH_URL = "+url)
+open(p,"w",encoding="utf-8").write(s); print("  - RESEARCH_URL = "+url)
 PY
 else echo "  - sem URL: modulo 18 usa fallback ao vivo"; fi
-echo "==> Pronto. Publicar:"
-echo "    git add -A && git commit -m \"feat: grafico Selic/IPCA/meta/Taylor + research IA\" && git push"
+echo "==> Pronto. Publicar: git add -A && git commit -m \"fix: grafico modulo 04 (Selic em 2 janelas)\" && git push"
