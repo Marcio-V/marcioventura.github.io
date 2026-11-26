@@ -11,8 +11,11 @@ import csv, io, json, sys
 from datetime import datetime, timedelta
 from urllib.request import urlopen, Request
 
-CSV_URL = ("https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/"
-           "resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/PrecoTaxaTesouroDireto.csv")
+DATASET = "df56aa42-484a-4a59-8184-7676580c81e3"  # Taxas dos Títulos Ofertados pelo Tesouro Direto
+CKAN_API = "https://www.tesourotransparente.gov.br/ckan/api/3/action/package_show?id=" + DATASET
+# URL fixa de reserva (caso a API do CKAN mude)
+CSV_URL_FALLBACK = ("https://www.tesourotransparente.gov.br/ckan/dataset/" + DATASET +
+                    "/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/PrecoTaxaTesouroDireto.csv")
 PREFIXADOS = {"Tesouro Prefixado", "Tesouro Prefixado com Juros Semestrais"}
 TENORS = [0.5, 1, 2, 3, 5, 7, 10]            # anos p/ grade comum
 TENOR_LABELS = {0.5:"6M",1:"1A",2:"2A",3:"3A",5:"5A",7:"7A",10:"10A"}
@@ -22,9 +25,36 @@ WINDOW_BACK = 8                               # recua até N dias p/ achar dia �
 def pdate(s): return datetime.strptime(s.strip(), "%d/%m/%Y").date()
 def pnum(s):  return float(s.strip().replace(".", "").replace(",", "."))
 
+def descobrir_csv_url():
+    """Descobre a URL do CSV principal via API do CKAN (resiliente a mudança de UUID)."""
+    try:
+        req = Request(CKAN_API, headers={"User-Agent": "Mozilla/5.0"})
+        with urlopen(req, timeout=60) as r:
+            data = json.load(r)
+        recursos = data.get("result", {}).get("resources", [])
+        # prioriza CSV cujo nome/URL contenha 'preco' e 'taxa'
+        def score(rec):
+            u = (rec.get("url") or "").lower(); n = (rec.get("name") or "").lower()
+            fmt = (rec.get("format") or "").lower()
+            sc = 0
+            if fmt == "csv" or u.endswith(".csv"): sc += 2
+            if "preco" in u or "preco" in n or "precotaxa" in u: sc += 2
+            if "taxa" in u or "taxa" in n: sc += 1
+            return sc
+        csvs = sorted([x for x in recursos if score(x) > 0], key=score, reverse=True)
+        if csvs and csvs[0].get("url"):
+            print(f"  CSV descoberto via CKAN: {csvs[0]['url']}", file=sys.stderr)
+            return csvs[0]["url"]
+    except Exception as e:
+        print(f"  AVISO: CKAN package_show falhou ({e}); usando URL de reserva.", file=sys.stderr)
+    return CSV_URL_FALLBACK
+
 def baixar_linhas():
-    req = Request(CSV_URL, headers={"User-Agent": "Mozilla/5.0"})
-    r = urlopen(req, timeout=120)
+    url = descobrir_csv_url()
+    print(f"  Baixando CSV: {url}", file=sys.stderr)
+    req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    r = urlopen(req, timeout=180)
+    print(f"  HTTP {getattr(r, 'status', '?')} — content-type: {r.headers.get('Content-Type')}", file=sys.stderr)
     return io.TextIOWrapper(r, encoding="latin-1", newline="")
 
 def coletar(alvos):
@@ -34,10 +64,14 @@ def coletar(alvos):
     porbase = {}  # date -> list[(ttm_anos, venc, taxa)]
     reader = csv.reader(baixar_linhas(), delimiter=";")
     header = next(reader, None)
+    print(f"  Cabecalho CSV: {header}", file=sys.stderr)
+    nlin = 0; npre = 0
     for row in reader:
+        nlin += 1
         if len(row) < 4: continue
         tipo = row[0].strip()
         if tipo not in PREFIXADOS: continue
+        npre += 1
         try:
             venc = pdate(row[1]); base = pdate(row[2]); taxa = pnum(row[3])  # Taxa Compra Manhã
         except (ValueError, IndexError):
@@ -46,6 +80,7 @@ def coletar(alvos):
         ttm = (venc - base).days / 365.25
         if ttm <= 0 or not (0 < taxa < 100): continue
         porbase.setdefault(base, []).append((ttm, venc.isoformat(), taxa))
+    print(f"  Linhas lidas: {nlin} · prefixados: {npre} · datas-base na janela: {len(porbase)}", file=sys.stderr)
     return porbase
 
 def interp(pts, tenor):
