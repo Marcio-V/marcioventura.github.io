@@ -6,7 +6,7 @@
 (function () {
   'use strict';
   // >>> Cole aqui a URL do seu Worker de research (deixe '' para usar só o fallback local) <<<
-  var RESEARCH_URL = 'https://arbitrium-research.SEU-SUBDOMINIO.workers.dev/research';
+  var RESEARCH_URL = 'https://round-dawn-e84d.m-matheus-baptista.workers.dev/';
   var TTL = { daily: 9e5, rate: 36e5, monthly: 2.16e7, focus: 2.16e7 }; // ms
   var SGS = { SELIC:432, CDI:4389, IPCA:433, DESEMP:24369, IBCBR:24364, DIVIDA:13762, USD:1 };
 
@@ -46,8 +46,8 @@
     try{ var r=await fetch(base+p); if(r.ok){ var j=await r.json(); var row=j&&j.value&&j.value[0]; if(row){ cs(ck,row); return row; } } }catch(e){}
     return null;
   }
-  async function focusAnual(ind){
-    var yr=new Date().getFullYear(), ck='fa_'+ind+'_'+yr, c=cg(ck,TTL.focus); if(c) return c;
+  async function focusAnual(ind, year){
+    var yr=year||new Date().getFullYear(), ck='fa_'+ind+'_'+yr, c=cg(ck,TTL.focus); if(c) return c;
     var base='https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais';
     var p="?$top=1&$orderby=Data desc&$format=json&$select=Mediana,DataReferencia&$filter="+encodeURIComponent("Indicador eq '"+ind+"' and DataReferencia eq '"+yr+"'");
     try{ var r=await fetch(base+p); if(r.ok){ var j=await r.json(); var row=j&&j.value&&j.value[0]; if(row){ cs(ck,row); return row; } } }catch(e){}
@@ -192,6 +192,17 @@
     if(tag){ art.setAttribute('data-ia','1'); }
   }
 
+  function paintFallback(arts, selic, infE, usd, jr){
+    if(arts[0] && selic!=null && arts[0].getAttribute('data-ia')!=='1'){
+      paintInsight(arts[0], 'Selic em '+nf(selic,2)+'% e o juro real ex-ante'+(jr!=null?' de ~'+nf(jr,1)+'%':''),
+        'Com a Selic em '+nf(selic,2)+'% a.a. e a inflação esperada (Focus) em '+(infE!=null?nf(infE,2)+'%':'—')+', o juro real ex-ante segue'+(jr!=null?' em torno de <strong>'+nf(jr,1)+'%</strong>':'')+' — patamar historicamente alto. O posicionamento em prefixados e NTN-Bs longas depende da convicção sobre o ritmo do ciclo de corte, que a curva DI ainda precifica de forma conservadora.', false);
+    }
+    if(arts[1] && usd!=null && arts[1].getAttribute('data-ia')!=='1'){
+      paintInsight(arts[1], 'Câmbio em R$ '+nf(usd,2)+' e o diferencial de juros',
+        'Com o USD/BRL em <strong>R$ '+nf(usd,2)+'</strong> e a Selic em '+(selic!=null?nf(selic,2)+'%':'—')+', o real segue sensível ao diferencial de juros Brasil–EUA e ao apetite global por risco. O carry elevado sustenta o fluxo, mas a assimetria fiscal doméstica mantém o prêmio de risco como principal vetor de volatilidade.', false);
+    }
+  }
+
   async function renderInsights(){
     var box=document.getElementById('insights'); if(!box) return;
     var arts=box.querySelectorAll('.term-insight');
@@ -199,28 +210,132 @@
     var selic=selD?v(selD[selD.length-1]):null, infE=f?f.Mediana:null, usd=usdD?v(usdD[usdD.length-1]):null;
     var jr = (selic!=null&&infE!=null) ? ((1+selic/100)/(1+infE/100)-1)*100 : null;
 
-    // 1) Tenta IA (Worker) com o snapshot ao vivo
-    var cards=null;
-    try{ cards=await fetchResearch(buildSnapshot(selic, infE, usd, jr)); }catch(e){ cards=null; }
-    if(cards && cards.length){
-      for(var i=0;i<arts.length;i++){
-        if(cards[i]) paintInsight(arts[i], cards[i].title, (''+cards[i].body).replace(/</g,'&lt;'), true);
-      }
-      var capA=box.querySelector('.term-prose');
-      if(capA) capA.innerHTML='Research gerado por IA (Claude) a partir dos indicadores ao vivo (BCB/Focus) · '+mesAno()+'. Conteúdo informativo, não é recomendação de investimento.';
-      return true;
-    }
+    // 1) Pinta JÁ o fallback ao vivo (nunca fica vazio)
+    paintFallback(arts, selic, infE, usd, jr);
 
-    // 2) Fallback: notas com os números ao vivo (nunca fica vazio)
-    if(arts[0] && selic!=null){
-      paintInsight(arts[0], 'Selic em '+nf(selic,2)+'% e o juro real ex-ante'+(jr!=null?' de ~'+nf(jr,1)+'%':''),
-        'Com a Selic em '+nf(selic,2)+'% a.a. e a inflação esperada (Focus) em '+(infE!=null?nf(infE,2)+'%':'—')+', o juro real ex-ante segue'+(jr!=null?' em torno de <strong>'+nf(jr,1)+'%</strong>':'')+' — patamar historicamente alto. O posicionamento em prefixados e NTN-Bs longas depende da convicção sobre o ritmo do ciclo de corte, que a curva DI ainda precifica de forma conservadora.');
-    }
-    if(arts[1] && usd!=null){
-      paintInsight(arts[1], 'Câmbio em R$ '+nf(usd,2)+' e o diferencial de juros',
-        'Com o USD/BRL em <strong>R$ '+nf(usd,2)+'</strong> e a Selic em '+(selic!=null?nf(selic,2)+'%':'—')+', o real segue sensível ao diferencial de juros Brasil–EUA e ao apetite global por risco. O carry elevado sustenta o fluxo, mas a assimetria fiscal doméstica mantém o prêmio de risco como principal vetor de volatilidade.');
+    // 2) Em paralelo, tenta a IA e substitui quando chegar
+    if(RESEARCH_URL){
+      var cards=null;
+      try{ cards=await fetchResearch(buildSnapshot(selic, infE, usd, jr)); }catch(e){ cards=null; }
+      if(cards && cards.length){
+        for(var i=0;i<arts.length;i++){ if(cards[i]) paintInsight(arts[i], cards[i].title, (''+cards[i].body).replace(/</g,'&lt;'), true); }
+        var capA=box.querySelector('.term-prose');
+        if(capA) capA.innerHTML='Research gerado por IA (Claude) a partir dos indicadores ao vivo (BCB/Focus) · '+mesAno()+'. Conteúdo informativo, não é recomendação de investimento.';
+      }
     }
     return (selic!=null||usd!=null);
+  }
+
+  // ═══════════ 04 · POLÍTICA MONETÁRIA (Selic · IPCA 12M · meta/bandas · Taylor · forecast) ═══════════
+  async function bcbHist(id, monthsBack){
+    var ck='h'+id+'_'+monthsBack, c=cg(ck,TTL.monthly); if(c) return c;
+    var hoje=new Date(), ini=new Date(); ini.setMonth(ini.getMonth()-monthsBack);
+    function fmt(d){ return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear(); }
+    var url='https://api.bcb.gov.br/dados/serie/bcdata.sgs.'+id+'/dados?formato=json&dataInicial='+fmt(ini)+'&dataFinal='+fmt(hoje);
+    for(var i=0;i<3;i++){ try{ var r=await fetch(url); if(r.ok){ var d=await r.json(); if(Array.isArray(d)&&d.length){ cs(ck,d); return d; } } }catch(e){} await sleep(600*(i+1)); }
+    return null;
+  }
+  // Meta e bandas de tolerância oficiais (CMN) por ano
+  function metaInfl(year){
+    var y=parseInt(year,10);
+    var meta = y<=2016?4.5 : y===2017?4.5 : y===2018?4.5 : y===2019?4.25 : y===2020?4.0 : y===2021?3.75 : y===2022?3.5 : y===2023?3.25 : 3.0;
+    var band = y<=2016?2.0 : 1.5;
+    return { meta:meta, lo:meta-band, hi:meta+band };
+  }
+  var monChart=null, monHist=null;
+  function taylorP(){ function g(id,def){ var e=document.getElementById(id); return e?parseFloat(e.value):def; }
+    return { r:g('tr-rstar',4.5), pi:g('tr-pistar',3.0), a:g('tr-alpha',0.5), b:g('tr-beta',0.5), h:g('tr-hiato',0.0) }; }
+  function taylorLine(){ if(!monHist) return []; var p=taylorP();
+    return monHist.ipca.map(function(pi){ return (pi==null)?null:(p.r+pi+p.a*(pi-p.pi)+p.b*p.h); }); }
+
+  async function buildMonHist(){
+    var selicRaw=await bcbHist(SGS.SELIC,135), ipcaRaw=await bcbHist(SGS.IPCA,135);
+    if(!selicRaw||!ipcaRaw) return false;
+    var selicByMonth={}; selicRaw.forEach(function(d){ selicByMonth[d.data.substring(3)]=parseFloat(String(d.valor).replace(',','.')); });
+    var iv=ipcaRaw.map(function(x){ return { mk:x.data.substring(3), v:parseFloat(String(x.valor).replace(',','.')) }; });
+    var ipca12={}; for(var i=11;i<iv.length;i++){ var w=iv.slice(i-11,i+1); ipca12[iv[i].mk]=+(((w.reduce(function(s,x){return s*(1+x.v/100);},1))-1)*100).toFixed(2); }
+    var labels=[],selic=[],ipca=[];
+    Object.keys(selicByMonth).forEach(function(mk){ if(ipca12[mk]!==undefined){ labels.push(mk); selic.push(selicByMonth[mk]); ipca.push(ipca12[mk]); } });
+    var ord=labels.map(function(mk,idx){ return {mk:mk,idx:idx,key:mk.substring(3)+mk.substring(0,2)}; }).sort(function(a,b){ return a.key.localeCompare(b.key); });
+    labels=ord.map(function(o){return o.mk;}); var selic2=ord.map(function(o){return selic[o.idx];}); var ipca2=ord.map(function(o){return ipca[o.idx];});
+    var meta=labels.map(function(l){return metaInfl(l.substring(3)).meta;});
+    var lo=labels.map(function(l){return metaInfl(l.substring(3)).lo;});
+    var hi=labels.map(function(l){return metaInfl(l.substring(3)).hi;});
+    monHist={ labels:labels, selic:selic2, ipca:ipca2, meta:meta, lo:lo, hi:hi, nHist:labels.length,
+              fcSelic:labels.map(function(){return null;}), fcIpca:labels.map(function(){return null;}) };
+    // conecta o forecast ao último ponto real
+    var n=monHist.nHist; monHist.fcSelic[n-1]=monHist.selic[n-1]; monHist.fcIpca[n-1]=monHist.ipca[n-1];
+    // forecast Focus: fim do ano atual e do próximo
+    try{
+      var yNow=new Date().getFullYear(), anos=[yNow, yNow+1];
+      for(var k=0;k<anos.length;k++){
+        var yy=anos[k], lbl='dez/'+String(yy).slice(2);
+        if(monHist.labels.indexOf(lbl)!==-1) continue;
+        var fs=await focusAnual('Selic', yy), fi=await focusAnual('IPCA', yy);
+        var sVal=fs&&typeof fs.Mediana==='number'?fs.Mediana:null, iVal=fi&&typeof fi.Mediana==='number'?fi.Mediana:null;
+        if(sVal==null && iVal==null) continue;
+        monHist.labels.push(lbl);
+        monHist.selic.push(null); monHist.ipca.push(null);
+        var m=metaInfl(yy); monHist.meta.push(m.meta); monHist.lo.push(m.lo); monHist.hi.push(m.hi);
+        monHist.fcSelic.push(sVal); monHist.fcIpca.push(iVal);
+      }
+    }catch(e){}
+    return true;
+  }
+
+  function drawMon(canvas){
+    var H=monHist;
+    var dsTaylor={ label:'Taylor (regra)', data:taylorLine(), borderColor:'#f0a830', backgroundColor:'transparent', borderWidth:2, borderDash:[5,4], fill:false, tension:0.2, pointRadius:0, pointHoverRadius:4 };
+    var cfg={ type:'line',
+      data:{ labels:H.labels, datasets:[
+        { label:'_lo', data:H.lo, borderColor:'rgba(139,152,165,0.25)', borderWidth:1, borderDash:[2,3], fill:false, pointRadius:0, tension:0.1 },
+        { label:'Banda de tolerância', data:H.hi, borderColor:'rgba(139,152,165,0.25)', backgroundColor:'rgba(139,152,165,0.06)', borderWidth:1, borderDash:[2,3], fill:'-1', pointRadius:0, tension:0.1 },
+        { label:'Meta de inflação', data:H.meta, borderColor:'#8b98a5', borderWidth:1.5, borderDash:[6,4], fill:false, pointRadius:0, tension:0.1 },
+        { label:'Selic', data:H.selic, borderColor:'#4da3ff', backgroundColor:'rgba(77,163,255,0.08)', borderWidth:2, fill:true, tension:0.2, pointRadius:0, pointHoverRadius:4, spanGaps:false },
+        { label:'IPCA 12M', data:H.ipca, borderColor:'#e6edf3', borderWidth:2.4, fill:false, tension:0.2, pointRadius:0, pointHoverRadius:4, spanGaps:false },
+        dsTaylor,
+        { label:'Selic (Focus)', data:H.fcSelic, borderColor:'#4da3ff', borderWidth:2, borderDash:[2,2], fill:false, tension:0.2, pointRadius:0, pointHoverRadius:4, spanGaps:true },
+        { label:'IPCA proj. (Focus)', data:H.fcIpca, borderColor:'#e6edf3', borderWidth:2, borderDash:[2,2], fill:false, tension:0.2, pointRadius:0, pointHoverRadius:4, spanGaps:true }
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+        plugins:{ legend:{ display:true, labels:{ color:'#8b98a5', font:{size:10}, usePointStyle:true, boxWidth:8, padding:8,
+            filter:function(it){ return it.text && it.text.charAt(0)!=='_'; } } },
+          tooltip:{ backgroundColor:'#161c21', borderColor:'#2a3138', borderWidth:1, titleColor:'#e6e6e6', bodyColor:'#e6e6e6',
+            filter:function(it){ return it.dataset.label && it.dataset.label.charAt(0)!=='_'; },
+            callbacks:{ label:function(c){ return c.dataset.label+': '+(c.parsed.y!=null?c.parsed.y.toFixed(2).replace('.',',')+'%':'—'); } } } },
+        scales:{ x:{ grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#8b98a5', maxTicksLimit:10, font:{size:9}} },
+          y:{ grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#8b98a5', font:{size:9}, callback:function(v){return v+'%';}} } } } };
+    var prev=(window.Chart&&Chart.getChart)?Chart.getChart(canvas):null; if(prev) prev.destroy();
+    monChart=new Chart(canvas, cfg);
+  }
+
+  function updateTaylorReadout(){
+    var el=document.getElementById('tr-current'); if(!el||!monHist) return;
+    var i=monHist.nHist-1, s=monHist.selic[i], tl=taylorLine()[i];
+    if(s==null||tl==null) return; var gap=s-tl, sinal=gap>=0?'acima':'abaixo';
+    el.innerHTML='Hoje: Selic '+s.toFixed(2).replace('.',',')+'% vs Taylor '+tl.toFixed(2).replace('.',',')+'% → política <strong style="color:'+(gap>=0?'#3fb950':'#f85149')+'">'+Math.abs(gap).toFixed(2).replace('.',',')+' p.p. '+sinal+'</strong>';
+  }
+  function bindTaylor(){
+    var map=[['tr-rstar','tr-rstar-v',1],['tr-pistar','tr-pistar-v',1],['tr-alpha','tr-alpha-v',2],['tr-beta','tr-beta-v',2],['tr-hiato','tr-hiato-v',1]];
+    map.forEach(function(m){
+      var old=document.getElementById(m[0]); if(!old) return;
+      var inp=old.cloneNode(true); old.parentNode.replaceChild(inp, old); // remove listeners antigos
+      var out=document.getElementById(m[1]);
+      inp.addEventListener('input', function(){
+        if(out) out.textContent=parseFloat(inp.value).toFixed(m[2]).replace('.',',');
+        if(monChart){ var ds=monChart.data.datasets.filter(function(d){return d.label==='Taylor (regra)';})[0]; if(ds){ ds.data=taylorLine(); monChart.update('none'); } }
+        updateTaylorReadout();
+      });
+    });
+  }
+
+  async function renderMonetaria(){
+    var canvas=document.querySelector('canvas[data-chart="taylor"]'); if(!canvas||typeof Chart==='undefined') return;
+    if(!monHist){ var ok=await buildMonHist(); if(!ok) return; }
+    drawMon(canvas); bindTaylor(); updateTaylorReadout();
+    var ti=document.querySelector('#monetaria .term-chart-title');
+    if(ti) ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor — desde 2015 (forecast Focus)';
+    return true;
   }
 
   // ─────────── Orquestração + auto-refresh ───────────
@@ -238,7 +353,7 @@
   }
   async function runAll(){
     passes++;
-    var res=await Promise.allSettled([renderHeat(),renderCenarios(),renderRegime(),renderInsights()]);
+    var res=await Promise.allSettled([renderHeat(),renderCenarios(),renderRegime(),renderInsights(),renderMonetaria()]);
     var ok=res.some(function(r){return r.status==='fulfilled' && r.value!==false && r.value!==undefined;});
     stamp(true);
   }
