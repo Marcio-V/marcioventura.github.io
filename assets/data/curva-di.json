@@ -1,85 +1,167 @@
 {
-  "refdate": "2026-10-15",
-  "fonte": "ANBIMA — ETTJ Prefixada (DI x PRE)",
-  "atualizado_em": "2026-10-15",
-  "vertices": [
-    {
-      "du": 126,
-      "anos": 0.5,
-      "label": "6M",
-      "taxa": 12.8966
+  "refdate": "2026-11-25",
+  "fonte": "Tesouro Direto — prefixados (LTN/NTN-F), via Tesouro Transparente",
+  "atualizado_em": "2026-11-26",
+  "curvas": {
+    "hoje": {
+      "refdate": "25/11/2026",
+      "pts": [
+        {
+          "tenor": 0.5,
+          "label": "6M",
+          "taxa": 13.8972
+        },
+        {
+          "tenor": 1,
+          "label": "1A",
+          "taxa": 14.2825
+        },
+        {
+          "tenor": 2,
+          "label": "2A",
+          "taxa": 14.8357
+        },
+        {
+          "tenor": 3,
+          "label": "3A",
+          "taxa": 14.9706
+        },
+        {
+          "tenor": 5,
+          "label": "5A",
+          "taxa": 15.2599
+        },
+        {
+          "tenor": 7,
+          "label": "7A",
+          "taxa": 15.31
+        },
+        {
+          "tenor": 10,
+          "label": "10A",
+          "taxa": 15.2246
+        }
+      ]
     },
-    {
-      "du": 252,
-      "anos": 1,
-      "label": "1A",
-      "taxa": 12.8966
+    "semana": {
+      "refdate": "19/11/2026",
+      "pts": [
+        {
+          "tenor": 0.5,
+          "label": "6M",
+          "taxa": 13.939
+        },
+        {
+          "tenor": 1,
+          "label": "1A",
+          "taxa": 14.3693
+        },
+        {
+          "tenor": 2,
+          "label": "2A",
+          "taxa": 14.9723
+        },
+        {
+          "tenor": 3,
+          "label": "3A",
+          "taxa": 15.1263
+        },
+        {
+          "tenor": 5,
+          "label": "5A",
+          "taxa": 15.4195
+        },
+        {
+          "tenor": 7,
+          "label": "7A",
+          "taxa": 15.4656
+        },
+        {
+          "tenor": 10,
+          "label": "10A",
+          "taxa": 15.366
+        }
+      ]
     },
-    {
-      "du": 378,
-      "anos": 1.5,
-      "label": "1A6M",
-      "taxa": 12.7552
+    "mes": {
+      "refdate": "27/10/2026",
+      "pts": [
+        {
+          "tenor": 0.5,
+          "label": "6M",
+          "taxa": 13.7527
+        },
+        {
+          "tenor": 1,
+          "label": "1A",
+          "taxa": 14.2581
+        },
+        {
+          "tenor": 2,
+          "label": "2A",
+          "taxa": 14.8001
+        },
+        {
+          "tenor": 3,
+          "label": "3A",
+          "taxa": 14.8228
+        },
+        {
+          "tenor": 5,
+          "label": "5A",
+          "taxa": 15.0528
+        },
+        {
+          "tenor": 7,
+          "label": "7A",
+          "taxa": 15.0536
+        },
+        {
+          "tenor": 10,
+          "label": "10A",
+          "taxa": 14.9391
+        }
+      ]
     },
-    {
-      "du": 504,
-      "anos": 2,
-      "label": "2A",
-      "taxa": 12.7161
-    },
-    {
-      "du": 630,
-      "anos": 2.5,
-      "label": "2A6M",
-      "taxa": 12.7322
-    },
-    {
-      "du": 756,
-      "anos": 3,
-      "label": "3A",
-      "taxa": 12.7746
-    },
-    {
-      "du": 1008,
-      "anos": 4,
-      "label": "4A",
-      "taxa": 12.8774
-    },
-    {
-      "du": 1260,
-      "anos": 5,
-      "label": "5A",
-      "taxa": 12.9602
-    },
-    {
-      "du": 1512,
-      "anos": 6,
-      "label": "6A",
-      "taxa": 13.0093
-    },
-    {
-      "du": 1764,
-      "anos": 7,
-      "label": "7A",
-      "taxa": 13.0282
-    },
-    {
-      "du": 2016,
-      "anos": 8,
-      "label": "8A",
-      "taxa": 13.0247
-    },
-    {
-      "du": 2268,
-      "anos": 9,
-      "label": "9A",
-      "taxa": 13.0062
-    },
-    {
-      "du": 2520,
-      "anos": 10,
-      "label": "10A",
-      "taxa": 12.9787
+    "ano": {
+      "refdate": "26/11/2025",
+      "pts": [
+        {
+          "tenor": 0.5,
+          "label": "6M",
+          "taxa": 14.2956
+        },
+        {
+          "tenor": 1,
+          "label": "1A",
+          "taxa": 13.5801
+        },
+        {
+          "tenor": 2,
+          "label": "2A",
+          "taxa": 12.8191
+        },
+        {
+          "tenor": 3,
+          "label": "3A",
+          "taxa": 12.8131
+        },
+        {
+          "tenor": 5,
+          "label": "5A",
+          "taxa": 13.1653
+        },
+        {
+          "tenor": 7,
+          "label": "7A",
+          "taxa": 13.4611
+        },
+        {
+          "tenor": 10,
+          "label": "10A",
+          "taxa": 13.54
+        }
+      ]
     }
-  ]
+  }
 }
