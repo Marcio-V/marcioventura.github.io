@@ -357,6 +357,72 @@
     return true;
   }
 
+  // ═══════════ 21 · COMPARADOR DE ATIVOS (renda fixa) ═══════════
+  function initComparador(){
+    var sec=document.getElementById('comparador'); if(!sec) return;
+    var canvas=sec.querySelector('canvas[data-chart="comparador"]');
+    function g(id){ return document.getElementById(id); }
+    function num(id){ var e=g(id); return e?parseFloat(e.value)||0:0; }
+    function sval(id){ var e=g(id); return e?e.value:''; }
+    function brl(x){ return 'R$ '+Number(x).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function pct(x){ return (x*100).toFixed(2).replace('.',',')+'%'; }
+    function aliqRF(dias){ return dias<=180?22.5:dias<=360?20:dias<=720?17.5:15; }
+    function rAnual(idx,taxa,cdi,ipca){ if(idx==='pre')return taxa/100; if(idx==='cdi')return (cdi/100)*(taxa/100); return (1+ipca/100)*(1+taxa/100)-1; }
+    function serie(pv,r,meses,isento){ var a=[]; for(var m=0;m<=meses;m++){ var fv=pv*Math.pow(1+r,m/12), gain=fv-pv, al=isento?0:aliqRF(m*30); a.push(+(pv+gain*(1-al/100)).toFixed(2)); } return a; }
+    function asset(p){
+      var cdi=num('cmp-cdi'), ipca=num('cmp-ipca');
+      var idx=sval('cmp-'+p+'-idx'), taxa=num('cmp-'+p+'-taxa'), meses=Math.max(1,Math.round(num('cmp-'+p+'-prazo'))), pv=Math.max(0,num('cmp-'+p+'-pv')), isento=sval('cmp-'+p+'-trib')==='isento';
+      var r=rAnual(idx,taxa,cdi,ipca), sr=serie(pv,r,meses,isento), netFV=sr[sr.length-1], aliq=isento?0:aliqRF(meses*30);
+      var liqAA=pv>0?Math.pow(netFV/pv,12/meses)-1:0;
+      return {idx:idx,taxa:taxa,meses:meses,pv:pv,isento:isento,r:r,serie:sr,netFV:netFV,aliq:aliq,liqAA:liqAA,brutoAA:r};
+    }
+    var chart=null;
+    function draw(A,B){
+      if(!canvas||typeof Chart==='undefined') return;
+      var maxM=Math.max(A.meses,B.meses), labels=[]; for(var m=0;m<=maxM;m++) labels.push(m);
+      function pad(sr){ var o=sr.slice(); while(o.length<=maxM) o.push(null); return o; }
+      var cfg={ type:'line', data:{ labels:labels, datasets:[
+          { label:'Ativo A (líquido)', data:pad(A.serie), borderColor:'#4da3ff', backgroundColor:'rgba(77,163,255,0.08)', borderWidth:2, fill:true, tension:0.15, pointRadius:0, pointHoverRadius:4, spanGaps:false },
+          { label:'Ativo B (líquido)', data:pad(B.serie), borderColor:'#f0a830', backgroundColor:'transparent', borderWidth:2, fill:false, tension:0.15, pointRadius:0, pointHoverRadius:4, spanGaps:false }
+        ]},
+        options:{ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+          plugins:{ legend:{ display:true, labels:{ color:'#8b98a5', font:{size:10}, usePointStyle:true, boxWidth:8 } },
+            tooltip:{ backgroundColor:'#161c21', borderColor:'#2a3138', borderWidth:1, titleColor:'#e6e6e6', bodyColor:'#e6e6e6',
+              callbacks:{ title:function(it){ return 'Mês '+it[0].label; }, label:function(c){ return c.dataset.label+': '+(c.parsed.y!=null?'R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—'); } } } },
+          scales:{ x:{ title:{display:true,text:'Meses',color:'#8b98a5',font:{size:10}}, grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#8b98a5',font:{size:9},maxTicksLimit:12} },
+            y:{ grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#8b98a5',font:{size:9},callback:function(v){return 'R$ '+(v>=1000?(v/1000).toFixed(1)+'k':v);}} } } } };
+      var prev=(window.Chart&&Chart.getChart)?Chart.getChart(canvas):null; if(prev)prev.destroy();
+      chart=new Chart(canvas,cfg);
+    }
+    function fmtOut(x){
+      var ind = x.idx==='pre'?'Pré '+x.taxa.toFixed(2).replace('.',',')+'%' : x.idx==='cdi'?x.taxa.toFixed(0)+'% CDI' : 'IPCA+'+x.taxa.toFixed(2).replace('.',',')+'%';
+      return '<div class="cmp-line">Bruto: <b>'+pct(x.brutoAA)+' a.a.</b> ('+ind+')</div>'+
+             '<div class="cmp-line">IR no vencimento: <b>'+(x.isento?'isento':x.aliq.toFixed(1).replace('.',',')+'%')+'</b></div>'+
+             '<div class="cmp-line">Líquido a.a.: <b class="cmp-hl">'+pct(x.liqAA)+'</b></div>'+
+             '<div class="cmp-line">Montante líq. ('+x.meses+'m): <b>'+brl(x.netFV)+'</b></div>';
+    }
+    function verdict(A,B){
+      var el=g('cmp-verdict'); if(!el) return;
+      var dAA=(A.liqAA-B.liqAA)*100;
+      var win = Math.abs(dAA)<0.01 ? null : (A.liqAA>B.liqAA?'A':'B');
+      var txt;
+      if(!win){ txt='Os dois ativos empatam em rentabilidade líquida (~'+pct(A.liqAA)+' a.a.).'; }
+      else{
+        var w=win==='A'?A:B, l=win==='A'?B:A, cor=win==='A'?'#4da3ff':'#f0a830';
+        txt='<b style="color:'+cor+'">Ativo '+win+' rende mais</b>: '+pct(w.liqAA)+' a.a. líquido vs '+pct(l.liqAA)+' do Ativo '+(win==='A'?'B':'A')+' (Δ '+Math.abs(dAA).toFixed(2).replace('.',',')+' p.p.).';
+        // gross-up quando um é isento e o outro tributado
+        if(w.isento && !l.isento){ txt+=' Para empatar, o tributado precisaria render ~'+pct(w.liqAA/(1-l.aliq/100))+' a.a. líquido equivalente bruto.'; }
+        if(!w.isento && l.isento){ txt+=' Mesmo pagando IR, o Ativo '+win+' supera o isento neste prazo.'; }
+      }
+      el.innerHTML=txt;
+    }
+    function recompute(){ var A=asset('a'), B=asset('b'); var ao=g('cmp-a-out'),bo=g('cmp-b-out'); if(ao)ao.innerHTML=fmtOut(A); if(bo)bo.innerHTML=fmtOut(B); draw(A,B); verdict(A,B); }
+    // pré-preenche CDI com o valor ao vivo, se houver
+    var cdiLive=document.querySelector('[data-macro="cdi"]'); if(cdiLive){ var v=parseFloat((cdiLive.textContent||'').replace('%','').replace(',','.')); if(isFinite(v)&&v>0&&g('cmp-cdi')) g('cmp-cdi').value=v.toFixed(2); }
+    sec.querySelectorAll('input,select').forEach(function(e){ e.addEventListener('input',recompute); e.addEventListener('change',recompute); });
+    recompute();
+  }
+
   // ─────────── Orquestração + auto-refresh ───────────
   var passes=0;
   function setLoading(){
@@ -378,6 +444,7 @@
   }
   function boot(){
     setLoading();
+    initComparador();
     [500,1500,3500,8000].forEach(function(ms){ setTimeout(runAll, ms); });
     setInterval(runAll, 5*60*1000);
   }

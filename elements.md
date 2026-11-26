@@ -811,5 +811,50 @@ menu-order: 1
 	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">Calculadoras funcionais — altere os valores e o resultado recalcula automaticamente. Ferramentas do dia a dia de renda fixa e política monetária.</p>
 </section>
 
+<!-- 21 COMPARADOR DE ATIVOS -->
+<section class="term-module" id="comparador">
+	<div class="term-module-header">
+		<span class="term-module-num">21</span>
+		<h2>Comparador de Ativos</h2>
+		<span class="term-module-tag model">Interativo</span>
+	</div>
+
+	<div class="cmp-premissas">
+		<label>CDI (% a.a.)<input type="number" id="cmp-cdi" value="13.65" step="0.05"></label>
+		<label>IPCA projetado (% a.a.)<input type="number" id="cmp-ipca" value="4.60" step="0.05"></label>
+	</div>
+
+	<div class="cmp-grid">
+		<div class="term-calc cmp-asset">
+			<div class="term-calc-title" style="color:#4da3ff;">Ativo A</div>
+			<label>Indexador<select id="cmp-a-idx"><option value="pre">Prefixado (% a.a.)</option><option value="cdi">% do CDI</option><option value="ipca">IPCA + (% a.a.)</option></select></label>
+			<label>Taxa<input type="number" id="cmp-a-taxa" value="14.00" step="0.05"></label>
+			<label>Prazo (meses)<input type="number" id="cmp-a-prazo" value="24" step="1"></label>
+			<label>Investimento inicial (R$)<input type="number" id="cmp-a-pv" value="10000" step="100"></label>
+			<label>Tributação<select id="cmp-a-trib"><option value="reg">Regressiva (CDB/Tesouro)</option><option value="isento">Isento (LCI/LCA/deb. incentiv.)</option></select></label>
+			<div class="term-calc-result cmp-out" id="cmp-a-out">—</div>
+		</div>
+
+		<div class="term-calc cmp-asset">
+			<div class="term-calc-title" style="color:#f0a830;">Ativo B</div>
+			<label>Indexador<select id="cmp-b-idx"><option value="cdi">% do CDI</option><option value="pre">Prefixado (% a.a.)</option><option value="ipca">IPCA + (% a.a.)</option></select></label>
+			<label>Taxa<input type="number" id="cmp-b-taxa" value="110" step="1"></label>
+			<label>Prazo (meses)<input type="number" id="cmp-b-prazo" value="24" step="1"></label>
+			<label>Investimento inicial (R$)<input type="number" id="cmp-b-pv" value="10000" step="100"></label>
+			<label>Tributação<select id="cmp-b-trib"><option value="reg">Regressiva (CDB/Tesouro)</option><option value="isento">Isento (LCI/LCA/deb. incentiv.)</option></select></label>
+			<div class="term-calc-result cmp-out" id="cmp-b-out">—</div>
+		</div>
+	</div>
+
+	<div class="cmp-verdict" id="cmp-verdict">—</div>
+
+	<div class="term-chart-wrap" style="margin-top:1em;">
+		<div class="term-chart-title">Curva de rentabilidade líquida (R$)</div>
+		<div style="position:relative;height:260px;"><canvas data-chart="comparador"></canvas></div>
+	</div>
+
+	<p class="term-prose" style="margin-top:1em;font-size:0.72rem;">IR regressivo de renda fixa: 22,5% até 180d · 20% 181–360d · 17,5% 361–720d · 15% acima de 720d. Comparação por rentabilidade líquida — não considera risco de crédito, liquidez nem marcação a mercado; conteúdo informativo, não é recomendação de investimento.</p>
+</section>
+
 </div><!-- .term-content -->
 </div><!-- .term-layout -->

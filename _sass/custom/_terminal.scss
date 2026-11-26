@@ -754,3 +754,32 @@ $term-amber:     #d29922;
 	.term-live-updated { font-size: 0.6rem; color: $term-muted; margin-left: auto; letter-spacing: 0.04em; }
 }
 /* ==MODELOS-MODAL:END== */
+
+/* ==COMPARADOR:BEGIN== */
+.macro-terminal {
+	.cmp-premissas {
+		display: flex; flex-wrap: wrap; gap: 1em; margin-bottom: 1em;
+		background: #0e1316; border: 1px solid #2a3138; border-radius: 6px; padding: 0.9em 1.1em;
+		label { font-size: 0.66rem; color: #8b949e; text-transform: uppercase; letter-spacing: .03em; flex: 1; min-width: 160px; }
+		input { display:block; width:100%; margin-top:.3em; background:#161c21; border:1px solid #2a3138; border-radius:4px; padding:.45em .7em; color:#e6e6e6; font-family:"Courier New",monospace; font-size:.9rem; }
+		input:focus { outline:none; border-color:#4da3ff; }
+	}
+	.cmp-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:1em; }
+	.cmp-asset select {
+		display:block; width:100%; margin-top:.3em; background:#161c21; border:1px solid #2a3138; border-radius:4px;
+		padding:.5em .7em; color:#e6e6e6; font-family:"Courier New",monospace; font-size:.85rem; cursor:pointer;
+		&:focus { outline:none; border-color:#4da3ff; }
+	}
+	.cmp-out { display:block; }
+	.cmp-line { font-size:.74rem; color:#8b949e; margin-top:.35em;
+		b { color:#e6e6e6; font-family:"Courier New",monospace; }
+		b.cmp-hl { color:#3fb950; font-size:1.02rem; }
+	}
+	.cmp-verdict {
+		margin-top:1em; padding:.9em 1.1em; background:linear-gradient(120deg,#0e1316,#070705);
+		border:1px solid #2a3138; border-left:3px solid #daa520; border-radius:6px;
+		font-size:.82rem; color:#cdd6df; line-height:1.6;
+		b { color:#e6edf3; }
+	}
+}
+/* ==COMPARADOR:END== */
