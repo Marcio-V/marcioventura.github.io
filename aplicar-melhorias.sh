@@ -154,7 +154,7 @@ show_tile: false
 ---
 
 Operador de renda variável (Sales &amp; Trading) e economista em formação pela UERJ, atuo na intersecção entre
-economia aplicada, finanças quantitativas e engenharia de software — desenvolvendo modelos, plataformas e
+economia aplicada, finanças quantitativas e engenharia de software desenvolvendo modelos, plataformas e
 análises orientadas a dados para o mercado financeiro brasileiro.
 
 Explore os projetos, acompanhe os indicadores de mercado em tempo real e conheça os serviços de consultoria.
@@ -176,7 +176,7 @@ menu-order: 5
 
 <p class="lead">
 Operador de renda variável (Sales &amp; Trading) e economista em formação, atuo na intersecção entre
-economia aplicada, finanças quantitativas e engenharia de software — transformando dados e teoria
+economia aplicada, finanças quantitativas e engenharia de software transformando dados e teoria
 econômica em decisões de investimento e ferramentas de mercado.
 </p>
 
