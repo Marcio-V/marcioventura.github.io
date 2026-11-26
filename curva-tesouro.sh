@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Curva de Juros (modulo 10): fonte Tesouro Transparente (auto-descoberta via CKAN + diagnostico),
-# com sobreposicao hoje x 1 semana/mes/ano. Atualiza o script do Action e o macro-live.js.
+# Curva de Juros (modulo 10): baixa o CSV do Tesouro VIA SEU WORKER (contorna bloqueio de IP do
+# GitHub Actions no servidor do Tesouro) e sobrepoe hoje x 1 semana/mes/ano.
 # Uso: bash curva-tesouro.sh https://SEU-WORKER.workers.dev/   (ou sem URL)
 set -e
 if [ ! -f _config.yml ]; then echo "ERRO: rode na raiz do repo."; exit 1; fi
@@ -19,11 +19,14 @@ import csv, io, json, sys
 from datetime import datetime, timedelta
 from urllib.request import urlopen, Request
 
-DATASET = "df56aa42-484a-4a59-8184-7676580c81e3"  # Taxas dos Títulos Ofertados pelo Tesouro Direto
-CKAN_API = "https://www.tesourotransparente.gov.br/ckan/api/3/action/package_show?id=" + DATASET
-# URL fixa de reserva (caso a API do CKAN mude)
-CSV_URL_FALLBACK = ("https://www.tesourotransparente.gov.br/ckan/dataset/" + DATASET +
-                    "/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/PrecoTaxaTesouroDireto.csv")
+# Fonte: o CSV é baixado via proxy no Cloudflare Worker (os IPs do GitHub Actions
+# são bloqueados pelo servidor do Tesouro). Reserva: download direto.
+WORKER_CSV = "https://round-dawn-e84d.m-matheus-baptista.workers.dev/csv"
+TESOURO_DIRETO = ("https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/"
+                  "resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/PrecoTaxaTesouroDireto.csv")
+BROWSER_HDRS = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0 Safari/537.36",
+                "Accept":"text/csv,text/plain,*/*", "Referer":"https://www.tesourotransparente.gov.br/"}
+
 PREFIXADOS = {"Tesouro Prefixado", "Tesouro Prefixado com Juros Semestrais"}
 TENORS = [0.5, 1, 2, 3, 5, 7, 10]            # anos p/ grade comum
 TENOR_LABELS = {0.5:"6M",1:"1A",2:"2A",3:"3A",5:"5A",7:"7A",10:"10A"}
@@ -33,37 +36,26 @@ WINDOW_BACK = 8                               # recua até N dias p/ achar dia �
 def pdate(s): return datetime.strptime(s.strip(), "%d/%m/%Y").date()
 def pnum(s):  return float(s.strip().replace(".", "").replace(",", "."))
 
-def descobrir_csv_url():
-    """Descobre a URL do CSV principal via API do CKAN (resiliente a mudança de UUID)."""
-    try:
-        req = Request(CKAN_API, headers={"User-Agent": "Mozilla/5.0"})
-        with urlopen(req, timeout=60) as r:
-            data = json.load(r)
-        recursos = data.get("result", {}).get("resources", [])
-        # prioriza CSV cujo nome/URL contenha 'preco' e 'taxa'
-        def score(rec):
-            u = (rec.get("url") or "").lower(); n = (rec.get("name") or "").lower()
-            fmt = (rec.get("format") or "").lower()
-            sc = 0
-            if fmt == "csv" or u.endswith(".csv"): sc += 2
-            if "preco" in u or "preco" in n or "precotaxa" in u: sc += 2
-            if "taxa" in u or "taxa" in n: sc += 1
-            return sc
-        csvs = sorted([x for x in recursos if score(x) > 0], key=score, reverse=True)
-        if csvs and csvs[0].get("url"):
-            print(f"  CSV descoberto via CKAN: {csvs[0]['url']}", file=sys.stderr)
-            return csvs[0]["url"]
-    except Exception as e:
-        print(f"  AVISO: CKAN package_show falhou ({e}); usando URL de reserva.", file=sys.stderr)
-    return CSV_URL_FALLBACK
+import time
+def _tentar(url, tentativas=3):
+    for i in range(tentativas):
+        try:
+            req = Request(url, headers=BROWSER_HDRS)
+            r = urlopen(req, timeout=180)
+            print(f"  OK {url} — HTTP {getattr(r,'status','?')} ({r.headers.get('Content-Type')})", file=sys.stderr)
+            return io.TextIOWrapper(r, encoding="latin-1", newline="")
+        except Exception as e:
+            print(f"  tentativa {i+1} falhou em {url}: {e}", file=sys.stderr)
+            time.sleep(3*(i+1))
+    return None
 
 def baixar_linhas():
-    url = descobrir_csv_url()
-    print(f"  Baixando CSV: {url}", file=sys.stderr)
-    req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    r = urlopen(req, timeout=180)
-    print(f"  HTTP {getattr(r, 'status', '?')} — content-type: {r.headers.get('Content-Type')}", file=sys.stderr)
-    return io.TextIOWrapper(r, encoding="latin-1", newline="")
+    for url in (WORKER_CSV, TESOURO_DIRETO):
+        print(f"  Baixando CSV de: {url}", file=sys.stderr)
+        stream = _tentar(url)
+        if stream is not None:
+            return stream
+    raise RuntimeError("nao foi possivel baixar o CSV (Worker e Tesouro direto falharam)")
 
 def coletar(alvos):
     """Lê o CSV uma vez; guarda, por data-base dentro das janelas-alvo, os pontos prefixados."""
@@ -641,7 +633,5 @@ p="assets/js/macro-live.js"; s=open(p,encoding="utf-8").read(); s=s.replace("var
 PY2
 else echo "  - sem URL do Worker"; fi
 echo ""
-echo "==> Pronto. 1) commit+push:  git add -A && git commit -m \"fix: curva Tesouro robusta\" && git push"
-echo "    2) RODE O ACTION MANUALMENTE p/ gerar o JSON agora:"
-echo "       GitHub > Actions > Atualizar Curva DI (ANBIMA) > Run workflow (branch master)"
-echo "    3) se falhar (vermelho), me mande as linhas de log do passo \"Baixar e atualizar\"."
+echo "==> 1) git add -A && git commit -m \"fix: curva via Worker\" && git push"
+echo "    2) GitHub > Actions > Atualizar Curva DI (ANBIMA) > Run workflow (main)"
