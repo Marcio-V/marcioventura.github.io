@@ -11,25 +11,29 @@
   function cg(k, ttl){ try{ var r=JSON.parse(localStorage.getItem('ml_'+k)); return (r&&Date.now()-r.t<ttl)?r.d:null; }catch(e){ return null; } }
   function cs(k, d){ try{ localStorage.setItem('ml_'+k, JSON.stringify({t:Date.now(), d:d})); }catch(e){} }
 
-  async function bcb(id, n, ttl){
-    var ck='b'+id+'_'+n, c=cg(ck,ttl); if(c) return c;
-    try{ var r=await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.'+id+'/dados/ultimos/'+n+'?formato=json');
-      if(r.ok){ var d=await r.json(); if(Array.isArray(d)&&d.length){ cs(ck,d); return d; } } }catch(e){}
+  // Reaproveita o cache que o macro-terminal.js ja popula (sessionStorage['ind_bcb_<id>'])
+  function mtCache(id){
+    try{ var r=sessionStorage.getItem('ind_bcb_'+id); if(!r) return null;
+      var e=JSON.parse(r); return (e&&Array.isArray(e.data))?e.data:null; }catch(e){ return null; }
+  }
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+
+  async function bcbFetch(id, n){
+    var url='https://api.bcb.gov.br/dados/serie/bcdata.sgs.'+id+'/dados/ultimos/'+n+'?formato=json';
+    for(var attempt=0; attempt<3; attempt++){
+      try{ var r=await fetch(url); if(r.ok){ var d=await r.json(); if(Array.isArray(d)&&d.length) return d; } }catch(e){}
+      await sleep(500*(attempt+1));
+    }
     return null;
   }
-  async function focus12m(){
-    var ck='f12', c=cg(ck,TTL.focus); if(c) return c;
-    var base='https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoInflacao12Meses';
-    var p="?$top=1&$orderby=Data desc&$format=json&$select=Mediana,Data&$filter="+encodeURIComponent("Indicador eq 'IPCA' and Suavizada eq 'S'");
-    try{ var r=await fetch(base+p); if(r.ok){ var j=await r.json(); var row=j&&j.value&&j.value[0]; if(row){ cs(ck,row); return row; } } }catch(e){}
-    return null;
-  }
-  async function focusAnual(ind){
-    var yr=new Date().getFullYear(), ck='fa_'+ind+'_'+yr, c=cg(ck,TTL.focus); if(c) return c;
-    var base='https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais';
-    var p="?$top=1&$orderby=Data desc&$format=json&$select=Mediana,DataReferencia&$filter="+encodeURIComponent("Indicador eq '"+ind+"' and DataReferencia eq '"+yr+"'");
-    try{ var r=await fetch(base+p); if(r.ok){ var j=await r.json(); var row=j&&j.value&&j.value[0]; if(row){ cs(ck,row); return row; } } }catch(e){}
-    return null;
+  // Fonte unica: 1) cache do macro-terminal (se tiver pontos suficientes) 2) cache proprio 3) fetch c/ retry
+  async function bcb(id, n, ttl, minLen){
+    minLen = minLen || 2;
+    var mt=mtCache(id); if(mt && mt.length>=minLen) return mt;
+    var mine=cg('b'+id, ttl); if(mine && mine.length>=minLen) return mine;
+    var d=await bcbFetch(id, n);
+    if(d){ cs('b'+id, d); return d; }
+    return (mt&&mt.length)?mt:(mine||null);
   }
 
   function v(row){ return parseFloat(String(row.valor).replace(',','.')); }
@@ -49,23 +53,23 @@
   // ═══════════ 15 · HEATMAP ═══════════
   var HEAT = [
     { key:'inflacao', favUp:false, eps:0.02,
-      load:async function(){ var d=await bcb(SGS.IPCA,15,TTL.monthly); if(!d) return null;
+      load:async function(){ var d=await bcb(SGS.IPCA,15,TTL.monthly,15); if(!d||d.length<15) return null;
         var a=d.map(v), n=a.length; return { cur:accum12(a,n-1), prev:accum12(a,n-4), disp:nf(accum12(a,n-1),2)+'%', sub:'IPCA 12m' }; } },
     { key:'atividade', favUp:true, eps:0.004,
-      load:async function(){ var d=await bcb(SGS.IBCBR,6,TTL.monthly); if(!d) return null;
+      load:async function(){ var d=await bcb(SGS.IBCBR,13,TTL.monthly,4); if(!d||d.length<4) return null;
         var a=d.map(v), n=a.length; return { cur:a[n-1], prev:a[n-4], disp:nf(a[n-1],1), sub:'IBC-Br' }; } },
     { key:'emprego', favUp:true, eps:0.01,
-      load:async function(){ var d=await bcb(SGS.DESEMP,6,TTL.monthly); if(!d) return null;
+      load:async function(){ var d=await bcb(SGS.DESEMP,6,TTL.monthly,4); if(!d||d.length<4) return null;
         var a=d.map(v), n=a.length; return { cur:-a[n-1], prev:-a[n-4], disp:nf(a[n-1],1)+'%', sub:'desemprego' }; } },
     { key:'fiscal', favUp:false, eps:0.004,
-      load:async function(){ var d=await bcb(SGS.DIVIDA,6,TTL.monthly); if(!d) return null;
+      load:async function(){ var d=await bcb(SGS.DIVIDA,6,TTL.monthly,4); if(!d||d.length<4) return null;
         var a=d.map(v), n=a.length; return { cur:a[n-1], prev:a[n-4], disp:nf(a[n-1],1)+'%', sub:'dívida/PIB' }; } },
     { key:'juros', favUp:false, eps:0.02,
-      load:async function(){ var d=await bcb(SGS.SELIC,140,TTL.rate); if(!d) return null;
-        var a=d.map(v), n=a.length; return { cur:a[n-1], prev:a[Math.max(0,n-127)], disp:nf(a[n-1],2)+'%', sub:'Selic' }; } },
+      load:async function(){ var d=await bcb(SGS.SELIC,140,TTL.rate,127); if(!d||d.length<2) return null;
+        var a=d.map(v), n=a.length, back=Math.min(126,n-1); return { cur:a[n-1], prev:a[n-1-back], disp:nf(a[n-1],2)+'%', sub:'Selic' }; } },
     { key:'cambio', favUp:false, eps:0.01,
-      load:async function(){ var d=await bcb(SGS.USD,30,TTL.daily); if(!d) return null;
-        var a=d.map(v), n=a.length; return { cur:a[n-1], prev:a[Math.max(0,n-22)], disp:'R$ '+nf(a[n-1],2), sub:'USD/BRL' }; } }
+      load:async function(){ var d=await bcb(SGS.USD,30,TTL.daily,22); if(!d||d.length<2) return null;
+        var a=d.map(v), n=a.length, back=Math.min(21,n-1); return { cur:a[n-1], prev:a[n-1-back], disp:'R$ '+nf(a[n-1],2), sub:'USD/BRL' }; } }
   ];
   async function renderHeat(){
     await Promise.all(HEAT.map(async function(h){
@@ -109,11 +113,11 @@
   async function renderRegime(){
     var tb=document.querySelector('#impacto table.term-table tbody'); if(!tb) return;
     var active={};
-    var sel=await bcb(SGS.SELIC,140,TTL.rate);
-    if(sel){ var a=sel.map(v),n=a.length; active['Alta da Selic']=(a[n-1]-a[Math.max(0,n-127)])>0.05; }
-    var ip=await bcb(SGS.IPCA,15,TTL.monthly);
+    var sel=await bcb(SGS.SELIC,140,TTL.rate,127);
+    if(sel){ var a=sel.map(v),n=a.length, bk=Math.min(126,n-1); active['Alta da Selic']=(a[n-1]-a[n-1-bk])>0.05; }
+    var ip=await bcb(SGS.IPCA,15,TTL.monthly,15);
     if(ip){ var b=ip.map(v),m=b.length, now=accum12(b,m-1), prev=accum12(b,m-4); if(now!=null&&prev!=null) active['Queda da Inflação']=(now-prev)<-0.05; }
-    var ibc=await bcb(SGS.IBCBR,6,TTL.monthly);
+    var ibc=await bcb(SGS.IBCBR,13,TTL.monthly,4);
     if(ibc){ var c=ibc.map(v),k=c.length; active['Recessão']=(c[k-1]-c[k-4])<0; }
     Array.prototype.forEach.call(tb.querySelectorAll('tr'), function(tr){
       var ev=tr.querySelector('td'); if(!ev) return;
@@ -130,7 +134,7 @@
   function mesAno(){ var m=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; var d=new Date(); return m[d.getMonth()]+' · '+d.getFullYear(); }
   async function renderInsights(){
     var box=document.getElementById('insights'); if(!box) return;
-    var selD=await bcb(SGS.SELIC,1,TTL.rate), f=await focus12m(), usdD=await bcb(SGS.USD,1,TTL.daily);
+    var selD=await bcb(SGS.SELIC,140,TTL.rate,1), f=await focus12m(), usdD=await bcb(SGS.USD,30,TTL.daily,1);
     var selic=selD?v(selD[selD.length-1]):null, infE=f?f.Mediana:null, usd=usdD?v(usdD[usdD.length-1]):null;
     var jr = (selic!=null&&infE!=null) ? ((1+selic/100)/(1+infE/100)-1)*100 : null;
     var arts=box.querySelectorAll('.term-insight');
@@ -163,7 +167,7 @@
     var ok=res.some(function(r){return r.status==='fulfilled' && r.value!==false && r.value!==undefined;});
     stamp(true);
   }
-  function boot(){ runAll(); setInterval(runAll, 5*60*1000); }
+  function boot(){ setTimeout(runAll, 2500); setTimeout(runAll, 7000); setInterval(runAll, 5*60*1000); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
   // hooks de teste
