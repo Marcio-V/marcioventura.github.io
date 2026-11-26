@@ -423,6 +423,44 @@
     recompute();
   }
 
+  // ═══════════ 10 · CURVA DE JUROS (prefixada Tesouro, hoje vs 1s/1m/1a) ═══════════
+  async function renderCurva(){
+    var canvas=document.querySelector('canvas[data-chart="curva"]');
+    var J=null; try{ J=await fetch('/assets/data/curva-di.json?v='+Math.floor(Date.now()/3e5)).then(function(r){return r.ok?r.json():null;}); }catch(e){}
+    if(!J||!J.curvas||!J.curvas.hoje) return;
+    var C=J.curvas, H=C.hoje;
+    function mb(sel,txt,cls){ var e=document.querySelector('[data-macro="'+sel+'"]'); if(e){ e.textContent=txt; if(cls){ e.classList.remove('up','down'); e.classList.add(cls); } } }
+    function tn(c,t){ if(!c)return null; var p=c.pts.filter(function(x){return x.tenor===t;})[0]; return p?p.taxa:null; }
+    var c1=tn(H,1), c10=tn(H,10);
+    if(c1!=null) mb('curva-curto', nf(c1,2)+'%');
+    if(c10!=null) mb('curva-longo', nf(c10,2)+'%');
+    if(c1!=null&&c10!=null){ var incl=(c10-c1)*100; mb('curva-incl',(incl>=0?'+':'')+incl.toFixed(0)+' bps', incl>=0?'up':'down');
+      var d=document.querySelector('[data-macro="curva-incl-desc"]'); if(d) d.textContent=incl>=0?'curva normal (positiva)':'curva invertida'; }
+    mb('curva-data', H.refdate);
+    if(canvas&&typeof Chart!=='undefined'){
+      var labels=H.pts.map(function(p){return p.label;});
+      function ds(c,label,color,dash,fill){ if(!c)return null; return {label:label,data:c.pts.map(function(p){return p.taxa;}),borderColor:color,backgroundColor:fill||'transparent',borderWidth:dash?1.4:2.4,borderDash:dash||[],fill:!!fill,tension:0.3,pointRadius:0,pointHoverRadius:4}; }
+      var datasets=[ds(C.ano,'1 ano atrás','rgba(139,152,165,0.55)',[2,3]),ds(C.mes,'1 mês atrás','#f0a830',[5,4]),ds(C.semana,'1 semana atrás','#a371f7',[4,3]),ds(H,'Hoje','#4da3ff',null,'rgba(77,163,255,0.08)')].filter(Boolean);
+      var prev=(window.Chart&&Chart.getChart)?Chart.getChart(canvas):null; if(prev)prev.destroy();
+      var opt={ responsive:true, maintainAspectRatio:false, interaction:{intersect:false,mode:'index'},
+        plugins:{ legend:{display:true,labels:{color:'#8b98a5',font:{size:10},usePointStyle:true,boxWidth:8}},
+          tooltip:{backgroundColor:'#161c21',borderColor:'#2a3138',borderWidth:1,titleColor:'#e6e6e6',bodyColor:'#e6e6e6',
+            callbacks:{label:function(x){return x.dataset.label+': '+(x.parsed.y!=null?nf(x.parsed.y,2)+'%':'—');}}} },
+        scales:{ x:{grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#8b98a5',font:{size:9}}},
+          y:{grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#8b98a5',font:{size:9},callback:function(v){return v+'%';}}} } };
+      new Chart(canvas, {type:'line', data:{labels:labels, datasets:datasets}, options:opt});
+    }
+    var cap=document.querySelector('#curva .term-prose');
+    if(cap && c1!=null && c10!=null){
+      function cmp(nome,c){ if(!c)return null; var o10=tn(c,10),o1=tn(c,1); if(o10==null||o1==null)return null;
+        var d10=(c10-o10)*100, dsl=((c10-c1)-(o10-o1))*100, mov=d10>5?'abrindo':d10<-5?'fechando':'estável', st=dsl>3?'inclinando':dsl<-3?'achatando':'';
+        return 'vs '+nome+': '+(d10>=0?'+':'')+d10.toFixed(0)+' bps no 10A ('+mov+(st?', '+st:'')+')'; }
+      var parts=[cmp('1 sem',C.semana),cmp('1 mês',C.mes),cmp('1 ano',C.ano)].filter(Boolean);
+      cap.innerHTML='Curva prefixada do Tesouro (LTN/NTN-F) · ref '+H.refdate+'. '+parts.join(' · ')+'. <span style="color:#5a6570;">Fonte: Tesouro Transparente (GitHub Action).</span>';
+    }
+    return true;
+  }
+
   // ─────────── Orquestração + auto-refresh ───────────
   var passes=0;
   function setLoading(){
@@ -438,7 +476,7 @@
   }
   async function runAll(){
     passes++;
-    var res=await Promise.allSettled([renderHeat(),renderCenarios(),renderRegime(),renderInsights(),renderMonetaria()]);
+    var res=await Promise.allSettled([renderHeat(),renderCenarios(),renderRegime(),renderInsights(),renderMonetaria(),renderCurva()]);
     var ok=res.some(function(r){return r.status==='fulfilled' && r.value!==false && r.value!==undefined;});
     stamp(true);
   }
@@ -451,5 +489,5 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
   // hooks de teste
-  if(typeof window!=='undefined') window.__ML={trend:trend, accum12:accum12, HEAT:HEAT, renderHeat:renderHeat, renderCenarios:renderCenarios, renderRegime:renderRegime, renderInsights:renderInsights, runAll:runAll};
+  if(typeof window!=='undefined') window.__ML={renderCurva:renderCurva,trend:trend, accum12:accum12, HEAT:HEAT, renderHeat:renderHeat, renderCenarios:renderCenarios, renderRegime:renderRegime, renderInsights:renderInsights, runAll:runAll};
 })();

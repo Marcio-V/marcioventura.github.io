@@ -1,97 +1,98 @@
 #!/usr/bin/env python3
 """
-Baixa a ETTJ Prefixada (curva DI) da ANBIMA e salva como JSON.
-Executado pelo GitHub Action diariamente após o fechamento.
-Fonte: https://www.anbima.com.br/informacoes/est-termo/
+Atualiza a curva prefixada (Tesouro Direto) a partir do CSV oficial do
+Tesouro Transparente, com as curvas de hoje, 1 semana, 1 mês e 1 ano atrás.
+Executado pelo GitHub Action diariamente. Fonte (dataset público):
+https://www.tesourotransparente.gov.br/ckan/dataset/taxas-dos-titulos-ofertados-pelo-tesouro-direto
+Falha com exit!=0 se não conseguir dados frescos (para o Action ficar VERMELHO
+e a defasagem ser visível, em vez de congelar em silêncio).
 """
-import json
-import sys
-from datetime import datetime
+import csv, io, json, sys
+from datetime import datetime, timedelta
 from urllib.request import urlopen, Request
 
-# Vértices ANBIMA fixos (dias úteis) e seus rótulos
-VERTICES = [
-    (21, 0.08, "1M"), (42, 0.17, "2M"), (63, 0.25, "3M"),
-    (126, 0.5, "6M"), (252, 1, "1A"), (378, 1.5, "1A6M"),
-    (504, 2, "2A"), (630, 2.5, "2A6M"), (756, 3, "3A"),
-    (1008, 4, "4A"), (1260, 5, "5A"), (1512, 6, "6A"),
-    (1764, 7, "7A"), (2016, 8, "8A"), (2268, 9, "9A"),
-    (2520, 10, "10A"),
-]
+CSV_URL = ("https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/"
+           "resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/PrecoTaxaTesouroDireto.csv")
+PREFIXADOS = {"Tesouro Prefixado", "Tesouro Prefixado com Juros Semestrais"}
+TENORS = [0.5, 1, 2, 3, 5, 7, 10]            # anos p/ grade comum
+TENOR_LABELS = {0.5:"6M",1:"1A",2:"2A",3:"3A",5:"5A",7:"7A",10:"10A"}
+JANELAS = {"hoje":0, "semana":7, "mes":30, "ano":365}
+WINDOW_BACK = 8                               # recua até N dias p/ achar dia útil
 
-# URL do arquivo CSV da ANBIMA (ETTJ do dia mais recente)
-ANBIMA_URL = "https://www.anbima.com.br/informacoes/est-termo/CZ-down.asp"
+def pdate(s): return datetime.strptime(s.strip(), "%d/%m/%Y").date()
+def pnum(s):  return float(s.strip().replace(".", "").replace(",", "."))
 
-def baixar_curva():
-    """
-    Baixa o CSV da ANBIMA. O endpoint CZ-down.asp aceita parâmetros POST
-    com a data; sem data, retorna o pregão mais recente.
-    """
-    hoje = datetime.now().strftime("%d/%m/%Y")
-    payload = f"Idioma=PT&Dt_Ref={hoje}&saida=csv&Escolha=1&Inicio={hoje}".encode()
-    req = Request(ANBIMA_URL, data=payload, headers={
-        "User-Agent": "Mozilla/5.0",
-        "Content-Type": "application/x-www-form-urlencoded",
-    })
-    with urlopen(req, timeout=30) as r:
-        return r.read().decode("latin-1")
+def baixar_linhas():
+    req = Request(CSV_URL, headers={"User-Agent": "Mozilla/5.0"})
+    r = urlopen(req, timeout=120)
+    return io.TextIOWrapper(r, encoding="latin-1", newline="")
 
-def parse_csv(texto):
-    """Extrai os pares (du, taxa) da curva PREFIXADA do CSV ANBIMA."""
-    taxas = {}
-    for linha in texto.splitlines():
-        partes = [p.strip() for p in linha.split(";")]
-        # Formato esperado: vértice(du) ; ETTJ IPCA ; ETTJ PRE ; ...
-        if len(partes) >= 3:
-            try:
-                du = int(partes[0].replace(".", ""))
-                # A coluna PRE é a 3ª (índice 2). Vírgula decimal BR.
-                pre = float(partes[2].replace(".", "").replace(",", "."))
-                if 0 < pre < 100:
-                    taxas[du] = pre
-            except (ValueError, IndexError):
-                continue
-    return taxas
+def coletar(alvos):
+    """Lê o CSV uma vez; guarda, por data-base dentro das janelas-alvo, os pontos prefixados."""
+    low = min(a - timedelta(days=WINDOW_BACK) for a in alvos.values())
+    high = max(alvos.values())
+    porbase = {}  # date -> list[(ttm_anos, venc, taxa)]
+    reader = csv.reader(baixar_linhas(), delimiter=";")
+    header = next(reader, None)
+    for row in reader:
+        if len(row) < 4: continue
+        tipo = row[0].strip()
+        if tipo not in PREFIXADOS: continue
+        try:
+            venc = pdate(row[1]); base = pdate(row[2]); taxa = pnum(row[3])  # Taxa Compra Manhã
+        except (ValueError, IndexError):
+            continue
+        if base < low or base > high: continue
+        ttm = (venc - base).days / 365.25
+        if ttm <= 0 or not (0 < taxa < 100): continue
+        porbase.setdefault(base, []).append((ttm, venc.isoformat(), taxa))
+    return porbase
+
+def interp(pts, tenor):
+    """Interpola linearmente a taxa no prazo 'tenor' (anos). pts ordenado por ttm."""
+    xs = [p[0] for p in pts]; ys = [p[2] for p in pts]
+    if tenor <= xs[0]:  return ys[0]
+    if tenor >= xs[-1]: return ys[-1]
+    for i in range(1, len(xs)):
+        if tenor <= xs[i]:
+            x0,x1,y0,y1 = xs[i-1],xs[i],ys[i-1],ys[i]
+            return y0 + (y1-y0)*(tenor-x0)/(x1-x0)
+    return ys[-1]
+
+def curva_para(porbase, alvo):
+    """Pega a data-base disponível <= alvo mais recente e monta a curva na grade de tenores."""
+    bases = sorted([b for b in porbase if b <= alvo], reverse=True)
+    if not bases: return None
+    base = bases[0]
+    pts = sorted(porbase[base], key=lambda x: x[0])
+    if len(pts) < 2: return None
+    grade = [{"tenor": t, "label": TENOR_LABELS[t], "taxa": round(interp(pts, t), 4)} for t in TENORS]
+    return {"refdate": base.strftime("%d/%m/%Y"), "pts": grade}
 
 def main():
+    hoje = datetime.now().date()
+    alvos = {k: hoje - timedelta(days=d) for k, d in JANELAS.items()}
     try:
-        csv = baixar_curva()
-        taxas = parse_csv(csv)
-        if not taxas:
-            print("AVISO: nenhuma taxa extraída. Mantendo JSON anterior.", file=sys.stderr)
-            sys.exit(0)  # não falha o build; mantém dados antigos
+        porbase = coletar(alvos)
     except Exception as e:
-        print(f"AVISO: falha ao baixar ANBIMA ({e}). Mantendo JSON anterior.", file=sys.stderr)
-        sys.exit(0)
-
-    # Monta os vértices, casando os DU disponíveis
-    vertices = []
-    for du, anos, label in VERTICES:
-        # acha a taxa mais próxima do vértice
-        taxa = taxas.get(du)
-        if taxa is None:
-            # interpola pelo DU mais próximo disponível
-            if taxas:
-                du_proximo = min(taxas.keys(), key=lambda x: abs(x - du))
-                if abs(du_proximo - du) <= 130:
-                    taxa = taxas[du_proximo]
-        if taxa is not None:
-            vertices.append({"du": du, "anos": anos, "label": label, "taxa": round(taxa, 4)})
-
-    if len(vertices) < 5:
-        print("AVISO: poucos vértices válidos. Mantendo JSON anterior.", file=sys.stderr)
-        sys.exit(0)
-
+        print(f"ERRO: falha ao baixar/ler o CSV do Tesouro ({e})", file=sys.stderr)
+        sys.exit(1)
+    curvas = {}
+    for k, alvo in alvos.items():
+        c = curva_para(porbase, alvo)
+        if c: curvas[k] = c
+    if "hoje" not in curvas:
+        print("ERRO: sem curva recente (hoje) — não atualiza.", file=sys.stderr)
+        sys.exit(1)
     saida = {
-        "refdate": datetime.now().strftime("%Y-%m-%d"),
-        "fonte": "ANBIMA — ETTJ Prefixada (DI x PRE)",
-        "atualizado_em": datetime.now().strftime("%Y-%m-%d"),
-        "vertices": vertices,
+        "refdate": datetime.strptime(curvas["hoje"]["refdate"], "%d/%m/%Y").strftime("%Y-%m-%d"),
+        "fonte": "Tesouro Direto — prefixados (LTN/NTN-F), via Tesouro Transparente",
+        "atualizado_em": hoje.strftime("%Y-%m-%d"),
+        "curvas": curvas,
     }
-
     with open("assets/data/curva-di.json", "w", encoding="utf-8") as f:
         json.dump(saida, f, ensure_ascii=False, indent=2)
-    print(f"✓ Curva DI atualizada: {len(vertices)} vértices, ref {saida['refdate']}")
+    print(f"✓ Curva atualizada: ref {saida['refdate']} · janelas: {', '.join(curvas.keys())}")
 
 if __name__ == "__main__":
     main()
