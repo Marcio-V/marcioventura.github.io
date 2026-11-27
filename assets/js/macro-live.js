@@ -260,10 +260,10 @@
   }
   // Selic diária desde ~2015 em duas janelas (contorna o limite de 10 anos)
   async function selicDaily(){
-    var ck='selicD', c=cg(ck,TTL.rate); if(c) return c;
-    var a=await bcbRange(SGS.SELIC,135,16), b=await bcbRange(SGS.SELIC,16,0);
-    var out=(a||[]).concat(b||[]);
-    if(out.length){ cs(ck,out); return out; }
+    // Uma única janela <= 10 anos (limite do BCB p/ série diária); robusto, com retry em bcbRange.
+    var ck='selicM3', c=cg(ck,TTL.rate); if(c&&c.length>400) return c;
+    var d=await bcbRange(SGS.SELIC,119,0);
+    if(d&&d.length){ cs(ck,d); return d; }
     return null;
   }
 
@@ -353,7 +353,7 @@
     if(!monHist){ var ok=await buildMonHist(); if(!ok) return; }
     drawMon(canvas); bindTaylor(); updateTaylorReadout();
     var ti=document.querySelector('#monetaria .term-chart-title');
-    if(ti) ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor — desde 2016 (forecast Focus)';
+    if(ti){ var ini=(monHist&&monHist.labels&&monHist.labels[0])?monHist.labels[0]:''; ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor'+(ini?' — desde '+ini:'')+' (forecast Focus)'; }
     return true;
   }
 

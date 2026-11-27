@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Curva de Juros (modulo 10): baixa o CSV do Tesouro VIA SEU WORKER (contorna bloqueio de IP do
-# GitHub Actions no servidor do Tesouro) e sobrepoe hoje x 1 semana/mes/ano.
-# Uso: bash curva-tesouro.sh https://SEU-WORKER.workers.dev/   (ou sem URL)
+# (1) Modulo 04: conserta o grafico da Selic — historico mensal unico e robusto (~10 anos).
+# (2) Modulo 10: curva do Tesouro baixada via Worker (contorna bloqueio de IP do Action).
+# Uso: bash curva-tesouro.sh https://SEU-WORKER.workers.dev/
 set -e
 if [ ! -f _config.yml ]; then echo "ERRO: rode na raiz do repo."; exit 1; fi
 mkdir -p scripts assets/js
@@ -395,10 +395,10 @@ cat > assets/js/macro-live.js <<'MLJS_EOF'
   }
   // Selic diária desde ~2015 em duas janelas (contorna o limite de 10 anos)
   async function selicDaily(){
-    var ck='selicD', c=cg(ck,TTL.rate); if(c) return c;
-    var a=await bcbRange(SGS.SELIC,135,16), b=await bcbRange(SGS.SELIC,16,0);
-    var out=(a||[]).concat(b||[]);
-    if(out.length){ cs(ck,out); return out; }
+    // Uma única janela <= 10 anos (limite do BCB p/ série diária); robusto, com retry em bcbRange.
+    var ck='selicM3', c=cg(ck,TTL.rate); if(c&&c.length>400) return c;
+    var d=await bcbRange(SGS.SELIC,119,0);
+    if(d&&d.length){ cs(ck,d); return d; }
     return null;
   }
 
@@ -488,7 +488,7 @@ cat > assets/js/macro-live.js <<'MLJS_EOF'
     if(!monHist){ var ok=await buildMonHist(); if(!ok) return; }
     drawMon(canvas); bindTaylor(); updateTaylorReadout();
     var ti=document.querySelector('#monetaria .term-chart-title');
-    if(ti) ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor — desde 2016 (forecast Focus)';
+    if(ti){ var ini=(monHist&&monHist.labels&&monHist.labels[0])?monHist.labels[0]:''; ti.textContent='Selic · IPCA 12M · meta e bandas · Regra de Taylor'+(ini?' — desde '+ini:'')+' (forecast Focus)'; }
     return true;
   }
 
@@ -633,5 +633,5 @@ p="assets/js/macro-live.js"; s=open(p,encoding="utf-8").read(); s=s.replace("var
 PY2
 else echo "  - sem URL do Worker"; fi
 echo ""
-echo "==> 1) git add -A && git commit -m \"fix: curva via Worker\" && git push"
-echo "    2) GitHub > Actions > Atualizar Curva DI (ANBIMA) > Run workflow (main)"
+echo "==> 1) git add -A && git commit -m \"fix: selic mensal + curva via worker\" && git push"
+echo "    2) (curva) Actions > Atualizar Curva DI (ANBIMA) > Run workflow (main)"
