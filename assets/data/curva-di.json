@@ -1,7 +1,7 @@
 {
   "refdate": "2026-11-25",
   "fonte": "Tesouro Direto — prefixados (LTN/NTN-F), via Tesouro Transparente",
-  "atualizado_em": "2026-11-26",
+  "atualizado_em": "2026-11-27",
   "curvas": {
     "hoje": {
       "refdate": "25/11/2026",
@@ -84,82 +84,82 @@
       ]
     },
     "mes": {
-      "refdate": "27/10/2026",
+      "refdate": "28/10/2026",
       "pts": [
         {
           "tenor": 0.5,
           "label": "6M",
-          "taxa": 13.7527
+          "taxa": 13.7226
         },
         {
           "tenor": 1,
           "label": "1A",
-          "taxa": 14.2581
+          "taxa": 14.2079
         },
         {
           "tenor": 2,
           "label": "2A",
-          "taxa": 14.8001
+          "taxa": 14.7905
         },
         {
           "tenor": 3,
           "label": "3A",
-          "taxa": 14.8228
+          "taxa": 14.8337
         },
         {
           "tenor": 5,
           "label": "5A",
-          "taxa": 15.0528
+          "taxa": 15.0711
         },
         {
           "tenor": 7,
           "label": "7A",
-          "taxa": 15.0536
+          "taxa": 15.0713
         },
         {
           "tenor": 10,
           "label": "10A",
-          "taxa": 14.9391
+          "taxa": 14.8843
         }
       ]
     },
     "ano": {
-      "refdate": "26/11/2025",
+      "refdate": "27/11/2025",
       "pts": [
         {
           "tenor": 0.5,
           "label": "6M",
-          "taxa": 14.2956
+          "taxa": 14.2876
         },
         {
           "tenor": 1,
           "label": "1A",
-          "taxa": 13.5801
+          "taxa": 13.5671
         },
         {
           "tenor": 2,
           "label": "2A",
-          "taxa": 12.8191
+          "taxa": 12.7981
         },
         {
           "tenor": 3,
           "label": "3A",
-          "taxa": 12.8131
+          "taxa": 12.7752
         },
         {
           "tenor": 5,
           "label": "5A",
-          "taxa": 13.1653
+          "taxa": 13.1067
         },
         {
           "tenor": 7,
           "label": "7A",
-          "taxa": 13.4611
+          "taxa": 13.3813
         },
         {
           "tenor": 10,
           "label": "10A",
-          "taxa": 13.54
+          "taxa": 13.46
         }
       ]
     }
